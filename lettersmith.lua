@@ -14,16 +14,23 @@ local function is_dir(path)
 end
 exports.is_dir = is_dir
 
+-- @fixme will need to implement a path helper function to make this
+-- work properly. Right now making terrible assumptions about path not being
+-- trailing slashed, being valid subpath without resolution etc.
+local function join_paths(a, b)
+  return a .. '/' .. b
+end
+exports.join_paths = join_paths
+
 local function walk_and_insert_filepaths(t, path)
   for f in lfs.dir(path) do
-    -- @fixme will need to implement a path helper function to make this
-    -- work properly
+    local filepath = join_paths(path, f)
     if f == '.' or f == '..' then
-      -- do nothing      
-    elseif is_dir(path .. '/' .. f) then
-      walk_and_insert_filepaths(t, path .. '/' .. f)
+      -- do nothing
+    elseif is_dir(filepath) then
+      walk_and_insert_filepaths(t, filepath)
     else
-      table.insert(t, path .. '/' .. f)
+      table.insert(t, filepath)
     end
   end
   return t
@@ -54,6 +61,8 @@ function to_doc(string)
 end
 
 function set_relative_filepath(doc, relative_filepath)
+  -- Used to set filepath on documents in `docs` function.
+  -- Not terribly useful in a broad context.
   doc.relative_filepath = relative_filepath
   return doc
 end
