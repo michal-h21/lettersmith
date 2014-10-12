@@ -8,8 +8,10 @@ local function split_headmatter(str)
   -- Returns two strings, a headmatter string (which may or may not
   -- be empty) and the rest of the content string.
 
+  local delimiter = "%-+\n"
+
   -- Look for headmatter start tag.
-  local headmatter_open_start, headmatter_open_end = str:find("%-+")
+  local headmatter_open_start, headmatter_open_end = str:find(delimiter)
 
   -- If no headmatter is present, return an empty table and string
   if headmatter_open_start == nil or headmatter_open_start > 1 then
@@ -17,7 +19,7 @@ local function split_headmatter(str)
   end
 
   local headmatter_close_start, headmatter_close_end =
-    str:find("%-+", headmatter_open_end + 1)
+    str:find(delimiter, headmatter_open_end + 1)
 
   local headmatter =
     str:sub(headmatter_open_end + 1, headmatter_close_start - 1)
