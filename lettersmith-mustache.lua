@@ -5,11 +5,11 @@ Template your docs with mustache.
 
 Usage:
 
-    local mustache = require('lettersmith-mustache')
+    local use_mustache = require('lettersmith-mustache')
     local lettersmith = require('lettersmith')
-    local docs = lettersmith.docs('raw')
+    local docs = lettersmith.docs("raw")
 
-    build(mustache(docs, 'templates'))
+    build(use_mustache(docs, "templates"), "out")
 
 Lettersmith `mustache` takes 2 arguments: the docs list and a relative path
 to the templates directory.

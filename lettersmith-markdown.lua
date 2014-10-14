@@ -5,11 +5,11 @@ Renders markdown files (.md, .markdown, .mdown).
 
 Usage:
 
-    local markdown = require('lettersmith-markdown')
+    local use_markdown = require('lettersmith-markdown')
     local lettersmith = require('lettersmith')
 
-    local docs = lettersmith.docs('raw')
-    build(markdown(docs))
+    local docs = lettersmith.docs("raw")
+    build(use_markdown(docs), "out")
 --]]
 local markdown = require('discount')
 
