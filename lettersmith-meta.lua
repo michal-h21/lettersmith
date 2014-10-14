@@ -1,3 +1,21 @@
+--[[
+Lettersmith Meta
+
+Add metadata to every doc object. This is useful for things like site meta.
+
+Usage:
+
+    local meta = require('lettersmith-meta')
+    local lettersmith = require('lettersmith')
+    local docs = lettersmith.docs('raw')
+
+    local site_meta = {
+      site_title = "My Website",
+      site_url = "http://example.com"
+    }
+
+    build(meta(docs, site_meta))
+--]]
 local list = require('colist')
 local map = list.map
 
