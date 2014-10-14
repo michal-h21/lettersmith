@@ -1,3 +1,5 @@
+local exports = {}
+
 local lfs = require('lfs')
 local attributes = lfs.attributes
 
@@ -7,9 +9,13 @@ local zip_with = list.zip_with
 local collect = list.collect
 local lazy = list.lazy
 
-local headmatter = require('headmatter')
+local util = require('util')
+local merge = util.merge
+exports.merge = merge
+local contains_any = util.contains_any
+exports.contains_any = contains_any
 
-local exports = {}
+local headmatter = require('headmatter')
 
 local function is_dir(path)
   return attributes(path, "mode") == "directory"
@@ -20,15 +26,6 @@ local function is_file(path)
   return attributes(path, "mode") == "file"
 end
 exports.is_file = is_file
-
-local function contains_any(s, patterns)
-  for _, pattern in pairs(patterns) do
-    local i = s:find(pattern)
-    if i ~= nil then return true end
-  end
-  return false
-end
-exports.contains_any = contains_any
 
 -- @fixme will need to implement a path helper function to make this
 -- work properly. Right now making terrible assumptions about path not being
@@ -72,6 +69,7 @@ local function write_entire_file(filepath, contents)
   f:close()
   return contents
 end
+exports.write_entire_file = write_entire_file
 
 local function to_doc(s)
   -- Get YAML table and contents from headmatter parser
@@ -81,6 +79,28 @@ local function to_doc(s)
   head.contents = contents
   return head
 end
+
+-- A convenience function for writing renderers.
+-- Provide a list of file extensions and a render function.
+-- Returns a mapping function that will render all matching files in `docs`,
+-- returning new generator list of rendered `docs`.
+local function renderer(exts, render)
+  return function (docs)
+    return map(docs, function (doc)
+      -- Skip docs not matching extension
+      if not contains_any(doc.relative_filepath, exts) then return doc end
+
+      -- Render contents
+      local rendered = render(doc.contents)
+
+      -- Return new shallow-copied doc with rendered contents
+      return merge(doc, {
+        contents = rendered
+      })
+    end)
+  end
+end
+exports.renderer = renderer
 
 local function docs(path)
   -- Walk directory, creating doc objects from files.
