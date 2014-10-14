@@ -1,16 +1,5 @@
 local exports = {}
 
-local function split(s, delimiter)
-  local result = {}
-  -- Note that gmatch matches the "non-delimiter text". So we'll append
-  -- a delimiter as a trick
-  for match in (s..delimiter):gmatch("(.-)"..delimiter) do
-    table.insert(result, match)
-  end
-  return result
-end
-exports.split = split
-
 local function extend(a, b)
   -- Set values of b on a, mutating a
   -- Returns a
