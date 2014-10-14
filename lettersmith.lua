@@ -1,9 +1,11 @@
 local lfs = require('lfs')
 local attributes = lfs.attributes
 
-local listable = require('listable')
-local map = listable.map
-local zip_with = listable.zip_with
+local list = require('colist')
+local map = list.map
+local zip_with = list.zip_with
+local collect = list.collect
+local lazy = list.lazy
 
 local headmatter = require('headmatter')
 
@@ -14,6 +16,20 @@ local function is_dir(path)
 end
 exports.is_dir = is_dir
 
+local function is_file(path)
+  return attributes(path, "mode") == "file"
+end
+exports.is_file = is_file
+
+local function contains_any(s, patterns)
+  for _, pattern in pairs(patterns) do
+    local i = s:find(pattern)
+    if i ~= nil then return true end
+  end
+  return false
+end
+exports.contains_any = contains_any
+
 -- @fixme will need to implement a path helper function to make this
 -- work properly. Right now making terrible assumptions about path not being
 -- trailing slashed, being valid subpath without resolution etc.
@@ -22,26 +38,25 @@ local function join_paths(a, b)
 end
 exports.join_paths = join_paths
 
-local function walk_and_insert_filepaths(t, path)
+local function walk_and_yield_filepaths(path)
   for f in lfs.dir(path) do
     local filepath = join_paths(path, f)
-    if f == '.' or f == '..' then
-      -- do nothing
-    elseif is_dir(filepath) then
-      walk_and_insert_filepaths(t, filepath)
-    else
-      table.insert(t, filepath)
+
+    if is_file(filepath) then
+      -- @TODO might consider yielding useful numbered key here.
+      coroutine.yield("Filepath", filepath)
+    elseif is_dir(filepath) and f ~= '.' and f ~= '..' then
+      walk_and_yield_filepaths(filepath)
     end
   end
-  return t
 end
 
 local function walk_filepaths(path)
-  return walk_and_insert_filepaths({}, path)
+  return coroutine.wrap(function () walk_and_yield_filepaths(path) end)
 end
 exports.walk_filepaths = walk_filepaths
 
-local function read_file_to_end(filepath)
+local function read_entire_file(filepath)
   -- Read entire contents of file and return as string.
   -- Will return string, or throw error if file can not be read.
   local f = assert(io.open(filepath, "r"))
@@ -49,52 +64,59 @@ local function read_file_to_end(filepath)
   f:close()
   return contents
 end
-exports.read_file_to_end = read_file_to_end
+exports.read_entire_file = read_entire_file
 
-function to_doc(string)
+local function write_entire_file(filepath, contents)
+  local f = assert(io.open(filepath, "w"))
+  f:write(contents)
+  f:close()
+  return contents
+end
+
+local function to_doc(s)
   -- Get YAML table and contents from headmatter parser
-  local head, contents = headmatter.parse(string)
+  local head, contents = headmatter.parse(s)
   -- Since head is a new table, go ahead and mutate it, setting contents
   -- as field.
   head.contents = contents
   return head
 end
 
-function set_relative_filepath(doc, relative_filepath)
-  -- Used to set filepath on documents in `docs` function.
-  -- Not terribly useful in a broad context.
-  doc.relative_filepath = relative_filepath
-  return doc
-end
-
--- @TODO still need to handle non-text-files separately. We don't want them
--- being templated after all. Then again, using a template meta should take
--- care of it.
 local function docs(path)
+  -- Walk directory, creating doc objects from files.
+  -- Returns a generator function of doc objects.
+  -- Warning: generator may only be consumed once! If you need to consume it
+  -- more than once, call `docs` again, or use `collect` to load all docs into
+  -- an array table.
+
   local filepaths = walk_filepaths(path)
 
-  -- Read all filepaths into strings.
-  local filestrings = map(filepaths, read_file_to_end)
+  return map(filepaths, function (filepath)
+    -- Read all filepaths into strings.
+    -- Parse strings into doc objects.
+    local doc = to_doc(read_entire_file(filepath))
 
-  -- Parse strings into doc objects. These docs are orphaned because they
-  -- have no `relative_filepath` field.
-  local orphaned_docs = map(filestrings, to_doc)
-
-  -- Relativize filepaths... This is a bit of a cludge. I would prefer to have
-  -- absolute filepaths at all times, but relativized is so useful because it
-  -- can be used for URLs too.
-  local relative_filepaths = map(filepaths, function (filepath)
+    -- Relativize filepaths... This is a bit of a cludge. I would prefer to have
+    -- absolute filepaths at all times, but relativized is so useful because it
+    -- can be used for URLs too.
     -- @fixme this should be a proper relativize function. Lots of assumptions
     -- being made here.
-    return string.gsub(filepath, path .. "/", "")
-  end)
+    local relative_filepath = string.gsub(filepath, path .. "/", "")
 
-  -- Set relative filepath on docs and return
-  return zip_with(orphaned_docs, relative_filepaths, set_relative_filepath)
+    -- Set relative_filepath on doc
+    doc.relative_filepath = relative_filepath
+
+    return doc
+  end)
 end
 exports.docs = docs
 
-function build(path, docs)
+-- @FIXME have to create files/directories when they don't exist.
+local function build(path, docs)
+  for i, doc in docs do
+    write_entire_file(join_paths(path, doc.relative_filepath), doc.contents)
+  end
 end
+exports.build = build
 
 return exports
