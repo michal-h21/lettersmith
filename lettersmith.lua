@@ -132,7 +132,7 @@ end
 exports.docs = docs
 
 -- @FIXME have to create files/directories when they don't exist.
-local function build(path, docs)
+local function build(docs, path)
   for i, doc in docs do
     write_entire_file(join_paths(path, doc.relative_filepath), doc.contents)
   end
