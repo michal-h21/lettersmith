@@ -34,6 +34,7 @@ lettersmith.build("out", docs)
 
 That's it!
 
+
 Plugins
 -------
 
@@ -47,6 +48,32 @@ Lettersmith comes with a few useful plugins out of the box:
 * Hide draft posts with `lettersmith-drafts`
 
 Of course, this are just a start. If you see something missing, adding it is as easy as adding a function.
+
+
+Misc thoughts
+-------------
+
+I don't mind this:
+
+    local docs = lettersmith.docs('raw')
+    docs = markdown(docs)
+    docs = mustache(docs, 'templates')
+
+But I know some people prefer method chaining or composition. If plugins consumed and returned only `docs`, and all other methods were curried:
+
+    local docs = pipe(lettersmith.docs('raw'), site_meta, markdown, mustache)
+
+Not bad. It's terse, but there is a loss of obviousness. Maybe the better approach is simply to build a DSL or use YAML config (if you want it).
+
+    {
+        markdown = {},
+        meta = { site_title: 'My website' }
+        mustache = { 'templates' }
+    }
+
+---
+
+Entire themes could be built as single functions. You could wrap markdown, mustache and a bunch of template and CSS files into a package, then import it.
 
 
 License
