@@ -1,3 +1,29 @@
+--[[
+Lettersmith Mustache
+
+Template your docs with mustache.
+
+Usage:
+
+    local mustache = require('lettersmith-mustache')
+    local lettersmith = require('lettersmith')
+    local docs = lettersmith.docs('raw')
+
+    build(mustache(docs, 'templates'))
+
+Lettersmith `mustache` takes 2 arguments: the docs list and a relative path
+to the templates directory.
+
+The function will only template files that have a `template` field in their
+headmatter. If the file name provided in the `template` field is invalid,
+an error will be thrown.
+
+Note that after you've templated your docs, the `contents` field will contain
+all of the HTML, including the template. If you want to keep the raw contents
+around, you can copy the docs list, or simply copy the contents field to
+another field before templating.
+--]]
+
 local lustache = require('lustache')
 
 local list = require('colist')
