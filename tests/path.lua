@@ -22,6 +22,12 @@ suite("path.unshift(s)", function ()
   local z = x == "foo" and y == "bar/baz"
   test(z, "Handles foo/bar/baz")
 
+  local x, y = path.unshift("/foo/bar")
+  local z = x == "/" and y == "foo/bar"
+  test(z, "Handles /foo/bar")
+
+  test(path.unshift("bar/") == "bar", "Handles bar/ correctly")
+
   -- @fixme handle this case better
   -- test(path.unshift("./"))
 end)
@@ -40,4 +46,12 @@ end)
 
 suite("path.join()", function ()
   test(path.join("..", "foo") == "../foo", ".., foo joined to ../foo")
+end)
+
+suite("path.parts(s)", function ()
+  local parts = path.parts('/foo/bar/baz')
+  local a = parts() == '/'
+  local b = parts() == 'foo'
+  local c = parts() == 'bar'
+  test(a and b and c, "Handles /foo/bar/baz")
 end)

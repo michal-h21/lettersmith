@@ -92,14 +92,27 @@ end
 function path.unshift(s)
   -- Return the highest-level portion of a path (it's a split on `/`), along
   -- with the rest of the path string.
+
   -- @fixme this function works but is still a bit naive. Maybe path.normalize
   -- first?
+
   local i = s:find('/')
+
   if i == nil then return s end
+
   -- Return head, the rest
-  return s:sub(1, i - 1), s:sub(i + 1)
+  local head, rest = s:sub(1, i), s:sub(i + 1)
+  return path.remove_trailing_slash(head), rest
 end
 
 -- @todo path.parts generator function
+function path.parts(s)
+  local head, rest = "", s
+
+  return function ()
+    head, rest = path.unshift(rest)
+    return head, rest
+  end
+end
 
 return path
