@@ -44,6 +44,21 @@ lettersmith.build(docs, "out")
 ```
 
 
+Plugins
+-------
+
+Extending Lettersmith with new functionality is easy. There are no fancy plugin conventions to learn, just modify the documents list!
+
+Lettersmith comes with a few useful plugins out of the box:
+
+* Render markdown posts with `lettersmith-markdown`
+* Add site metadata to posts with `lettersmith-meta`
+* Mustache templates with `lettersmith-mustache`
+* Hide draft posts with `lettersmith-drafts`
+
+Of course, this are just a start. If you see something missing, adding it is as easy as adding a function.
+
+
 Manipulating your files
 -----------------------
 
@@ -73,20 +88,6 @@ for doc in docs do print(doc.contents) end
 -- "..."
 ```
 
-
-Plugins
--------
-
-Extending Lettersmith with new functionality is easy. There are no fancy plugin conventions to learn, just modify the documents list!
-
-Lettersmith comes with a few useful plugins out of the box:
-
-* Render markdown posts with `lettersmith-markdown`
-* Add site metadata to posts with `lettersmith-meta`
-* Mustache templates with `lettersmith-mustache`
-* Hide draft posts with `lettersmith-drafts`
-
-Of course, this are just a start. If you see something missing, adding it is as easy as adding a function.
 
 Status
 ------
