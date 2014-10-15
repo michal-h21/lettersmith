@@ -19,6 +19,14 @@ local path = require('path')
 
 local headmatter = require('headmatter')
 
+local function location_exists(location)
+  -- Check if a location (file/directory) exists
+  -- Returns boolean
+  local f = io.open(location, "r")
+  if f ~= nil then io.close(f) return true else return false end
+end
+exports.location_exists = location_exists
+
 local function is_dir(path)
   return attributes(path, "mode") == "directory"
 end
