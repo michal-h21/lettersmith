@@ -2,9 +2,30 @@ Lettersmith is a minimal static site generator.
 
 WORK IN PROGRESS
 
-Lettersmith is based on a simple idea: load files as a list of tables.
+Lettersmith is based on a simple idea: load files as a list of tables. So this:
 
-`lettersmith.docs` takes a filepath and returns a list of tables that look like this:
+`example.md`:
+
+```markdown
+---
+title: Example title
+---
+An example post
+```
+
+...Becomes this:
+
+```lua
+{
+  relative_filepath = 'example.md',
+  contents = 'An example post',
+  title = "Example title"
+}
+```
+
+You can add as much metadata to docs as you like, using a [YAML](yaml.org) headmatter block at the top of the file. Any properties you put there will show up on the object. If you don't want metadata, you can skip that block completely.
+
+`lettersmith.docs` takes a filepath and returns a list of tables:
 
 ```lua
 {
@@ -56,15 +77,15 @@ Lettersmith comes with a few useful plugins out of the box:
 * Mustache templates with `lettersmith-mustache`
 * Hide draft posts with `lettersmith-drafts`
 
-Of course, this are just a start. If you see something missing, adding it is as easy as adding a function.
+Of course, this is just a start. "Plugins" are really just functions that modify a list of tables. This makes Lettersmith simple. It also means it is extremely flexible. Lettersmith can be anything you want: a website builder, a blog, a documentation generation script... If you need to transform text files, this is an easy way to do it.
 
 
-Manipulating your files
------------------------
+Creating new plugins
+--------------------
 
-Don't see the plugin you want? Writing one yourself is a cinch.
+Don't see the feature you want? No problem. Since your files are just a list of tables, writing new plugins is as easy as changing what shows up in the list.
 
-The list that `lettersmith.docs` returns is a Lua generator function. That means your list of files can be infinite (or as large as your hard-drive can handle, anyway).
+The list that `lettersmith.docs` returns is a Lua generator function. That means your list of files can be infinitely large (or as large as your hard-drive can handle, anyway).
 
 ```lua
 local docs = lettersmith.docs('raw/')
