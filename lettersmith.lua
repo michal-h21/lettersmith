@@ -11,9 +11,7 @@ local lazy = list.lazy
 
 local util = require('util')
 local merge = util.merge
-exports.merge = merge
 local contains_any = util.contains_any
-exports.contains_any = contains_any
 
 local path = require('path')
 
