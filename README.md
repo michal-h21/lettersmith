@@ -2,37 +2,76 @@ Lettersmith is a minimal static site generator.
 
 WORK IN PROGRESS
 
-Design approach
----------------
+Lettersmith is based on a simple idea: load files as a list of tables.
 
-No fancy classes, no silly conventions, no magic. Just a convenient library for processing files with functions.
-
-Will eventually look something like this:
+`lettersmith.docs` takes a filepath and returns a list of tables that look like this:
 
 ```lua
-local lettersmith = require('lettersmith')
+{
+  relative_filepath = 'foo/x.md',
+  contents = '...',
+},
+{
+  relative_filepath = 'bar/y.md',
+  contents = '...',
+},
+...
+```
 
-local docs = lettersmith.docs('raw')
+That's it! No fancy classes, no silly conventions, no magic. Just a convenient library for processing files with functions.
 
-docs = parse_markdown(docs)
+Creating a site is simple. Just create a new lua file. Call it anything you like.
 
--- Create custom "plugin" to remove drafts. It's just a function!
+```lua
+local lettersmith = require("lettersmith")
+local use_markdown = require("lettersmith-markdown")
+local filter = require("colist").filter
+
+-- Get docs list
+local docs = lettersmith.docs("raw/")
+
+-- Render markdown
+docs = use_markdown(docs)
+
+-- Create custom "plugin" to remove drafts.
+-- It's just a standard filter function!
 docs = filter(docs, function (doc)
   return not doc.draft
 end)
 
 -- Build files
-lettersmith.build("out", docs)
+lettersmith.build(docs, "out")
 ```
 
-`lettersmith.docs` takes a filepath and returns a list of tables that look like this:
 
-    {
-      relative_filepath = 'foo/x.md',
-      contents = '...',
-    }
+Manipulating your files
+-----------------------
 
-That's it!
+Don't see the plugin you want? Writing one yourself is a cinch.
+
+The list that `lettersmith.docs` returns is a Lua generator function. That means your list of files can be infinite (or as large as your hard-drive can handle, anyway).
+
+```lua
+local docs = lettersmith.docs('raw/')
+print(docs)
+-- function: 0x7fc573700450
+```
+
+Just like a table, you can use `for` to loop over items inside. However, unlike a table, only one doc exists in memory at a time. This lets us load in massive numbers of files without a problem. The library `colist` gives you standard `map`, `filter`, `reduce` functions that will also return generators.
+
+Fancy generators not your thing? Just use `colist.collect` to load all docs into a standard Lua table:
+
+```lua
+local docs = collect(lettersmith.docs('raw/'))
+
+print(docs[1])
+-- table: 0x7fc575100210
+
+for doc in docs do print(doc.contents) end
+-- "..."
+-- "..."
+-- "..."
+```
 
 
 Plugins
@@ -49,31 +88,11 @@ Lettersmith comes with a few useful plugins out of the box:
 
 Of course, this are just a start. If you see something missing, adding it is as easy as adding a function.
 
+Status
+------
 
-Misc thoughts
--------------
-
-I don't mind this:
-
-    local docs = lettersmith.docs('raw')
-    docs = markdown(docs)
-    docs = mustache(docs, 'templates')
-
-But I know some people prefer method chaining or composition. If plugins consumed and returned only `docs`, and all other methods were curried:
-
-    local docs = pipe(lettersmith.docs('raw'), site_meta, markdown, mustache)
-
-Not bad. It's terse, but there is a loss of obviousness. Maybe the better approach is simply to build a DSL or use YAML config (if you want it).
-
-    {
-        markdown = {},
-        meta = { site_title: 'My website' }
-        mustache = { 'templates' }
-    }
-
----
-
-Entire themes could be built as single functions. You could wrap markdown, mustache and a bunch of template and CSS files into a package, then import it.
+* @TODO need to fix writing to nested directories
+* Windows hasn't been tested. Should be an easy fix. I think LFS supports Win, but we might need to do some filepath conversion.
 
 
 License
