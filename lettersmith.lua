@@ -15,6 +15,8 @@ exports.merge = merge
 local contains_any = util.contains_any
 exports.contains_any = contains_any
 
+local path = require('path')
+
 local headmatter = require('headmatter')
 
 local function is_dir(path)
@@ -35,9 +37,9 @@ local function join_paths(a, b)
 end
 exports.join_paths = join_paths
 
-local function walk_and_yield_filepaths(path)
-  for f in lfs.dir(path) do
-    local filepath = join_paths(path, f)
+local function walk_and_yield_filepaths(dirpath)
+  for f in lfs.dir(dirpath) do
+    local filepath = path.join(dirpath, f)
 
     if is_file(filepath) then
       -- @TODO might consider yielding useful numbered key here.
@@ -48,8 +50,8 @@ local function walk_and_yield_filepaths(path)
   end
 end
 
-local function walk_filepaths(path)
-  return coroutine.wrap(function () walk_and_yield_filepaths(path) end)
+local function walk_filepaths(dirpath)
+  return coroutine.wrap(function () walk_and_yield_filepaths(dirpath) end)
 end
 exports.walk_filepaths = walk_filepaths
 
@@ -102,14 +104,14 @@ local function renderer(exts, render)
 end
 exports.renderer = renderer
 
-local function docs(path)
+local function docs(dirpath)
   -- Walk directory, creating doc objects from files.
   -- Returns a generator function of doc objects.
   -- Warning: generator may only be consumed once! If you need to consume it
   -- more than once, call `docs` again, or use `collect` to load all docs into
   -- an array table.
 
-  local filepaths = walk_filepaths(path)
+  local filepaths = walk_filepaths(dirpath)
 
   return map(filepaths, function (filepath)
     -- Read all filepaths into strings.
@@ -121,7 +123,7 @@ local function docs(path)
     -- can be used for URLs too.
     -- @fixme this should be a proper relativize function. Lots of assumptions
     -- being made here.
-    local relative_filepath = string.gsub(filepath, path .. "/", "")
+    local relative_filepath = string.gsub(filepath, dirpath .. "/", "")
 
     -- Set relative_filepath on doc
     doc.relative_filepath = relative_filepath
@@ -132,9 +134,9 @@ end
 exports.docs = docs
 
 -- @FIXME have to create files/directories when they don't exist.
-local function build(docs, path)
+local function build(docs, dirpath)
   for i, doc in docs do
-    write_entire_file(join_paths(path, doc.relative_filepath), doc.contents)
+    write_entire_file(path.join(dirpath, doc.relative_filepath), doc.contents)
   end
 end
 exports.build = build

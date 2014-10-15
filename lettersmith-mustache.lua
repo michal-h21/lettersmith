@@ -34,7 +34,8 @@ local merge = util.merge
 
 local lettersmith = require('lettersmith')
 local read_entire_file = lettersmith.read_entire_file
-local join_paths = lettersmith.join_paths
+
+local path = require('path')
 
 return function (docs, template_path)
   -- Render docs through mustache template defined in headmatter `template`
@@ -43,7 +44,7 @@ return function (docs, template_path)
     -- Pass on docs that don't have template field.
     if not doc.template then return doc end
 
-    local template = read_entire_file(join_paths(template_path, doc.template))
+    local template = read_entire_file(path.join(template_path, doc.template))
     local rendered = lustache:render(template, doc)
     -- Create shallow-copy rendered doc, overwriting doc's contents with
     -- rendered contents.
