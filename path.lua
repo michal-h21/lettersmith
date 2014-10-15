@@ -15,7 +15,7 @@ function path.remove_trailing_slash(s)
   return s:gsub('(.)%/$', '%1')
 end
 
-function resolve_double_slashes(s)
+local function resolve_double_slashes(s)
   -- Resolution is a simple case of replacing double slashes with single.
   return s:gsub('%/%/', '/')
 end
