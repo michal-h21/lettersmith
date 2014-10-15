@@ -2,7 +2,7 @@ Lettersmith is a minimal static site generator.
 
 WORK IN PROGRESS
 
-Lettersmith is based on a simple idea: load files as a list of tables. So this:
+Lettersmith is based on a simple idea: load files as tables. So this:
 
 `example.md`:
 
