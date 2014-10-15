@@ -15,21 +15,21 @@ suite('path.remove_trailing_slash()', function ()
   test(remove_trailing_slash('/') == '/', "Leaves strings alone when they only contain a slash")
 end)
 
-suite("path.unshift(s)", function ()
-  test(path.unshift("..") == '..', "Handles .. correctly")
+suite("path.shift(s)", function ()
+  test(path.shift("..") == '..', "Handles .. correctly")
 
-  local x, y = path.unshift("foo/bar/baz")
+  local x, y = path.shift("foo/bar/baz")
   local z = x == "foo" and y == "bar/baz"
   test(z, "Handles foo/bar/baz")
 
-  local x, y = path.unshift("/foo/bar")
+  local x, y = path.shift("/foo/bar")
   local z = x == "/" and y == "foo/bar"
   test(z, "Handles /foo/bar")
 
-  test(path.unshift("bar/") == "bar", "Handles bar/ correctly")
+  test(path.shift("bar/") == "bar", "Handles bar/ correctly")
 
   -- @fixme handle this case better
-  -- test(path.unshift("./"))
+  -- test(path.shift("./"))
 end)
 
 suite('path.normalize(s)', function ()

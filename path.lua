@@ -89,7 +89,7 @@ function path.join(a, b)
   return path.normalize(path.normalize(a) .. '/' .. path.normalize(b))
 end
 
-function path.unshift(s)
+function path.shift(s)
   -- Return the highest-level portion of a path (it's a split on `/`), along
   -- with the rest of the path string.
 
@@ -110,7 +110,7 @@ function path.parts(s)
   local head, rest = "", s
 
   return function ()
-    head, rest = path.unshift(rest)
+    head, rest = path.shift(rest)
     return head, rest
   end
 end
