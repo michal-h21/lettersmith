@@ -29,14 +29,6 @@ local function is_file(path)
 end
 exports.is_file = is_file
 
--- @fixme will need to implement a path helper function to make this
--- work properly. Right now making terrible assumptions about path not being
--- trailing slashed, being valid subpath without resolution etc.
-local function join_paths(a, b)
-  return a .. '/' .. b
-end
-exports.join_paths = join_paths
-
 local function walk_and_yield_filepaths(dirpath)
   for f in lfs.dir(dirpath) do
     local filepath = path.join(dirpath, f)
