@@ -1,6 +1,7 @@
 local microtest = require('microtest')
 local suite = microtest.suite
 local test = microtest.test
+local equal = microtest.equal
 
 local path = require('path')
 local resolve_up_dir_traverse = path.resolve_up_dir_traverse
@@ -19,14 +20,15 @@ suite("path.shift(s)", function ()
   test(path.shift("..") == '..', "Handles .. correctly")
 
   local x, y = path.shift("foo/bar/baz")
-  local z = x == "foo" and y == "bar/baz"
-  test(z, "Handles foo/bar/baz")
+  equal(x, "foo", "Handles foo/bar/baz head")
+  equal(y, "bar/baz", "Handles foo/bar/baz tail")
 
   local x, y = path.shift("/foo/bar")
   local z = x == "/" and y == "foo/bar"
-  test(z, "Handles /foo/bar")
+  equal(x, "/", "Handles /foo/bar head, returning /")
+  equal(y, "foo/bar", "Handles /foo/bar tail, returning foo/bar")
 
-  test(path.shift("bar/") == "bar", "Handles bar/ correctly")
+  equal(path.shift("bar/"), "bar", "Handles bar/ correctly, returning bar")
 
   -- @fixme handle this case better
   -- test(path.shift("./"))
@@ -48,10 +50,9 @@ suite("path.join()", function ()
   test(path.join("..", "foo") == "../foo", ".., foo joined to ../foo")
 end)
 
-suite("path.parts(s)", function ()
-  local parts = path.parts('/foo/bar/baz')
-  local a = parts() == '/'
-  local b = parts() == 'foo'
-  local c = parts() == 'bar'
-  test(a and b and c, "Handles /foo/bar/baz")
+suite("path.parts()", function ()
+  local a = path.parts("foo/bar/baz")
+  equal(a[1], "foo", "Handled part 1")
+  equal(a[2], "bar", "Handled part 2")
+  equal(a[3], "baz", "Handled part 3")
 end)

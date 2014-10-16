@@ -96,23 +96,39 @@ function path.shift(s)
   -- @fixme this function works but is still a bit naive. Maybe path.normalize
   -- first?
 
-  local i = s:find('/')
+  -- Special case: if path starts with slash, it is a root path and slash has
+  -- value. Return slash, along with rest of string.
+  if s:find("^/") then return "/", s:sub(2) end
 
-  if i == nil then return s end
+  local i, j = s:find('/')
 
-  -- Return head, the rest
-  local head, rest = s:sub(1, i), s:sub(i + 1)
-  return path.remove_trailing_slash(head), rest
+  if i == nil then return s
+  else return s:sub(1, i - 1), s:sub(j + 1) end
 end
 
--- @todo path.parts generator function
 function path.parts(s)
+  -- Get all parts of path as list table.
+  local head, rest = "", s
+  local t = {}
+
+  repeat
+    head, rest = path.shift(rest)
+    table.insert(t, head)
+  until rest == nil
+
+  return t
+end
+
+-- Return the portion at the end of a path.
+function path.basename(s)
+  -- Get all parts of path as list table.
   local head, rest = "", s
 
-  return function ()
+  repeat
     head, rest = path.shift(rest)
-    return head, rest
-  end
+  until rest == nil
+
+  return head
 end
 
 return path

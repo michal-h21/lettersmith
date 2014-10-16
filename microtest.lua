@@ -1,15 +1,18 @@
-local exports = {}
+local micro = {}
 
-local function suite(message, callback)
+function micro.suite(message, callback)
   print(message)
   callback()
 end
-exports.suite = suite
 
-local function test(truthy, message)
+function micro.test(truthy, message)
   assert(truthy, message)
   print('• ' .. message)
 end
-exports.test = test
 
-return exports
+function micro.equal(a, b, message)
+  assert(a == b, "Failed! " .. message .. " (" .. a .. " ~= " .. b .. ")")
+  print("• " .. message)
+end
+
+return micro
