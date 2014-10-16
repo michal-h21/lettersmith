@@ -60,4 +60,7 @@ end)
 suite("path.basename(location_string)", function ()
   equal(path.basename("foo/bar/baz"), "baz", "Basename is baz")
   equal(path.basename("foo/bar/baz.html"), "baz.html", "Basename is baz.html")
+
+  local basename, rest = path.basename('foo/bar/baz.html')
+  equal(rest, "foo/bar", "The rest of path is foo/bar")
 end)

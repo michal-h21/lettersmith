@@ -2,10 +2,12 @@ local exports = {}
 
 local lfs = require('lfs')
 local attributes = lfs.attributes
+local mkdir = lfs.mkdir
 
 local list = require('colist')
 local map = list.map
 local zip_with = list.zip_with
+local folds = list.folds
 local collect = list.collect
 local lazy = list.lazy
 
@@ -34,6 +36,33 @@ local function is_file(path)
   return attributes(path, "mode") == "file"
 end
 exports.is_file = is_file
+
+local function mkdir_if_missing(location)
+  if location_exists(location) then
+    return true
+  else
+    return mkdir(location)
+  end
+end
+
+local function mkdir_deep(location)
+  -- Create deeply nested directory at `location`.
+  -- Returns `true` on success, or `nil, message` on failure.
+  local parts = path.parts(location)
+
+  -- Need to convert parts (table) to generator. @todo perhaps change
+  -- parts to return generator?
+  local dirpaths = folds(lazy(parts), function (seed, part)
+    if seed == "" then return part else return seed .. "/" .. part end
+  end, "")
+
+  for _, dirpath in dirpaths do
+    local is_success, message = mkdir_if_missing(dirpath)
+    if not is_success then return is_success, message end
+  end
+
+  return true
+end
 
 local function walk_and_yield_filepaths(dirpath)
   for f in lfs.dir(dirpath) do
@@ -67,9 +96,17 @@ local function write_entire_file(filepath, contents)
   local f = assert(io.open(filepath, "w"))
   f:write(contents)
   f:close()
-  return contents
 end
 exports.write_entire_file = write_entire_file
+
+local function write_entire_file_deep(filepath, contents)
+  -- Write entire contents to file at deep directory location.
+  -- This function will make sure all the necessary directories exist before
+  -- creating the file.
+  local basename, dirs = path.basename(filepath)
+  assert(mkdir_deep(dirs))
+  write_entire_file(filepath, contents)
+end
 
 local function to_doc(s)
   -- Get YAML table and contents from headmatter parser
@@ -133,8 +170,9 @@ exports.docs = docs
 
 -- @FIXME have to create files/directories when they don't exist.
 local function build(docs, dirpath)
-  for i, doc in docs do
-    write_entire_file(path.join(dirpath, doc.relative_filepath), doc.contents)
+  for _, doc in docs do
+    local filepath = path.join(dirpath, doc.relative_filepath)
+    write_entire_file_deep(filepath, doc.contents)
   end
 end
 exports.build = build

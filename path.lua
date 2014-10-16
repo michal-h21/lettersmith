@@ -92,9 +92,9 @@ end
 function path.shift(s)
   -- Return the highest-level portion of a path (it's a split on `/`), along
   -- with the rest of the path string.
-
-  -- @fixme this function works but is still a bit naive. Maybe path.normalize
-  -- first?
+  -- If your path contains traversals, you probably want to use `path.normalize`
+  -- before passing to shift, since traversals will be considered parts of the
+  -- path as well.
 
   -- Special case: if path starts with slash, it is a root path and slash has
   -- value. Return slash, along with rest of string.
@@ -128,7 +128,8 @@ function path.basename(s)
     head, rest = path.shift(rest)
   until rest == nil
 
-  return head
+  -- @fixme I think the way I calculate the rest of the path may be too naive.
+  return head, s:sub(0, s:len() - head:len() - 1)
 end
 
 return path

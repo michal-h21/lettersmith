@@ -12,11 +12,23 @@ end
 exports.lazy = lazy
 
 local function fold(iter, step, seed)
-  -- Iterate over items in iterator, returning value folded from `seed`.
+  -- Iterate over items, returning value folded from `seed`.
   for i, v in iter do seed = step(seed, v, i) end
   return seed
 end
 exports.fold = fold
+
+local function folds(next, step, seed)
+  -- Iterate over items, returning generator which will yield all permutations
+  -- folded from `seed`.
+  return coroutine.wrap(function ()
+    for i, v in next do
+      seed = step(seed, v, i)
+      coroutine.yield(i, seed)
+    end
+  end)
+end
+exports.folds = folds
 
 -- One-off function that wraps table.insert to make its order of magic args
 -- play nicely with fold.
