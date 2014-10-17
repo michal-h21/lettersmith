@@ -93,9 +93,13 @@ end
 exports.read_entire_file = read_entire_file
 
 local function write_entire_file(filepath, contents)
-  local f = assert(io.open(filepath, "w"))
+  local f, message = io.open(filepath, "w")
+
+  if f == nil then return f, message end
+
   f:write(contents)
-  f:close()
+
+  return f:close()
 end
 exports.write_entire_file = write_entire_file
 
@@ -104,8 +108,11 @@ local function write_entire_file_deep(filepath, contents)
   -- This function will make sure all the necessary directories exist before
   -- creating the file.
   local basename, dirs = path.basename(filepath)
-  assert(mkdir_deep(dirs))
-  write_entire_file(filepath, contents)
+  local d, message = mkdir_deep(dirs)
+
+  if d == nil then return d, message end
+
+  return write_entire_file(filepath, contents)
 end
 
 local function to_doc(s)
@@ -172,7 +179,7 @@ exports.docs = docs
 local function build(docs, dirpath)
   for _, doc in docs do
     local filepath = path.join(dirpath, doc.relative_filepath)
-    write_entire_file_deep(filepath, doc.contents)
+    assert(write_entire_file_deep(filepath, doc.contents))
   end
 end
 exports.build = build
