@@ -122,6 +122,10 @@ Plugins
 
 * `lettersmith-permalinks` for clean urls. `about.html` -> `about/index.html`. @todo
 * `lettersmith-thumbnails` for generating multiple image sizes. Someting like `use_thumbnails(docs, { { w: 200, h: 200, crop: true } })`. @todo
+  * lua-gd https://ittner.github.io/lua-gd/
+  * http://lua-users.org/wiki/GdThumbnail
+  * Lua imagemagick bindings https://github.com/leafo/magick
+  * lua-thumbnailer https://github.com/mah0x211/lua-thumbnailer 
 * `lettersmith-query` to easily generate lists of docs, filtered and sorted. @todo
 * `lettersmith-pagninate` for linking prev/next files. This could actually be lumped in with `lettersmith-query`. @todo
 * `lettersmith-watch` watch files for modification and re-build. @todo
