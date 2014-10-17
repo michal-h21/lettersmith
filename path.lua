@@ -132,4 +132,15 @@ function path.basename(s)
   return head, s:sub(0, s:len() - head:len() - 1)
 end
 
+function path.has_extension(location, extension)
+  return location:find("%." .. extension .. "$") ~= nil
+end
+
+function path.has_any_extension(location, extensions)
+  for _, extension in ipairs(extensions) do
+    if path.has_extension(location, extension) then return true end
+  end
+  return false
+end
+
 return path

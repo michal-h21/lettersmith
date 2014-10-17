@@ -13,7 +13,6 @@ local lazy = list.lazy
 
 local util = require('util')
 local merge = util.merge
-local contains_any = util.contains_any
 
 local path = require('path')
 
@@ -128,18 +127,28 @@ end
 -- Provide a list of file extensions and a render function.
 -- Returns a mapping function that will render all matching files in `docs`,
 -- returning new generator list of rendered `docs`.
-local function renderer(exts, render)
+local function renderer(src_extensions, rendered_extension, render)
   return function (docs)
     return map(docs, function (doc)
-      -- Skip docs not matching extension
-      if not contains_any(doc.relative_filepath, exts) then return doc end
+      -- @todo should we throw an error if extensions have `.` included?
+      if not path.has_any_extension(doc.relative_filepath, src_extensions) then
+        return doc
+      end
 
       -- Render contents
       local rendered = render(doc.contents)
 
+      -- Replace file extension
+      local relative_filepath = string.gsub(
+        doc.relative_filepath,
+        "\.[^.]+$",
+        "." .. rendered_extension
+      )
+
       -- Return new shallow-copied doc with rendered contents
       return merge(doc, {
-        contents = rendered
+        contents = rendered,
+        relative_filepath = relative_filepath
       })
     end)
   end

@@ -16,13 +16,4 @@ local function merge(a, b)
 end
 exports.merge = merge
 
-local function contains_any(s, patterns)
-  for _, pattern in pairs(patterns) do
-    local i = s:find(pattern)
-    if i ~= nil then return true end
-  end
-  return false
-end
-exports.contains_any = contains_any
-
 return exports
