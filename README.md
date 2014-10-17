@@ -113,8 +113,19 @@ for doc in docs do print(doc.contents) end
 Status
 ------
 
-* @TODO need to fix writing to nested directories
-* Windows hasn't been tested. Should be an easy fix. I think LFS supports Win, but we might need to do some filepath conversion.
+* Clean previous build dir before writing new one.
+* Windows hasn't been tested. Should be an easy fix. LFS supports Win, but we might need to do some filepath conversion.
+  - Will also need to deal with opening files in "text mode" vs binary.
+* <strike>Need to fix writing to nested directories</strike> @done
+
+Plugins
+
+* `lettersmith-permalinks` for clean urls. `about.html` -> `about/index.html`. @todo
+* `lettersmith-thumbnails` for generating multiple image sizes. Someting like `use_thumbnails(docs, { { w: 200, h: 200, crop: true } })`. @todo
+* `lettersmith-query` to easily generate lists of docs, filtered and sorted. @todo
+* `lettersmith-pagninate` for linking prev/next files. This could actually be lumped in with `lettersmith-query`. @todo
+* `lettersmith-watch` watch files for modification and re-build. @todo
+* `lettersmith-local` local server that watches files using `lettersmith-watch` and serves up the results. @todo
 
 
 License
