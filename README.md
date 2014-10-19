@@ -113,10 +113,11 @@ for doc in docs do print(doc.contents) end
 Status
 ------
 
-* Clean previous build dir before writing new one.
-* Windows hasn't been tested. Should be an easy fix. LFS supports Win, but we might need to do some filepath conversion.
+* Package as Luarock @todo
+* Windows hasn't been tested. Should be an easy fix. LFS supports Win, but we might need to do some filepath conversion. @todo
   - Will also need to deal with opening files in "text mode" vs binary.
 * <strike>Need to fix writing to nested directories</strike> @done
+* <strike>Clean previous build dir before writing new one </strike> @done
 
 Plugins
 
@@ -131,7 +132,7 @@ Plugins
 * `lettersmith-watch` watch files for modification and re-build. @todo
 * `lettersmith-local` local server that watches files using `lettersmith-watch` and serves up the results. @todo
 * `lettersmith-excerpt` create from first sentence or title.
-* `lettersmith-hash` calc hash of file contents
+* `lettersmith-hash` calc hash of file contents http://keplerproject.org/md5/
 * `lettersmith-date` calc nice dates from date field or file changed date http://stackoverflow.com/questions/23486318. Maybe this should be part of core?
 
 
