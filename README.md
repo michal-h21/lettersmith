@@ -103,7 +103,9 @@ local docs = collect(lettersmith.docs('raw/'))
 print(docs[1])
 -- table: 0x7fc575100210
 
-for doc in docs do print(doc.contents) end
+for i, doc in ipairs(docs) do
+  print(doc.contents)
+end
 -- "..."
 -- "..."
 -- "..."
