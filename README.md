@@ -20,13 +20,13 @@ An example post
   relative_filepath = "example.md",
   contents = "An example post",
   title = "Example title",
-  date = "Fri Oct 17 2014 01:25:59"
+  date = "2014-10-17T01:25:59"
 }
 ```
 
 - You can add metadata to the table using a [YAML](yaml.org) headmatter block at the top of the file (between `---` and `---`). Any YAML properties you put in the block will show up on the object. If you don't want metadata, you can skip the headmatter block completely.
 - Everything else will end up in the `contents` field.
-- The date will be read from the file's modified date, but you can provide your own by adding a `date` field to the headmatter.
+- The `date` will be read from the file's modified date, but you can provide your own by adding a `date` field to the headmatter. Lettersmith will automatically normalize any reasonable date format you provide to an [ISO date](https://en.wikipedia.org/wiki/ISO_8601).
 
 The function `lettersmith.docs(path)` takes a filepath and returns a list of document tables:
 
@@ -34,12 +34,12 @@ The function `lettersmith.docs(path)` takes a filepath and returns a list of doc
 {
   relative_filepath = "foo/x.md",
   contents = "...",
-  date = "Fri Oct 17 2014 01:25:59"
+  date = "2014-10-17T01:25:59"
 },
 {
   relative_filepath = 'bar/y.md",
   contents = "...",
-  date = "Fri Oct 17 2014 01:00:00"
+  date = "2014-10-17T01:25:59"
 },
 ...
 ```

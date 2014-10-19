@@ -99,10 +99,9 @@ local function docs(dirpath)
     doc.contents = contents
 
     -- Assign date field from modified file date, if it doesn't already exist.
-    if not doc.date then
-      local modified_time = lfs.attributes(filepath, "modified")
-      doc.date = tostring(date(modified_time))
-    end
+    local date_string = doc.date or lfs.attributes(filepath, "modified")
+    local date_iso = date(date_string):fmt("${iso}")
+    doc.date = date_iso
 
     -- Relativize filepaths... This is a bit of a cludge. I would prefer to have
     -- absolute filepaths at all times, but relativized is so useful because it
