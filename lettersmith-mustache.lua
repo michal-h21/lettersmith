@@ -32,8 +32,8 @@ local map = list.map
 local util = require('util')
 local merge = util.merge
 
-local lettersmith = require('lettersmith')
-local read_entire_file = lettersmith.read_entire_file
+local file_utils = require('file-utils')
+local read_entire_file = file_utils.read_entire_file
 
 local path = require('path')
 
