@@ -7,9 +7,6 @@ Lettersmith is based on a simple idea: load files as tables. So this:
 `example.md`:
 
 ```markdown
----
-title: Example title
----
 An example post
 ```
 
@@ -19,16 +16,38 @@ An example post
 {
   relative_filepath = "example.md",
   contents = "An example post",
-  title = "Example title",
   date = "2014-10-17T01:25:59"
 }
 ```
 
-- You can add metadata to the table using a [YAML](yaml.org) headmatter block at the top of the file (between `---` and `---`). Any YAML properties you put in the block will show up on the object. If you don't want metadata, you can skip the headmatter block completely.
-- Everything else will end up in the `contents` field.
+- The file contents will end up in the `contents` field.
 - The `date` will be read from the file's modified date, but you can provide your own by adding a `date` field to the headmatter. Lettersmith will automatically normalize any reasonable date format you provide to an [ISO date](https://en.wikipedia.org/wiki/ISO_8601).
 
-The function `lettersmith.docs(path)` takes a filepath and returns a list of document tables:
+You can also add metadata to documents using a using a [YAML](yaml.org) headmatter block at the top of the file. So this:
+
+```markdown
+---
+title: Example title
+summary: My great summary
+---
+An example post
+```
+
+...Becomes this:
+
+```lua
+{
+  relative_filepath = "example.md",
+  title = "Example title",
+  summary = "My great summary",
+  contents = "An example post",
+  date = "2014-10-17T01:25:59"
+}
+```
+
+Any YAML properties you put in the block will show up on the table!
+
+The function `lettersmith.docs(path)` takes a filepath and returns a list of these document tables:
 
 ```lua
 {
