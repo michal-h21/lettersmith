@@ -1,4 +1,4 @@
-Lettersmith is a minimal static site generator.
+Lettersmith is a simple, flexible static site generator, written in [Lua](http://lua.org).
 
 WORK IN PROGRESS
 
@@ -23,7 +23,7 @@ An example post
 }
 ```
 
-You can add as much metadata to docs as you like, using a [YAML](yaml.org) headmatter block at the top of the file. Any properties you put there will show up on the object. If you don't want metadata, you can skip that block completely.
+You can add metadata to the table using a [YAML](yaml.org) headmatter block at the top of the file. Any properties you put there will show up on the object. If you don't want metadata, you can skip the headmatter block completely.
 
 `lettersmith.docs` takes a filepath and returns a list of tables:
 
