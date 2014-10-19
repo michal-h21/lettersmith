@@ -151,8 +151,10 @@ Plugins @todo
   * https://rocks.moonscript.org/modules/tieske/date
 * `lettersmith-tags` tagging via headmatter
 * `lettersmith-hashtags` tagging via `#hashtags`
-* `lettersmith-less` and/or `lettersmith-sass`
-* (maybe) `lettersmith-etlua` https://github.com/leafo/etlua for more traditional templating
+* `lettersmith-haml` https://github.com/norman/lua-haml
+* `lettersmith-sass`
+  * https://github.com/sass/libsass
+  * https://github.com/craigbarnes/lua-sass
 
 
 License
