@@ -17,7 +17,7 @@ with special tokens:
 
 For example, this template:
 
-    :yyyy/:mm/:dd/:slug
+    :yyyy/:mm/:dd/:slug/
 
 ...would result in a permalink like this:
 
