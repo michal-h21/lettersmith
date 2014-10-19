@@ -115,14 +115,22 @@ end
 Status
 ------
 
+Core @todo
+
 * Package as Luarock
 * Windows hasn't been tested. Should be an easy fix. LFS supports Win, but we might need to do some filepath conversion.
   - Will also need to deal with opening files in "text mode" vs binary.
+* (Maybe) alternative site config approach based on Lua tables or YAML
 * Someday: embed into Mac app for drag/drop site generation
 * <strike>Need to fix writing to nested directories</strike> @done
 * <strike>Clean previous build dir before writing new one </strike> @done
 
-Plugins
+Themes @todo
+
+* Default theme that can be used by calling a single function
+* Twitter Bootstrap theme
+
+Plugins @todo
 
 * `lettersmith-permalinks` for clean urls. `about.html` -> `about/index.html`.
 * `lettersmith-thumbnails` for generating multiple image sizes. Someting like `use_thumbnails(docs, { { w: 200, h: 200, crop: true } })`.
