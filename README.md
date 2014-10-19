@@ -17,24 +17,29 @@ An example post
 
 ```lua
 {
-  relative_filepath = 'example.md',
-  contents = 'An example post',
-  title = "Example title"
+  relative_filepath = "example.md",
+  contents = "An example post",
+  title = "Example title",
+  date = "Fri Oct 17 2014 01:25:59"
 }
 ```
 
-You can add metadata to the table using a [YAML](yaml.org) headmatter block at the top of the file. Any properties you put there will show up on the object. If you don't want metadata, you can skip the headmatter block completely.
+- You can add metadata to the table using a [YAML](yaml.org) headmatter block at the top of the file (between `---` and `---`). Any YAML properties you put in the block will show up on the object. If you don't want metadata, you can skip the headmatter block completely.
+- Everything else will end up in the `contents` field.
+- The date will be read from the file's modified date, but you can provide your own by adding a `date` field to the headmatter.
 
-`lettersmith.docs` takes a filepath and returns a list of tables:
+The function `lettersmith.docs(path)` takes a filepath and returns a list of document tables:
 
 ```lua
 {
-  relative_filepath = 'foo/x.md',
-  contents = '...',
+  relative_filepath = "foo/x.md",
+  contents = "...",
+  date = "Fri Oct 17 2014 01:25:59"
 },
 {
-  relative_filepath = 'bar/y.md',
-  contents = '...',
+  relative_filepath = 'bar/y.md",
+  contents = "...",
+  date = "Fri Oct 17 2014 01:00:00"
 },
 ...
 ```

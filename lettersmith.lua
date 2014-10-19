@@ -21,6 +21,10 @@ local write_entire_file_deep = file_utils.write_entire_file_deep
 local read_entire_file = file_utils.read_entire_file
 local remove_recursive = file_utils.remove_recursive
 
+local lfs = require("lfs")
+
+local date = require("date")
+
 local headmatter = require('headmatter')
 
 -- A convenience function for writing renderers.
@@ -93,6 +97,12 @@ local function docs(dirpath)
     -- Since doc is a new table, go ahead and mutate it, setting contents
     -- as field.
     doc.contents = contents
+
+    -- Assign date field from modified file date, if it doesn't already exist.
+    if not doc.date then
+      local modified_time = lfs.attributes(filepath, "modified")
+      doc.date = tostring(date(modified_time))
+    end
 
     -- Relativize filepaths... This is a bit of a cludge. I would prefer to have
     -- absolute filepaths at all times, but relativized is so useful because it
