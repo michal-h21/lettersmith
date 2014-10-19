@@ -115,24 +115,25 @@ end
 Status
 ------
 
-* Package as Luarock @todo
-* Windows hasn't been tested. Should be an easy fix. LFS supports Win, but we might need to do some filepath conversion. @todo
+* Package as Luarock
+* Windows hasn't been tested. Should be an easy fix. LFS supports Win, but we might need to do some filepath conversion.
   - Will also need to deal with opening files in "text mode" vs binary.
+* Someday: embed into Mac app for drag/drop site generation
 * <strike>Need to fix writing to nested directories</strike> @done
 * <strike>Clean previous build dir before writing new one </strike> @done
 
 Plugins
 
-* `lettersmith-permalinks` for clean urls. `about.html` -> `about/index.html`. @todo
-* `lettersmith-thumbnails` for generating multiple image sizes. Someting like `use_thumbnails(docs, { { w: 200, h: 200, crop: true } })`. @todo
+* `lettersmith-permalinks` for clean urls. `about.html` -> `about/index.html`.
+* `lettersmith-thumbnails` for generating multiple image sizes. Someting like `use_thumbnails(docs, { { w: 200, h: 200, crop: true } })`.
   * lua-gd https://ittner.github.io/lua-gd/
   * http://lua-users.org/wiki/GdThumbnail
   * Lua imagemagick bindings https://github.com/leafo/magick
   * lua-thumbnailer https://github.com/mah0x211/lua-thumbnailer 
-* `lettersmith-query` to easily generate lists of docs, filtered and sorted. @todo
-* `lettersmith-pagninate` for linking prev/next files. This could actually be lumped in with `lettersmith-query`. @todo
-* `lettersmith-watch` watch files for modification and re-build. @todo
-* `lettersmith-local` local server that watches files using `lettersmith-watch` and serves up the results. @todo
+* `lettersmith-query` to easily generate lists of docs, filtered and sorted.
+* `lettersmith-pagninate` for creating lists of pages of queried files and linking prev/next files. This could actually be lumped in with `lettersmith-query`.
+* `lettersmith-watch` watch files for modification and re-build.
+* `lettersmith-local` local server that watches files using `lettersmith-watch` and serves up the results.
 * `lettersmith-excerpt` create from first sentence or title.
 * `lettersmith-hash` calc hash of file contents http://keplerproject.org/md5/
 * `lettersmith-date` calc nice dates from date field or file changed date. Maybe this should be part of core?
@@ -140,6 +141,10 @@ Plugins
   * http://lua-users.org/wiki/DateAndTime
   * http://lua-users.org/wiki/DateFormattingFunctions
   * https://rocks.moonscript.org/modules/tieske/date
+* `lettersmith-tags` tagging via headmatter
+* `lettersmith-hashtags` tagging via `#hashtags`
+* `lettersmith-less` and/or `lettersmith-sass`
+* (maybe) `lettersmith-etlua` https://github.com/leafo/etlua for more traditional templating
 
 
 License
