@@ -127,8 +127,8 @@ Core @todo
   - Will also need to deal with opening files in "text mode" vs binary.
 * (Maybe) alternative site config approach based on Lua tables or YAML
 * Someday: embed into Mac app for drag/drop site generation
-* <strike>Need to fix writing to nested directories</strike> @done
-* <strike>Clean previous build dir before writing new one </strike> @done
+* <strike>Need to fix writing to nested directories</strike>
+* <strike>Clean previous build dir before writing new one </strike>
 
 Themes @todo
 
@@ -149,7 +149,6 @@ Plugins @todo
 * `lettersmith-local` local server that watches files using `lettersmith-watch` and serves up the results.
 * `lettersmith-excerpt` create from first sentence or title.
 * `lettersmith-hash` calc hash of file contents http://keplerproject.org/md5/
-* `lettersmith-date` calc nice dates from date field or file changed date. Maybe this should be part of core?
   * http://stackoverflow.com/questions/23486318
   * http://lua-users.org/wiki/DateAndTime
   * http://lua-users.org/wiki/DateFormattingFunctions
@@ -160,7 +159,7 @@ Plugins @todo
 * `lettersmith-sass`
   * https://github.com/sass/libsass
   * https://github.com/craigbarnes/lua-sass
-
+* <strike>`lettersmith-date` calc nice dates from date field or file changed date. Maybe this should be part of core?</strike>
 
 License
 -------
