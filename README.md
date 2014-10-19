@@ -135,7 +135,11 @@ Plugins
 * `lettersmith-local` local server that watches files using `lettersmith-watch` and serves up the results. @todo
 * `lettersmith-excerpt` create from first sentence or title.
 * `lettersmith-hash` calc hash of file contents http://keplerproject.org/md5/
-* `lettersmith-date` calc nice dates from date field or file changed date http://stackoverflow.com/questions/23486318. Maybe this should be part of core?
+* `lettersmith-date` calc nice dates from date field or file changed date. Maybe this should be part of core?
+  * http://stackoverflow.com/questions/23486318
+  * http://lua-users.org/wiki/DateAndTime
+  * http://lua-users.org/wiki/DateFormattingFunctions
+  * https://rocks.moonscript.org/modules/tieske/date
 
 
 License
