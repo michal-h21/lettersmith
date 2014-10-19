@@ -4,7 +4,7 @@ local test = microtest.test
 
 local list = require("colist")
 local map = list.map
-local lazy = list.lazy
+local values = list.values
 local concat = list.concat
 local collect = list.collect
 local filter = list.filter
@@ -13,7 +13,7 @@ local zip_with = list.zip_with
 suite("map()", function ()
   function mult2(x) return x * 2 end
 
-  local v = lazy({1, 2, 3})
+  local v = values({1, 2, 3})
   local x = map(v, mult2)
   local t = collect(x)
 
@@ -21,7 +21,7 @@ suite("map()", function ()
 end)
 
 suite("filter()", function ()
-  local a = lazy({'a', 'b', 'a'})
+  local a = values({'a', 'b', 'a'})
   local b = filter(a, function (x) return x == 'a' end)
   local t = collect(b)
 
@@ -31,8 +31,8 @@ end)
 
 
 suite("concat()", function ()
-  local a = lazy({1, 2, 3})
-  local b = lazy({4, 5, 6})
+  local a = values({1, 2, 3})
+  local b = values({4, 5, 6})
   local ab = concat(a, b)
   local t = collect(ab)
 
@@ -43,8 +43,8 @@ end)
 
 suite("zip_with()", function ()
   function sum(a, b) return a + b end
-  local a = lazy({1, 2, 3})
-  local b = lazy({4, 5, 6})
+  local a = values({1, 2, 3})
+  local b = values({4, 5, 6})
   local ab = zip_with(a, b, sum)
   local t = collect(ab)
 

@@ -1,30 +1,62 @@
+--[[
+Basic higher-order list functions for lazy lists based on coroutines.
+
+@todo I need a good name for these things.
+* They're really generators, but I don't want to confuse them with Python's
+  yield-based generators.
+* Streams... streams are usually push data structures. These are pull.
+  But I think Lisps streams work like this.
+* Signals... they aren't really reactive signals (which are push data structures)
+* Wires: not a common name.
+
+All functions return transformed co-routine generator lists -- functions that
+will yield a value each time they are called. Note that these coroutine lists
+do not yield key, value tuples, but only value.
+
+All of the higher-order functions can consume any function that returns a value
+when invoked.
+
+Co-routine lists are stateful (they don't take any arguments) and can only be
+consumed once, at which point they become dead.
+
+If you need to consume a list multiple times you have a couple of options:
+
+- `collect()` will take a coroutine list and return a list table. Note that this
+  means the whole list will now be in-memory, so it won't work for
+  infinite lists.
+- Create another coroutine list. They are cheap to create and use, so whatever
+  you did to create the first one, you can do again.
+]]--
+
 local exports = {}
 
-local function lazy(table)
-  -- Convert table into stateful generator coroutine.
-  -- We need this because you can't pass stateless iterator functions as
-  -- first-class values: they need table as argument and for loop seems to have
-  -- a magic context that is lost when passing the function barrier.
+local function values(t)
+  -- Convert table `t` into stateful generator coroutine that yields values of
+  -- table. Unfortunately, you can't pass the result of `ipairs` as a
+  -- first-class value, because it requires the context provided by the
+  -- for loop. Our answer is to provide `values` that will allow you to iterate
+  -- over the items in a table with a stateful coroutine that can be passed
+  -- around to other functions.
   return coroutine.wrap(function()
-    for i, v in ipairs(table) do coroutine.yield(i, v) end
+    for _, v in ipairs(t) do coroutine.yield(v) end
   end)
 end
-exports.lazy = lazy
+exports.values = values
 
-local function fold(iter, step, seed)
+local function fold(colist, step, seed)
   -- Iterate over items, returning value folded from `seed`.
-  for i, v in iter do seed = step(seed, v, i) end
+  for v in colist do seed = step(seed, v) end
   return seed
 end
 exports.fold = fold
 
-local function folds(next, step, seed)
-  -- Iterate over items, returning generator which will yield all permutations
+local function folds(colist, step, seed)
+  -- Iterate over items, returning generator which will yield every permutation
   -- folded from `seed`.
   return coroutine.wrap(function ()
-    for i, v in next do
-      seed = step(seed, v, i)
-      coroutine.yield(i, seed)
+    for v in colist do
+      seed = step(seed, v)
+      coroutine.yield(seed)
     end
   end)
 end
@@ -32,44 +64,38 @@ exports.folds = folds
 
 -- One-off function that wraps table.insert to make its order of magic args
 -- play nicely with fold.
-function iinsert(t, v) table.insert(t, v) return t end
+local function iinsert(t, v) table.insert(t, v) return t end
 
-local function collect(next)
+local function collect(colist)
   -- Collect all values of iterator into table.
   -- Note that since generators are lazy "pull" data structures,
   -- they can be infinite. Dumping an infinite generator into a table
   -- will exhaust memory. Be smart.
   -- Returns a new array table containing all values from generator.
-  return fold(next, iinsert, {})
+  return fold(colist, iinsert, {})
 end
 exports.collect = collect
 
-local function map(next, transform)
-  -- Map iterable.
-  -- Returns new generator with results of `transform`.
+local function map(colist, transform)
   return coroutine.wrap(function ()
-    for i, v in next do coroutine.yield(i, transform(v)) end
+    for v in colist do coroutine.yield(transform(v)) end
   end)
 end
 exports.map = map
 
-local function filter(next, predicate)
-  -- Filter iterable.
-  -- Returns new generator with only items that pass the `predicate` test.
+local function filter(colist, predicate)
   return coroutine.wrap(function ()
-    for i, v in next do
-      if predicate(v) then coroutine.yield(i, v) end
+    for v in colist do
+      if predicate(v) then coroutine.yield(v) end
     end
   end)
 end
 exports.filter = filter
 
-local function reject(next, predicate)
-  -- Filter iterable.
-  -- Returns new generator with only items that fail the `predicate` test.
+local function reject(colist, predicate)
   return coroutine.wrap(function ()
-    for i, v in next do
-      if not predicate(v) then coroutine.yield(i, v) end
+    for v in colist do
+      if not predicate(v) then coroutine.yield(v) end
     end
   end)
 end
@@ -80,15 +106,11 @@ local function zip_with(a, b, combine)
   -- Returns new iterator with result of combining a and b.
   -- Note that zip_with will only zip as far as the shortest list.
   return coroutine.wrap(function ()
-    local i = 0
-    local xi, x = a()
-    local yi, y = b()
+    local x, y = a(), b()
 
     while x and y do
-      coroutine.yield(i, combine(x, y))
-      i = i + 1
-      xi, x = a()
-      yi, y = b()
+      coroutine.yield(combine(x, y))
+      x, y = a(), b()
     end
   end)
 end
@@ -96,18 +118,9 @@ exports.zip_with = zip_with
 
 local function concat(a, b)
   return coroutine.wrap(function ()
-    -- We'll need to keep track of our own index variable since we're not going
-    -- to use the one that the for loop hands us.
-    local i = 0
-    for _, v in a do
-      i = i + 1
-      coroutine.yield(i, v)
-    end
-    -- Pick up `b` when `a` is exhausted. Keep using same `i` variable.
-    for _, v in b do
-      i = i + 1
-      coroutine.yield(i, v)
-    end
+    for v in a do coroutine.yield(v) end
+    -- Pick up `b` when `a` is exhausted.
+    for v in b do coroutine.yield(v) end
   end)
 end
 exports.concat = concat
