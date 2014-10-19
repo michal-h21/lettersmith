@@ -32,6 +32,7 @@ build = {
 
     -- Plugins
     ["lettersmith.mustache"] = "lettersmith-mustache.lua",
+    ["lettersmith.permalinks"] = "lettersmith-permalinks.lua",
     ["lettersmith.drafts"] = "lettersmith-drafts.lua",
     ["lettersmith.markdown"] = "lettersmith-markown.lua",
     ["lettersmith.meta"] = "lettersmith-meta.lua",

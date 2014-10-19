@@ -78,8 +78,9 @@ Extending Lettersmith with new functionality is easy. There are no fancy plugin 
 Lettersmith comes with a few useful plugins out of the box:
 
 * Render markdown posts with `lettersmith-markdown`
-* Add site metadata to posts with `lettersmith-meta`
 * Mustache templates with `lettersmith-mustache`
+* Generate pretty permalinks with `lettersmith-permalinks`
+* Add site metadata to posts with `lettersmith-meta`
 * Hide draft posts with `lettersmith-drafts`
 
 Of course, this is just a start. "Plugins" are really just functions that modify a list of tables. This makes Lettersmith simple. It also means it is extremely flexible. Lettersmith can be anything you want: a website builder, a blog, a documentation generation script... If you need to transform text files, this is an easy way to do it.
@@ -137,7 +138,6 @@ Themes @todo
 
 Plugins @todo
 
-* `lettersmith-permalinks` for clean urls. `about.html` -> `about/index.html`.
 * `lettersmith-thumbnails` for generating multiple image sizes. Someting like `use_thumbnails(docs, { { w: 200, h: 200, crop: true } })`.
   * lua-gd https://ittner.github.io/lua-gd/
   * http://lua-users.org/wiki/GdThumbnail
@@ -149,10 +149,6 @@ Plugins @todo
 * `lettersmith-local` local server that watches files using `lettersmith-watch` and serves up the results.
 * `lettersmith-excerpt` create from first sentence or title.
 * `lettersmith-hash` calc hash of file contents http://keplerproject.org/md5/
-  * http://stackoverflow.com/questions/23486318
-  * http://lua-users.org/wiki/DateAndTime
-  * http://lua-users.org/wiki/DateFormattingFunctions
-  * https://rocks.moonscript.org/modules/tieske/date
 * `lettersmith-tags` tagging via headmatter
 * `lettersmith-hashtags` tagging via `#hashtags`
 * `lettersmith-haml` https://github.com/norman/lua-haml
@@ -160,6 +156,8 @@ Plugins @todo
   * https://github.com/sass/libsass
   * https://github.com/craigbarnes/lua-sass
 * <strike>`lettersmith-date` calc nice dates from date field or file changed date. Maybe this should be part of core?</strike>
+* <strike>`lettersmith-permalinks` for clean urls. `about.html` -> `about/index.html`.</strike>
+
 
 License
 -------

@@ -129,7 +129,13 @@ function path.basename(s)
   until rest == nil
 
   -- @fixme I think the way I calculate the rest of the path may be too naive.
+  -- Update: it is. It doesn't take into account cases where you don't have a
+  -- basename.
   return head, s:sub(0, s:len() - head:len() - 1)
+end
+
+function path.remove_extension(path_string)
+  return path_string:gsub("%.%w+$", "")
 end
 
 function path.has_extension(location, extension)
