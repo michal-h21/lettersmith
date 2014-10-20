@@ -1,20 +1,27 @@
---[[
-Streams https://en.wikipedia.org/wiki/Stream_%28computing%29
-Lazy or greedy stream programming with coroutines.
-
-A stream is any function of shape `x(callback)` where `callback` is called by
-stream function with `value` repeatedly until exausted.
-
-Stream transformations consume a stream, returning a new stream representing
-transformed/filtered values.
-]]--
+-- Streams https://en.wikipedia.org/wiki/Stream_%28computing%29
+-- Lazy or greedy stream programming with coroutines.
+--
+-- A `stream` is any function of shape `stream(callback)` where `callback`
+-- function is called by stream function with values repeatedly until exausted.
+--
+-- Stream transformations consume a stream function, returning a new stream
+-- function representing transformed/filtered values (see `map` for a good
+-- example. This actually just transforms the function. No actual work happens
+-- until you invoke the resulting function with a callback. At that point, the
+-- stream will be "turned on" and "push" values to callback.
+--
+-- Streams can be made "pull" data structures by transforming with
+-- `lazily(stream)`. This will return a coroutine that may be consumed by
+-- for loops.
 
 local exports = {}
 
 local function values(t)
   -- Convert table `t` into an stream that will invoke `callback` with
   -- each value in table `t`.
-  return function (callback)    
+  -- Return stream function.
+  return function (callback)
+    -- Call callback with every value in table.
     for _, v in ipairs(t) do callback(v) end
   end
 end
@@ -23,6 +30,16 @@ exports.values = values
 local function lazily(stream)
   -- Wrap a stream function in a coroutine, making it a "pull" data structure
   -- rather than a "push" data structure.
+  --
+  -- Streams can be made "pull" data structures by transforming with
+  -- `lazily(stream)`. This will return a coroutine that may be consumed by
+  -- for loops.
+  --
+  --     for v in lazily(stream) do print(v) end
+  --
+  -- This will block for each value of stream.
+  --
+  -- Return a coroutine iterator function. These can only be consumed once.
   return coroutine.wrap(function ()
     stream(coroutine.yield)
   end)
@@ -108,8 +125,15 @@ end
 exports.zip_with = zip_with
 
 --[[
-local function take(next, n)
-  -- @TODO
+
+local function take(stream, n)
+  return function(callback)
+    local item = lazily(stream)
+    local x
+
+    while (x = item()) and (n = n -1) do
+      callback(x)
+    end
 end
 exports.take = take
 
