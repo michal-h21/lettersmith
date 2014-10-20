@@ -16,4 +16,9 @@ local function merge(a, b)
 end
 exports.merge = merge
 
+local function shallow_copy(t)
+  return extend({}, t)
+end
+exports.shallow_copy = shallow_copy
+
 return exports
