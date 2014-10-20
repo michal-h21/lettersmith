@@ -137,6 +137,17 @@ end
 ```
 
 
+What's so great about static sites?
+-----------------------------------
+
+Why use Lettersmith?
+
+- The most important reason: it's simple.
+- Blazing-fast sites on cheap hosting. Run-of-the-mill servers like Apache and nginx can serve thousands of static files per second.
+- You can't hack what doesn't exist. Static sites aren't prone to being hacked, because they're entirely static... there is no program to hack.
+- Your data is in plain text. No databases to worry about, no export necessary. Want to take your data elsewhere? It's all there in text files.
+
+
 Status
 ------
 
@@ -154,6 +165,8 @@ Themes @todo
 
 * Default theme that can be used by calling a single function
 * Twitter Bootstrap theme
+* Photo/gallery theme (just drop images into a directory and get a gallery)
+* Podcast theme (automatic player controls)
 
 Plugins @todo
 
