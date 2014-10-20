@@ -2,10 +2,6 @@ local exports = {}
 
 local list = require('colist')
 local map = list.map
-local zip_with = list.zip_with
-local folds = list.folds
-local collect = list.collect
-local lazy = list.lazy
 
 local util = require('util')
 local merge = util.merge
@@ -59,31 +55,33 @@ local function renderer(src_extensions, rendered_extension, render)
 end
 exports.renderer = renderer
 
-local function walk_and_yield_filepaths(dirpath)
-  for f in children(dirpath) do
-    local filepath = path.join(dirpath, f)
+local function walk_filepaths_cps(path_string, callback)
+  for f in children(path_string) do
+    local filepath = path.join(path_string, f)
 
     if is_file(filepath) then
-      coroutine.yield(filepath)
+      callback(filepath)
     elseif is_dir(filepath) then
-      walk_and_yield_filepaths(filepath)
+      walk_filepaths_cps(filepath, callback)
     end
   end
 end
 
-local function walk_filepaths(dirpath)
-  return coroutine.wrap(function () walk_and_yield_filepaths(dirpath) end)
+local function emit_filepaths(path_string)
+  return function(callback)
+    walk_filepaths_cps(path_string, callback)
+  end
 end
-exports.walk_filepaths = walk_filepaths
+exports.emit_filepaths = emit_filepaths
 
-local function docs(dirpath)
+local function docs(path_string)
   -- Walk directory, creating doc objects from files.
   -- Returns a generator function of doc objects.
   -- Warning: generator may only be consumed once! If you need to consume it
   -- more than once, call `docs` again, or use `collect` to load all docs into
   -- an array table.
 
-  local filepaths = walk_filepaths(dirpath)
+  local filepaths = emit_filepaths(path_string)
 
   return map(filepaths, function (filepath)
     -- Read all filepaths into strings.
@@ -108,7 +106,7 @@ local function docs(dirpath)
     -- can be used for URLs too.
     -- @fixme this should be a proper relativize function. Lots of assumptions
     -- being made here.
-    local relative_filepath = string.gsub(filepath, dirpath .. "/", "")
+    local relative_filepath = string.gsub(filepath, path_string .. "/", "")
 
     -- Set relative_filepath on doc
     doc.relative_filepath = relative_filepath
@@ -119,17 +117,17 @@ end
 exports.docs = docs
 
 -- @FIXME have to create files/directories when they don't exist.
-local function build(docs, dirpath)
+local function build(docs, path_string)
   -- @TODO First remove build dir if it still exists.
   -- This needs to be recursive, since rmdir will refuse to delete dirs that
   -- aren't empty.
-  if location_exists(dirpath) then assert(remove_recursive(dirpath)) end
+  if location_exists(path_string) then assert(remove_recursive(path_string)) end
 
   -- Then generate files.
-  for doc in docs do
-    local filepath = path.join(dirpath, doc.relative_filepath)
+  docs(function (doc)
+    local filepath = path.join(path_string, doc.relative_filepath)
     assert(write_entire_file_deep(filepath, doc.contents))
-  end
+  end)
 end
 exports.build = build
 

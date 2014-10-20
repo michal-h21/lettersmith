@@ -14,6 +14,7 @@ local list = require('colist')
 local reject = list.reject
 local values = list.values
 local folds = list.folds
+local lazily = list.lazily
 
 local path = require('path')
 
@@ -72,12 +73,12 @@ local function mkdir_deep(location)
 
   -- Need to convert parts (table) to generator. @todo perhaps change
   -- parts to return generator?
-  local dirpaths = folds(values(parts), function (seed, part)
+  local path_strings = folds(values(parts), function (seed, part)
     if seed == "" then return part else return seed .. "/" .. part end
   end, "")
 
-  for dirpath in dirpaths do
-    local is_success, message = mkdir_if_missing(dirpath)
+  for path_string in lazily(path_strings) do
+    local is_success, message = mkdir_if_missing(path_string)
     if not is_success then return is_success, message end
   end
 

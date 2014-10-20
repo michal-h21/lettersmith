@@ -31,99 +31,100 @@ If you need to consume a list multiple times you have a couple of options:
 local exports = {}
 
 local function values(t)
-  -- Convert table `t` into stateful generator coroutine that yields values of
-  -- table. Unfortunately, you can't pass the result of `ipairs` as a
-  -- first-class value, because it requires the context provided by the
-  -- for loop. Our answer is to provide `values` that will allow you to iterate
-  -- over the items in a table with a stateful coroutine that can be passed
-  -- around to other functions.
-  return coroutine.wrap(function()
-    for _, v in ipairs(t) do coroutine.yield(v) end
-  end)
+  -- Convert table `t` into an event stream that will invoke `callback` with
+  -- each value in table `t`.
+  return function (callback)    
+    for _, v in ipairs(t) do callback(v) end
+  end
 end
 exports.values = values
 
-local function fold(colist, step, seed)
-  -- Iterate over items, returning value folded from `seed`.
-  for v in colist do seed = step(seed, v) end
-  return seed
-end
-exports.fold = fold
-
-local function folds(colist, step, seed)
-  -- Iterate over items, returning generator which will yield every permutation
-  -- folded from `seed`.
+local function lazily(events)
+  -- Wrap an event function in a coroutine, making it a "pull" data structure
+  -- rather than a "push" data structure.
   return coroutine.wrap(function ()
-    for v in colist do
-      seed = step(seed, v)
-      coroutine.yield(seed)
-    end
+    events(coroutine.yield)
   end)
 end
-exports.folds = folds
+exports.lazily = lazily
 
--- One-off function that wraps table.insert to make its order of magic args
--- play nicely with fold.
-local function iinsert(t, v) table.insert(t, v) return t end
-
-local function collect(colist)
-  -- Collect all values of iterator into table.
-  -- Note that since generators are lazy "pull" data structures,
-  -- they can be infinite. Dumping an infinite generator into a table
-  -- will exhaust memory. Be smart.
-  -- Returns a new array table containing all values from generator.
-  return fold(colist, iinsert, {})
-end
-exports.collect = collect
-
-local function map(colist, transform)
-  return coroutine.wrap(function ()
-    for v in colist do coroutine.yield(transform(v)) end
-  end)
+local function map(events, transform)
+  return function (callback)
+    events(function (v)
+      callback(transform(v))
+    end)
+  end
 end
 exports.map = map
 
-local function filter(colist, predicate)
-  return coroutine.wrap(function ()
-    for v in colist do
-      if predicate(v) then coroutine.yield(v) end
-    end
-  end)
+local function filter(events, predicate)
+  return function (callback)
+    events(function (v)
+      if predicate(v) then callback(v) end
+    end)
+  end
 end
 exports.filter = filter
 
-local function reject(colist, predicate)
-  return coroutine.wrap(function ()
-    for v in colist do
-      if not predicate(v) then coroutine.yield(v) end
-    end
-  end)
+local function reject(events, predicate)
+  return function (callback)
+    events(function (v)
+      if not predicate(v) then callback(v) end
+    end)
+  end
 end
 exports.reject = reject
 
-local function zip_with(a, b, combine)
+local function folds(events, step, seed)
+  -- Iterate over items, returning generator which will yield every permutation
+  -- folded from `seed`.
+  return function (callback)
+    events(function (v)
+      seed = step(seed, v)
+      callback(seed)
+    end)
+  end
+end
+exports.folds = folds
+
+local function merge(a, b)
+  -- Merge values from 2 streams into a single stream, ordered by time.
+  -- Returns new stream.
+  return function(callback)
+    a(callback)
+    b(callback)
+  end
+end
+exports.merge = merge
+
+local function concat(a, b)
+  -- Merge values from 2 streams into a single stream, ordered by time.
+  -- Returns new stream.
+  return function(callback)
+    local _a, _b = lazily(a), lazily(b)
+    -- First consume lazy version of event stream `a`
+    for v in _a do callback(v) end
+    -- Then, consume lazy version of event stream `b`
+    for v in _b do callback(v) end
+  end
+end
+exports.concat = concat
+
+local function zip_with(events_a, events_b, combine)
   -- Zip items of b with a, using function `combine` to create value.
   -- Returns new iterator with result of combining a and b.
   -- Note that zip_with will only zip as far as the shortest list.
-  return coroutine.wrap(function ()
+  return function (callback)
+    local a, b = lazily(events_a), lazily(events_b)
     local x, y = a(), b()
 
     while x and y do
-      coroutine.yield(combine(x, y))
+      callback(combine(x, y))
       x, y = a(), b()
     end
-  end)
+  end
 end
 exports.zip_with = zip_with
-
-local function concat(a, b)
-  return coroutine.wrap(function ()
-    for v in a do coroutine.yield(v) end
-    -- Pick up `b` when `a` is exhausted.
-    for v in b do coroutine.yield(v) end
-  end)
-end
-exports.concat = concat
 
 --[[
 local function take(next, n)
@@ -136,5 +137,22 @@ local function take_while(next, predicate)
 end
 exports.take_while = take_while
 ]]--
+
+local function fold(next, step, seed)
+  -- Iterate over stateless iterator function, returning value folded
+  -- from `seed`.
+  for v in next do seed = step(seed, v) end
+  return seed
+end
+exports.fold = fold
+
+local function append(t, v) table.insert(t, v) return t end
+exports.append = append
+
+local function collect(events)
+  -- Collect all values of events into a table.
+  return fold(lazily(events), append, {})
+end
+exports.collect = collect
 
 return exports

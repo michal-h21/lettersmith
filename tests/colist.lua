@@ -1,10 +1,12 @@
 local microtest = require("microtest")
 local suite = microtest.suite
 local test = microtest.test
+local equal = microtest.equal
 
 local list = require("colist")
 local map = list.map
 local values = list.values
+local merge = list.merge
 local concat = list.concat
 local collect = list.collect
 local filter = list.filter
@@ -29,6 +31,14 @@ suite("filter()", function ()
   test(t[1] == 'a' and t[2] == 'a', "Only contains items passing test")
 end)
 
+suite("merge()", function ()
+  local a = values({1, 2, 3})
+  local b = values({4, 5, 6})
+  local ab = merge(a, b)
+  local t = collect(ab)
+
+  test(table.getn(t) == 6, "All items collected")
+end)
 
 suite("concat()", function ()
   local a = values({1, 2, 3})
@@ -37,8 +47,9 @@ suite("concat()", function ()
   local t = collect(ab)
 
   test(table.getn(t) == 6, "All items collected")
-  test(t[1] == 1 and t[3] == 3, "a is consumed before b")
-  test(t[4] == 4 and t[6] == 6, "b is consumed after a")
+
+  equal(t[1], 1, "Items in a collected before table b")
+  equal(t[5], 5, "Items in b collected after table a")
 end)
 
 suite("zip_with()", function ()
