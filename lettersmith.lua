@@ -2,6 +2,7 @@ local exports = {}
 
 local list = require('colist')
 local map = list.map
+local fold = list.fold
 
 local util = require('util')
 local merge = util.merge
@@ -116,18 +117,20 @@ local function docs(path_string)
 end
 exports.docs = docs
 
--- @FIXME have to create files/directories when they don't exist.
-local function build(docs, path_string)
-  -- @TODO First remove build dir if it still exists.
-  -- This needs to be recursive, since rmdir will refuse to delete dirs that
-  -- aren't empty.
+local function build(doc_stream, path_string)
+  local start = os.time()
+
   if location_exists(path_string) then assert(remove_recursive(path_string)) end
 
-  -- Then generate files.
-  docs(function (doc)
+  local number_of_files = fold(doc_stream, function (number_of_files, doc)
     local filepath = path.join(path_string, doc.relative_filepath)
     assert(write_entire_file_deep(filepath, doc.contents))
-  end)
+    return number_of_files + 1
+  end, 1)
+
+  local build_time = os.time() - start
+
+  print("Done! Generated " .. number_of_files .. " files in " .. build_time .. 's.')
 end
 exports.build = build
 
