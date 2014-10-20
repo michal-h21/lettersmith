@@ -1,7 +1,10 @@
 --[[
-Lettersmith Meta
+Lettersmith Collections
 
-Add metadata to every doc object. This is useful for things like site meta.
+Add collections of docs, accessible from every doc.
+
+Note that while docs in collection are shallow copies, all docs share a single
+reference to the collection. Modify it at your peril.
 
 Usage:
 
@@ -9,15 +12,14 @@ Usage:
     local lettersmith = require('lettersmith')
     local docs = lettersmith.docs('raw')
 
-    local site_meta = {
-      site_title = "My Website",
-      site_url = "http://example.com"
-    }
+    docs = use_collections(docs, "posts", "blog/")
 
-    build(use_meta(docs, site_meta), "out")
+    build(docs, "out")
 --]]
-local list = require('colist')
-local map = list.map
+local streams = require('colist')
+local map = streams.map
+local filter = streams.filter
+local collect = streams.collect
 
 local date = require("date")
 
