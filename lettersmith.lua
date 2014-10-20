@@ -42,7 +42,7 @@ local function renderer(src_extensions, rendered_extension, render)
       -- Replace file extension
       local relative_filepath = string.gsub(
         doc.relative_filepath,
-        "\.[^.]+$",
+        "%.[^.]+$",
         "." .. rendered_extension
       )
 
