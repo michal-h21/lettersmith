@@ -11,6 +11,7 @@ local concat = list.concat
 local collect = list.collect
 local filter = list.filter
 local zip_with = list.zip_with
+local take = list.take
 
 suite("map()", function ()
   function mult2(x) return x * 2 end
@@ -61,4 +62,15 @@ suite("zip_with()", function ()
 
   test(table.getn(t) == 3, "All items collected")
   test(t[1] == 5 and t[2] == 7 and t[3] == 9, 'Items zipped correctly')
+end)
+
+suite("take()", function ()
+  local a = values({1, 2, 3, 4, 5, 6})
+
+  local a_3 = take(a, 3)
+
+  local t = collect(a_3)
+
+  equal(t[3], 3, "Took up to correct number")
+  equal(t[4], nil, "Did not take beyond correct number")
 end)

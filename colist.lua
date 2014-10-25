@@ -124,18 +124,20 @@ local function zip_with(stream_a, stream_b, combine)
 end
 exports.zip_with = zip_with
 
---[[
-
 local function take(stream, n)
   return function(callback)
-    local item = lazily(stream)
-    local x
+    local yield_item = lazily(stream)
 
-    while (x = item()) and (n = n -1) do
-      callback(x)
-    end
+    repeat
+      local item = yield_item()
+      n = n - 1
+      callback(item)
+    until n == 0 or item == nil
+  end
 end
 exports.take = take
+
+--[[
 
 local function take_while(next, predicate)
   -- @TODO
