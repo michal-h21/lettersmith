@@ -170,6 +170,7 @@ Themes @todo
 
 Plugins @todo
 
+* `lettersmith-rss` for easy feed generation
 * `lettersmith-thumbnails` for generating multiple image sizes. Someting like `use_thumbnails(docs, { { w: 200, h: 200, crop: true } })`.
   * lua-gd https://ittner.github.io/lua-gd/
   * http://lua-users.org/wiki/GdThumbnail
