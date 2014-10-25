@@ -3,7 +3,7 @@ local suite = microtest.suite
 local test = microtest.test
 local equal = microtest.equal
 
-local list = require("colist")
+local list = require("streams")
 local map = list.map
 local values = list.values
 local merge = list.merge

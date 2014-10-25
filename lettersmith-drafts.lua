@@ -15,8 +15,8 @@ Usage:
 
     build(docs, "out")
 --]]
-local list = require('colist')
-local reject = list.reject
+local streams = require("streams")
+local reject = streams.reject
 
 return function (docs)
   -- Reject all documents that are drafts.

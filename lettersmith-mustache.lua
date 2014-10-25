@@ -26,8 +26,8 @@ another field before templating.
 
 local lustache = require('lustache')
 
-local list = require('colist')
-local map = list.map
+local streams = require("streams")
+local map = streams.map
 
 local util = require('util')
 local merge = util.merge

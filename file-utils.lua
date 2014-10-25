@@ -5,18 +5,18 @@ A thin wrapper around `lua-file-system` and `io`, tailored to Lettersmith's
 particular needs.
 ]]--
 
-local lfs = require('lfs')
+local lfs = require("lfs")
 local attributes = lfs.attributes
 local mkdir = lfs.mkdir
 local rmdir = lfs.rmdir
 
-local list = require('colist')
-local reject = list.reject
-local values = list.values
-local folds = list.folds
-local to_coroutine = list.to_coroutine
+local streams = require("streams")
+local reject = streams.reject
+local values = streams.values
+local folds = streams.folds
+local to_coroutine = streams.to_coroutine
 
-local path = require('path')
+local path = require("path")
 
 local exports = {}
 
@@ -57,7 +57,7 @@ end
 
 local function children(location)
   return coroutine.wrap(function ()
-    -- We use a for-loop instead of colist.reject because lfs.dir requires the
+    -- We use a for-loop instead of streams.reject because lfs.dir requires the
     -- context of a userdata table it returns as a second argument.
     for sub_location in lfs.dir(location) do
       if is_plain_location(sub_location) then coroutine.yield(sub_location) end

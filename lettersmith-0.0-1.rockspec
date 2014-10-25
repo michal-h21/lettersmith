@@ -38,7 +38,7 @@ build = {
     ["lettersmith.meta"] = "lettersmith-meta.lua",
 
     -- Libraries
-    ["lettersmith.colist"] = "colist.lua",
+    ["lettersmith.streams"] = "streams.lua",
     ["lettersmith.headmatter"] = "headmatter.lua",
     ["lettersmith.path"] = "lettersmith.path",
     ["lettersmith.file_utils"] = "file-utils.lua",

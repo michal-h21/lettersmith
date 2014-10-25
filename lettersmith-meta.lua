@@ -16,10 +16,10 @@ Usage:
 
     build(use_meta(docs, site_meta), "out")
 --]]
-local list = require('colist')
-local map = list.map
+local streams = require("streams")
+local map = streams.map
 
-local util = require('util')
+local util = require("util")
 local merge = util.merge
 
 return function (docs, meta)

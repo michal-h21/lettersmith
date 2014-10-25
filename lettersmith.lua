@@ -1,8 +1,8 @@
 local exports = {}
 
-local list = require('colist')
-local map = list.map
-local fold = list.fold
+local streams = require("streams")
+local map = streams.map
+local fold = streams.fold
 
 local util = require('util')
 local merge = util.merge

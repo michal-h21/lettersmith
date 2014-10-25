@@ -70,7 +70,7 @@ Creating a site is simple. Just create a new lua file. Call it anything you like
 ```lua
 local lettersmith = require("lettersmith")
 local use_markdown = require("lettersmith-markdown")
-local filter = require("colist").filter
+local filter = require("streams").filter
 
 -- Get docs list
 local docs = lettersmith.docs("raw/")
@@ -118,9 +118,9 @@ print(docs)
 -- function: 0x7fc573700450
 ```
 
-Just like a table, you can use `for` to loop over items inside. However, unlike a table, only one doc exists in memory at a time. This lets us load in massive numbers of files without a problem. The library `colist` gives you standard `map`, `filter`, `reduce` functions that will also return generators.
+Just like a table, you can use `for` to loop over items inside. However, unlike a table, only one doc exists in memory at a time. This lets us load in massive numbers of files without a problem. The library `streams` gives you standard `map`, `filter`, `reduce` functions that will also return generators.
 
-Fancy generators not your thing? Just use `colist.collect` to load all docs into a standard Lua table:
+Fancy generators not your thing? Just use `streams.collect` to load all docs into a standard Lua table:
 
 ```lua
 local docs = collect(lettersmith.docs('raw/'))
@@ -190,6 +190,14 @@ Plugins @todo
   * https://github.com/craigbarnes/lua-sass
 * <strike>`lettersmith-date` calc nice dates from date field or file changed date. Maybe this should be part of core?</strike>
 * <strike>`lettersmith-permalinks` for clean urls. `about.html` -> `about/index.html`.</strike>
+
+
+Thoughts
+--------
+
+- The goal shoudl be to avoid magic. However, for users that do not have experience with Lua or programming, it would be great to have a one-step process for installing and using plugins, as well as configuration. It's best to think of this as a veneer or "UI" on top of a no-frills no-magic, explicit-over-implicit library.
+- Future Mac app... how to dispay thumbnails and theme information? Could have an `auto_register(t)` function that takes a table and looks for by-convention fields like `t[info]` and `t[use]`. Plugins could opt in to exporting these fields.
+- Plugins should be distributed via Luarocks or a standard package manager, rather than some bespoke solution.
 
 
 License

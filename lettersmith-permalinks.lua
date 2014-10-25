@@ -32,8 +32,8 @@ Usage:
     docs = use_permalinks(docs, ":yyyy/:mm/:dd/:slug")
     build(docs, "out")
 --]]
-local list = require("colist")
-local map = list.map
+local streams = require("streams")
+local map = streams.map
 
 local util = require("util")
 local merge = util.merge
