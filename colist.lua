@@ -125,6 +125,12 @@ end
 exports.zip_with = zip_with
 
 local function take(stream, n)
+  -- Take up to `n` number of items from stream.
+  -- Returns a new stream containing at most `n` items.
+
+  -- Just return original stream if number of items to take is infinite.
+  if n == math.huge then return stream end
+
   return function(callback)
     local yield_item = lazily(stream)
 

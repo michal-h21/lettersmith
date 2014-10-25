@@ -73,4 +73,9 @@ suite("take()", function ()
 
   equal(t[3], 3, "Took up to correct number")
   equal(t[4], nil, "Did not take beyond correct number")
+
+  local huge_stream = take(a, math.huge)
+
+  -- Note this is not a formal API requirement, just an optimization.
+  equal(huge_stream, a, "Returns original stream when number of items is math.huge")
 end)
