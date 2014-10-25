@@ -138,7 +138,7 @@ local function take(stream, n)
       local item = yield_item()
       n = n - 1
       callback(item)
-    until n == 0 or item == nil
+    until n < 1 or item == nil
   end
 end
 exports.take = take

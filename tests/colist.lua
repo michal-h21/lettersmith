@@ -74,6 +74,11 @@ suite("take()", function ()
   equal(t[3], 3, "Took up to correct number")
   equal(t[4], nil, "Did not take beyond correct number")
 
+  local a_3_3 = take(a, 3.3)
+  local a_3_3 = collect(a_3_3)
+
+  equal(t[3], 3, "Handles taking floats by rounding down to nearest int")
+
   local huge_stream = take(a, math.huge)
 
   -- Note this is not a formal API requirement, just an optimization.
