@@ -11,7 +11,7 @@ function micro.test(truthy, message)
 end
 
 function micro.equal(a, b, message)
-  assert(a == b, "Failed! " .. message .. " (" .. a .. " ~= " .. b .. ")")
+  assert(a == b, "Failed! " .. message .. " (" .. tostring(a) .. " ~= " .. tostring(b) .. ")")
   print("• " .. message)
 end
 
