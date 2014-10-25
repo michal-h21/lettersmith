@@ -14,7 +14,7 @@ local list = require('colist')
 local reject = list.reject
 local values = list.values
 local folds = list.folds
-local lazily = list.lazily
+local to_coroutine = list.to_coroutine
 
 local path = require('path')
 
@@ -77,7 +77,7 @@ local function mkdir_deep(location)
     if seed == "" then return part else return seed .. "/" .. part end
   end, "")
 
-  for path_string in lazily(path_strings) do
+  for path_string in to_coroutine(path_strings) do
     local is_success, message = mkdir_if_missing(path_string)
     if not is_success then return is_success, message end
   end

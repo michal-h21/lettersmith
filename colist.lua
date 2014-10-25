@@ -11,7 +11,7 @@
 -- stream will be "turned on" and "push" values to callback.
 --
 -- Streams can be made "pull" data structures by transforming with
--- `lazily(stream)`. This will return a coroutine that may be consumed by
+-- `to_coroutine(stream)`. This will return a coroutine that may be consumed by
 -- for loops.
 
 local exports = {}
@@ -27,15 +27,15 @@ local function values(t)
 end
 exports.values = values
 
-local function lazily(stream)
+local function to_coroutine(stream)
   -- Wrap a stream function in a coroutine, making it a "pull" data structure
   -- rather than a "push" data structure.
   --
   -- Streams can be made "pull" data structures by transforming with
-  -- `lazily(stream)`. This will return a coroutine that may be consumed by
+  -- `to_coroutine(stream)`. This will return a coroutine that may be consumed by
   -- for loops.
   --
-  --     for v in lazily(stream) do print(v) end
+  --     for v in to_coroutine(stream) do print(v) end
   --
   -- This will block for each value of stream.
   --
@@ -44,7 +44,7 @@ local function lazily(stream)
     stream(coroutine.yield)
   end)
 end
-exports.lazily = lazily
+exports.to_coroutine = to_coroutine
 
 local function map(stream, transform)
   return function (callback)
@@ -99,7 +99,7 @@ local function concat(stream_a, stream_b)
   -- Merge values from 2 streams into a single stream, ordered by time.
   -- Returns new stream.
   return function(callback)
-    local a, b = lazily(stream_a), lazily(stream_b)
+    local a, b = to_coroutine(stream_a), to_coroutine(stream_b)
     -- First consume lazy version of stream `a`
     for v in a do callback(v) end
     -- Then, consume lazy version of stream `b`
@@ -113,7 +113,7 @@ local function zip_with(stream_a, stream_b, combine)
   -- Returns new iterator with result of combining a and b.
   -- Note that zip_with will only zip as far as the shortest list.
   return function (callback)
-    local a, b = lazily(stream_a), lazily(stream_b)
+    local a, b = to_coroutine(stream_a), to_coroutine(stream_b)
     local x, y = a(), b()
 
     while x and y do
@@ -132,7 +132,7 @@ local function take(stream, n)
   if n == math.huge then return stream end
 
   return function(callback)
-    local yield_item = lazily(stream)
+    local yield_item = to_coroutine(stream)
 
     repeat
       local item = yield_item()
@@ -154,7 +154,7 @@ exports.take_while = take_while
 local function fold(stream, step, seed)
   -- Iterate over an event stream, returning value folded
   -- from `seed`.
-  for v in lazily(stream) do seed = step(seed, v) end
+  for v in to_coroutine(stream) do seed = step(seed, v) end
   return seed
 end
 exports.fold = fold
