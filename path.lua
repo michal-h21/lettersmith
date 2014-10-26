@@ -146,13 +146,9 @@ function path.extension(path_string)
   return path_string:sub(dot_i)
 end
 
-function path.has_extension(location, extension)
-  return location:find("%." .. extension .. "$") ~= nil
-end
-
-function path.has_any_extension(location, extensions)
+function path.has_any_extension(path_string, extensions)
   for _, extension in ipairs(extensions) do
-    if path.has_extension(location, extension) then return true end
+    if path.extension(path_string) == extension then return true end
   end
   return false
 end

@@ -43,7 +43,7 @@ local function renderer(src_extensions, rendered_extension, render)
       local relative_filepath = string.gsub(
         doc.relative_filepath,
         "%.[^.]+$",
-        "." .. rendered_extension
+        rendered_extension
       )
 
       -- Return new shallow-copied doc with rendered contents
