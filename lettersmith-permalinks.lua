@@ -41,6 +41,8 @@ local extend = util.extend
 
 local path = require("path")
 
+local tokens = require("token-templates")
+
 local date = require("date")
 
 local exports = {}
@@ -56,13 +58,6 @@ local function to_slug(str)
   return trim_string(str):gsub("[^%w%s-_]", ""):gsub("%s", "-"):lower()
 end
 exports.to_slug = to_slug
-
-local function render_template(url_template, context)
-  return url_template:gsub(":([%w-_]+)", function(key)
-    return context[key] or ""
-  end)
-end
-exports.render_template = render_template
 
 local function filter_map_table_values(t, predicate, transform)
   -- Filter and map values in t, retaining fields that return a value.
@@ -112,7 +107,7 @@ local function render_doc_permalink_from_template(doc, url_template)
     dd = dd
   }, doc_context)
 
-  local path_string = render_template(url_template, context)
+  local path_string = tokens.render(url_template, context)
 
   -- Add index file to end of path and return.
   return path_string:gsub("/$", "/index" .. extension)
