@@ -120,9 +120,9 @@ function path.parts(s)
 end
 
 -- Return the portion at the end of a path.
-function path.basename(s)
+function path.basename(path_string)
   -- Get all parts of path as list table.
-  local head, rest = "", s
+  local head, rest = "", path_string
 
   repeat
     head, rest = path.shift(rest)
@@ -131,10 +131,12 @@ function path.basename(s)
   -- @fixme I think the way I calculate the rest of the path may be too naive.
   -- Update: it is. It doesn't take into account cases where you don't have a
   -- basename.
-  return head, s:sub(0, s:len() - head:len() - 1)
+  return head, path_string:sub(0, #path_string - #head - 1)
 end
 
 function path.remove_extension(path_string)
+  -- @todo let's deprecate this. It's redundant to have it when we could use
+  -- path.extension plus a gsub or plain string sub.
   return path_string:gsub("%.%w+$", "")
 end
 
