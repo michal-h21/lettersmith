@@ -56,24 +56,29 @@ local function renderer(src_extensions, rendered_extension, render)
 end
 exports.renderer = renderer
 
-local function walk_filepaths_cps(path_string, callback)
+local function walk_file_paths_cps(path_string, callback)
+  -- Recursively walk through directory at `path_string` calling
+  -- `callback` with each file path found.
   for f in children(path_string) do
     local filepath = path.join(path_string, f)
 
     if is_file(filepath) then
       callback(filepath)
     elseif is_dir(filepath) then
-      walk_filepaths_cps(filepath, callback)
+      walk_file_paths_cps(filepath, callback)
     end
   end
 end
 
-local function emit_filepaths(path_string)
+local function walk_file_paths(path_string)
+  -- Given `path_string` -- a path to a directory -- recursively walks through
+  -- directory and returns a stream of all file paths.
+  -- Returns a stream of file path strings.
   return function(callback)
-    walk_filepaths_cps(path_string, callback)
+    walk_file_paths_cps(path_string, callback)
   end
 end
-exports.emit_filepaths = emit_filepaths
+exports.walk_file_paths = walk_file_paths
 
 local function load_doc(base_path_string, relative_path_string)
   -- Load contents of a file as a document table.
@@ -114,7 +119,7 @@ local function docs(base_path_string)
   -- more than once, call `docs` again, or use `collect` to load all docs into
   -- an array table.
 
-  local path_stream = emit_filepaths(base_path_string)
+  local path_stream = walk_file_paths(base_path_string)
 
   return map(path_stream, function (path_string)
     -- Remove the base path string to get the relative file path.
