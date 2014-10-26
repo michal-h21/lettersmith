@@ -75,44 +75,48 @@ local function emit_filepaths(path_string)
 end
 exports.emit_filepaths = emit_filepaths
 
-local function docs(path_string)
+local function load_doc(base_path_string, relative_path_string)
+  -- Join base path and relative path into a full path string.
+  local path_string = path.join(base_path_string, relative_path_string)
+
+  -- @fixme get rid of assert in `read_entire_file`
+  -- return early with error instead
+  local file_string = read_entire_file(path_string)
+
+  -- Get YAML meta table and contents from headmatter parser.
+  -- We'll use the meta table as the doc object.
+  local doc, contents_string = headmatter.parse(file_string)
+
+  -- Since doc is a new table, go ahead and mutate it, setting contents
+  -- as field.
+  doc.contents = contents_string
+
+  -- Assign date field from modified file date, if it doesn't already exist.
+  local date_string = doc.date or lfs.attributes(path_string, "modified")
+  local date_iso = date(date_string):fmt("${iso}")
+  doc.date = date_iso
+
+  -- Set relative_filepath on doc.
+  -- Remove any leading slash so it is truly relative (not root relative).
+  doc.relative_filepath = relative_path_string:gsub("^/", "")
+
+  return doc
+end
+exports.load_doc = load_doc
+
+local function docs(base_path_string)
   -- Walk directory, creating doc objects from files.
   -- Returns a generator function of doc objects.
   -- Warning: generator may only be consumed once! If you need to consume it
   -- more than once, call `docs` again, or use `collect` to load all docs into
   -- an array table.
 
-  local filepaths = emit_filepaths(path_string)
+  local path_stream = emit_filepaths(base_path_string)
 
-  return map(filepaths, function (filepath)
-    -- Read all filepaths into strings.
-    -- Parse strings into doc objects.
-    local filestring = read_entire_file(filepath)
-
-    -- Get YAML meta table and contents from headmatter parser.
-    -- We'll use the meta table as the doc object.
-    local doc, contents = headmatter.parse(filestring)
-
-    -- Since doc is a new table, go ahead and mutate it, setting contents
-    -- as field.
-    doc.contents = contents
-
-    -- Assign date field from modified file date, if it doesn't already exist.
-    local date_string = doc.date or lfs.attributes(filepath, "modified")
-    local date_iso = date(date_string):fmt("${iso}")
-    doc.date = date_iso
-
-    -- Relativize filepaths... This is a bit of a cludge. I would prefer to have
-    -- absolute filepaths at all times, but relativized is so useful because it
-    -- can be used for URLs too.
-    -- @fixme this should be a proper relativize function. Lots of assumptions
-    -- being made here.
-    local relative_filepath = string.gsub(filepath, path_string .. "/", "")
-
-    -- Set relative_filepath on doc
-    doc.relative_filepath = relative_filepath
-
-    return doc
+  return map(path_stream, function (path_string)
+    -- Remove the base path string to get the relative file path.
+    local relative_path_string = path_string:sub(#base_path_string + 1)
+    return load_doc(base_path_string, relative_path_string)
   end)
 end
 exports.docs = docs
