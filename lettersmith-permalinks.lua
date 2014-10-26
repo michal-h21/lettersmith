@@ -76,6 +76,7 @@ end
 
 local function render_doc_permalink_from_template(doc, url_template)
   local basename, dir_path = path.basename(doc.relative_filepath)
+  local extension = path.extension(basename)
   local filename = path.remove_extension(basename)
 
   -- Uses title as slug, but falls back to the filename.
@@ -109,10 +110,8 @@ local function render_doc_permalink_from_template(doc, url_template)
 
   local path_string = render_template(url_template, context)
 
-  -- Add index.html to end of string and return.
-  -- @fixme this should not do a blanket ".html", but should keep the original
-  -- file extension.
-  return path_string:gsub("/$", "/index.html")
+  -- Add index file to end of path and return.
+  return path_string:gsub("/$", "/index" .. extension)
 end
 
 return function (docs, url_template)
