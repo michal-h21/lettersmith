@@ -12,6 +12,7 @@ local collect = list.collect
 local filter = list.filter
 local zip_with = list.zip_with
 local take = list.take
+local skim = list.skim
 
 suite("map()", function ()
   function mult2(x) return x * 2 end
@@ -28,7 +29,7 @@ suite("filter()", function ()
   local b = filter(a, function (x) return x == 'a' end)
   local t = collect(b)
 
-  test(table.getn(t) == 2, "Correct number of items passed")
+  test(#t == 2, "Correct number of items passed")
   test(t[1] == 'a' and t[2] == 'a', "Only contains items passing test")
 end)
 
@@ -38,7 +39,7 @@ suite("merge()", function ()
   local ab = merge(a, b)
   local t = collect(ab)
 
-  test(table.getn(t) == 6, "All items collected")
+  test(#t == 6, "All items collected")
 end)
 
 suite("concat()", function ()
@@ -47,7 +48,7 @@ suite("concat()", function ()
   local ab = concat(a, b)
   local t = collect(ab)
 
-  test(table.getn(t) == 6, "All items collected")
+  test(#t == 6, "All items collected")
 
   equal(t[1], 1, "Items in a collected before table b")
   equal(t[5], 5, "Items in b collected after table a")
@@ -60,7 +61,7 @@ suite("zip_with()", function ()
   local ab = zip_with(a, b, sum)
   local t = collect(ab)
 
-  test(table.getn(t) == 3, "All items collected")
+  test(#t == 3, "All items collected")
   test(t[1] == 5 and t[2] == 7 and t[3] == 9, 'Items zipped correctly')
 end)
 
@@ -83,4 +84,18 @@ suite("take()", function ()
 
   -- Note this is not a formal API requirement, just an optimization.
   equal(huge_stream, a, "Returns original stream when number of items is math.huge")
+end)
+
+suite("skim()", function ()
+  function is_greater_than(a, b)
+    return a > b
+  end
+
+  local a = values({1, 2, 3, 4, 5, 6})
+
+  local top_3 = skim(a, is_greater_than, 3)
+
+  equal(top_3[3], 4, "Sorted correctly")
+  equal(top_3[1], 6, "Sorted correctly")
+  equal(#top_3, 3, "Did not take beyond correct number")
 end)
