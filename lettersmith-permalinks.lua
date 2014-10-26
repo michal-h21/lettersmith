@@ -29,7 +29,7 @@ Usage:
     local lettersmith = require('lettersmith')
 
     local docs = lettersmith.docs("raw")
-    docs = use_permalinks(docs, ":yyyy/:mm/:dd/:slug")
+    docs = use_permalinks(docs, "*.html", ":yyyy/:mm/:dd/:slug")
     build(docs, "out")
 --]]
 local lettersmith = require("lettersmith")
