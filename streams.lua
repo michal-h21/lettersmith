@@ -199,6 +199,11 @@ local function skim(stream, compare, n)
   -- limit the number of results collected to a set of results that are "more
   -- important" (greater than) by some criteria.
 
+  -- Make sure we have a useful value for `n`.
+  -- If you don't provide `n`, `skim` ends up being equivalent to
+  -- collect, then sort.
+  n = n or math.huge
+
   -- Since streams are time-based, the only other options for sorting streams
   -- are:
   -- * Collect everything.
