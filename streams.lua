@@ -193,6 +193,9 @@ local function skim(stream, compare, n)
   -- and a buffer size, collect the `n` highest values into a table.
   -- This allows you to get a sorted list of items out of a stream.
   --
+  -- @TODO harvest might be a better name because it implies passage of time
+  -- as well as taking only things that have "grown" above a certain height.
+  --
   -- You'll have to wait for the stream to complete to get a return result,
   -- so infinite streams or streams with long delays are not advised.
   -- However, `skim` is useful for very large finite streams, where you want to
