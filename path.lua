@@ -138,6 +138,12 @@ function path.remove_extension(path_string)
   return path_string:gsub("%.%w+$", "")
 end
 
+function path.extension(path_string)
+  local dot_i = path_string:find("%.[^.]+$")
+  if not dot_i then return "" end
+  return path_string:sub(dot_i)
+end
+
 function path.has_extension(location, extension)
   return location:find("%." .. extension .. "$") ~= nil
 end
