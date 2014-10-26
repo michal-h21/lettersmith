@@ -110,6 +110,8 @@ local function render_doc_permalink_from_template(doc, url_template)
   local path_string = render_template(url_template, context)
 
   -- Add index.html to end of string and return.
+  -- @fixme this should not do a blanket ".html", but should keep the original
+  -- file extension.
   return path_string:gsub("/$", "/index.html")
 end
 
