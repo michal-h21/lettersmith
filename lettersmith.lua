@@ -2,8 +2,8 @@ local exports = {}
 
 local streams = require("streams")
 local map = streams.map
-local map_chosen = streams.map_chosen
 local fold = streams.fold
+local filter = streams.filter
 
 local util = require("util")
 local merge = util.merge
