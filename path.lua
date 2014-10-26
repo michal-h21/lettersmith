@@ -134,16 +134,14 @@ function path.basename(path_string)
   return head, path_string:sub(0, #path_string - #head - 1)
 end
 
-function path.remove_extension(path_string)
-  -- @todo let's deprecate this. It's redundant to have it when we could use
-  -- path.extension plus a gsub or plain string sub.
-  return path_string:gsub("%.%w+$", "")
-end
-
 function path.extension(path_string)
-  local dot_i = path_string:find("%.[^.]+$")
+  local dot_i = path_string:find("%.%w+$")
   if not dot_i then return "" end
   return path_string:sub(dot_i)
+end
+
+function path.replace_extension(path_string, new_extension)
+  return path_string:gsub("(%.%w+)$", new_extension)
 end
 
 function path.has_any_extension(path_string, extensions)

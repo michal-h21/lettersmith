@@ -77,7 +77,7 @@ end
 local function render_doc_permalink_from_template(doc, url_template)
   local basename, dir_path = path.basename(doc.relative_filepath)
   local extension = path.extension(basename)
-  local filename = path.remove_extension(basename)
+  local filename = path.replace_extension(basename, "")
 
   -- Uses title as slug, but falls back to the filename.
   -- @TODO it would probably be better to slugify all the string meta

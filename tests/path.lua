@@ -69,3 +69,11 @@ suite("path.extension(path_string)", function ()
   equal(path.extension("foo/bar/baz"), "", "Returns empty string for no extension")
   equal(path.extension("foo/bar.md"), ".md", "Returns extension")
 end)
+
+suite("path.replace_extension(path_string, new_extension)", function ()
+  local x = path.replace_extension("foo/bar/baz.md", ".html")
+  equal(x, "foo/bar/baz.html", "Replaces extension")
+
+  local y = path.replace_extension("bing/baz.foo.bar.md", ".html")
+  equal(y, "bing/baz.foo.bar.html", "Replaces only last extension")
+end)
