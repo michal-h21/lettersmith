@@ -64,3 +64,8 @@ suite("path.basename(location_string)", function ()
   local basename, rest = path.basename('foo/bar/baz.html')
   equal(rest, "foo/bar", "The rest of path is foo/bar")
 end)
+
+suite("path.extension(path_string)", function ()
+  equal(path.extension("foo/bar/baz"), "", "Returns empty string for no extension")
+  equal(path.extension("foo/bar.md"), ".md", "Returns extension")
+end)
