@@ -13,6 +13,7 @@ local filter = list.filter
 local zip_with = list.zip_with
 local take = list.take
 local skim = list.skim
+local prepend = list.prepend
 
 suite("map()", function ()
   function mult2(x) return x * 2 end
@@ -84,6 +85,17 @@ suite("take()", function ()
 
   -- Note this is not a formal API requirement, just an optimization.
   equal(huge_stream, a, "Returns original stream when number of items is math.huge")
+end)
+
+suite("prepend()", function ()
+  local a = values({2, 3, 4, 5, 6})
+
+  local b = prepend(a, 1)
+
+  local t = collect(b)
+
+  equal(t[1], 1, "Prependeds value")
+  equal(t[2], 2, "...Then consumes stream")
 end)
 
 suite("skim()", function ()

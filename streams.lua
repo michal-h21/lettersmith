@@ -108,6 +108,17 @@ local function concat(stream_a, stream_b)
 end
 exports.concat = concat
 
+local function prepend(stream, v)
+  -- Add value to beginning of stream, returning new stream.
+  return function (callback)
+    -- Call callback with value.
+    callback(v)
+    -- Then consume stream.
+    stream(callback)
+  end
+end
+exports.prepend = prepend
+
 local function zip_with(stream_a, stream_b, combine)
   -- Zip items of b with a, using function `combine` to create value.
   -- Returns new iterator with result of combining a and b.
@@ -159,17 +170,16 @@ local function fold(stream, step, seed)
 end
 exports.fold = fold
 
-local function append(t, v)
+local function append_to_table(t, v)
   -- Append a value to a table, mutating table.
   -- Returns mutated table.
   table.insert(t, v)
   return t
 end
-exports.append = append
 
 local function collect(stream)
   -- Collect all values of stream into a table.
-  return fold(stream, append, {})
+  return fold(stream, append_to_table, {})
 end
 exports.collect = collect
 
