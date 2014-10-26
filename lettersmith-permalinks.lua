@@ -25,15 +25,15 @@ For example, this template:
 
 Usage:
 
-    local use_permalinks = require('lettersmith.permalinks')
+    local use_permalinks = require('lettersmith.permalinks').use
     local lettersmith = require('lettersmith')
 
     local docs = lettersmith.docs("raw")
     docs = use_permalinks(docs, ":yyyy/:mm/:dd/:slug")
     build(docs, "out")
 --]]
-local streams = require("streams")
-local map = streams.map
+local lettersmith = require("lettersmith")
+local route = lettersmith.route
 
 local util = require("util")
 local merge = util.merge
@@ -42,6 +42,8 @@ local extend = util.extend
 local path = require("path")
 
 local date = require("date")
+
+local exports = {}
 
 local function trim_string(str)
   return str:gsub("^%s+", ""):gsub("%s+$", "")
@@ -53,12 +55,14 @@ local function to_slug(str)
   -- For example, `to_slug("   hEY. there! ")` returns `hey-there`.
   return trim_string(str):gsub("[^%w%s-_]", ""):gsub("%s", "-"):lower()
 end
+exports.to_slug = to_slug
 
 local function render_template(url_template, context)
   return url_template:gsub(":([%w-_]+)", function(key)
     return context[key] or ""
   end)
 end
+exports.render_template = render_template
 
 local function filter_map_table_values(t, predicate, transform)
   -- Filter and map values in t, retaining fields that return a value.
@@ -101,7 +105,7 @@ local function render_doc_permalink_from_template(doc, url_template)
   local context = extend({
     file_slug = file_slug,
     slug = slug,
-    path = dir_path,
+    dir_path = dir_path,
     yyyy = yyyy,
     yy = yy,
     mm = mm,
@@ -117,10 +121,10 @@ end
 -- @TODO permalinks should be route-based rather than blanket rewrites,
 -- or at least should target only .html. This way we don't rewrite CSS
 -- and assets
-return function (docs, url_template)
+local function use(doc_stream, path_query_string, url_template)
   -- Reject all documents that are drafts.
   -- Returns a new generator list of documents that are not drafts.
-  return map(docs, function (doc)
+  return route(doc_stream, path_query_string, function (doc)
     local permalink = render_doc_permalink_from_template(doc, url_template)
 
     return merge(doc, {
@@ -128,3 +132,6 @@ return function (docs, url_template)
     })
   end)
 end
+exports.use = use
+
+return exports
