@@ -114,6 +114,9 @@ local function render_doc_permalink_from_template(doc, url_template)
   return path_string:gsub("/$", "/index" .. extension)
 end
 
+-- @TODO permalinks should be route-based rather than blanket rewrites,
+-- or at least should target only .html. This way we don't rewrite CSS
+-- and assets
 return function (docs, url_template)
   -- Reject all documents that are drafts.
   -- Returns a new generator list of documents that are not drafts.
