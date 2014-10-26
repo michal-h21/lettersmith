@@ -2,14 +2,17 @@ local exports = {}
 
 local streams = require("streams")
 local map = streams.map
+local map_chosen = streams.map_chosen
 local fold = streams.fold
 
-local util = require('util')
+local util = require("util")
 local merge = util.merge
 
-local path = require('path')
+local path = require("path")
 
-local file_utils = require('file-utils')
+local query = require("query")
+
+local file_utils = require("file-utils")
 local children = file_utils.children
 local is_file = file_utils.is_file
 local is_dir = file_utils.is_dir
@@ -22,39 +25,53 @@ local lfs = require("lfs")
 
 local date = require("date")
 
-local headmatter = require('headmatter')
+local headmatter = require("headmatter")
 
--- A convenience function for writing renderers.
--- Provide a list of file extensions and a render function.
--- Returns a mapping function that will render all matching files in `docs`,
--- returning new generator list of rendered `docs`.
-local function renderer(src_extensions, rendered_extension, render)
-  return function (docs)
-    return map(docs, function (doc)
-      -- @todo should we throw an error if extensions have `.` included?
-      if not path.has_any_extension(doc.relative_filepath, src_extensions) then
-        return doc
-      end
+local function route(doc_stream, path_query_string, transform)
+  -- Transform documents in stream that match a particular route.
+  -- You can use query strings to match documents by wildcard, e.g.
+  -- `*.md` or `/**.md`.
 
-      -- Render contents
-      local rendered = render(doc.contents)
+  -- Parse query string into pattern.
+  local pattern = query.parse(path_query_string)
 
-      -- Replace file extension
-      local relative_filepath = string.gsub(
-        doc.relative_filepath,
-        "%.[^.]+$",
-        rendered_extension
-      )
-
-      -- Return new shallow-copied doc with rendered contents
-      return merge(doc, {
-        contents = rendered,
-        relative_filepath = relative_filepath
-      })
-    end)
-  end
+  return map(doc_stream, function (doc)
+    -- Skip processing if path does not match query pattern.
+    if not doc.relative_filepath:find(pattern) then return doc end
+    -- Otherwise transform doc table, replacing it with whatever `transform`
+    -- returns.
+    return transform(doc)
+  end)
 end
-exports.renderer = renderer
+exports.route = route
+
+local function render(doc_stream, path_query_string, rendered_extension, render)
+  -- A convenience function for writing renderers.
+  -- `doc_stream`: the stream of documents to process.
+  -- `path_query_string`: a path with optional wildcards.
+  -- `rendered_extension`: the extension to use on rendered doc (including .)
+  -- `render`: a function to render content.
+  -- Returns a new doc stream containing rendered docs and non-rendered docs.
+
+  -- A special route type
+  return route(doc_stream, path_query_string, function(doc)
+    -- Render contents
+    local rendered = render(doc.contents)
+
+    -- Replace file extension
+    local relative_filepath = path.replace_extension(
+      doc.relative_filepath,
+      rendered_extension
+    )
+
+    -- Return new shallow-copied doc with rendered contents
+    return merge(doc, {
+      contents = rendered,
+      relative_filepath = relative_filepath
+    })
+  end)
+end
+exports.render = render
 
 local function walk_file_paths_cps(path_string, callback)
   -- Recursively walk through directory at `path_string` calling

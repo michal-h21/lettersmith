@@ -14,6 +14,8 @@ Usage:
 local markdown = require('discount')
 
 local lettersmith = require('lettersmith')
-local renderer = lettersmith.renderer
+local render = lettersmith.render
 
-return renderer({".md", ".markdown", ".mdown"}, '.html', markdown)
+return function(doc_stream)
+  return render(doc_stream, "**.md", '.html', markdown)
+end
