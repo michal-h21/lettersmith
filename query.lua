@@ -28,7 +28,10 @@ function query.parse(query_string)
     :gsub("__DOUBLE_STAR__", ".+")
     :gsub("__SINGLE_STAR__", "[^/]+")
 
-  return pattern
+  -- Make sure pattern matches from beginning of string.
+  local bounded = "^" .. pattern
+
+  return bounded
 end
 
 return query
