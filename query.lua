@@ -17,16 +17,19 @@ function query.parse(query_string)
   -- Replace double-asterisk and single-asterisk query symbols with
   -- temporary tokens.
   local tokenized = query_string
-    :gsub("%*%*", "__DOUBLE_STAR__")
-    :gsub("%*", "__SINGLE_STAR__")
+    :gsub("%*%*", "__DOUBLE_WILDCARD__")
+    :gsub("%*", "__WILDCARD__")
+    :gsub("%?", "__ANY_CHAR__")
   -- Then escape any magic characters.
   local escaped = query.escape_pattern(tokenized)
   -- Finally, replace tokens with true magic-character patterns.
   -- Double-asterisk will traverse any number of characters to make a match.
   -- single-asterisk will only traverse non-slash characters (i.e. in same dir).
+  -- the ? will match any single character.
   local pattern = escaped
-    :gsub("__DOUBLE_STAR__", ".+")
-    :gsub("__SINGLE_STAR__", "[^/]+")
+    :gsub("__DOUBLE_WILDCARD__", ".+")
+    :gsub("__WILDCARD__", "[^/]+")
+    :gsub("__ANY_CHAR__", ".")
 
   -- Make sure pattern matches from beginning of string.
   local bounded = "^" .. pattern

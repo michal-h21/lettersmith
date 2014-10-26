@@ -17,4 +17,10 @@ suite("query.parse(path_query_string)", function()
   test(string.find("foo/bar/baz/bing.md", pattern_b), "** matched path correctly")
 
   test(not string.find("baz/foo/bar.md", pattern_b), "** matched from beginning")
+
+  local pattern_c = query.parse("foo/?.md")
+
+  test(string.find("foo/b.md", pattern_c), "? matched path correctly")
+
+  test(not string.find("foo/bar.md", pattern_c), "? did not match more than one char")
 end)
