@@ -76,6 +76,10 @@ end
 exports.emit_filepaths = emit_filepaths
 
 local function load_doc(base_path_string, relative_path_string)
+  -- Load contents of a file as a document table.
+  -- Returns a new document table containing:
+  -- `date`, `contents`, plus any other properties defined in headmatter.
+
   -- Join base path and relative path into a full path string.
   local path_string = path.join(base_path_string, relative_path_string)
 
@@ -93,8 +97,7 @@ local function load_doc(base_path_string, relative_path_string)
 
   -- Assign date field from modified file date, if it doesn't already exist.
   local date_string = doc.date or lfs.attributes(path_string, "modified")
-  local date_iso = date(date_string):fmt("${iso}")
-  doc.date = date_iso
+  doc.date = date(date_string):fmt("${iso}")
 
   -- Set relative_filepath on doc.
   -- Remove any leading slash so it is truly relative (not root relative).
