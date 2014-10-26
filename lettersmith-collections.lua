@@ -8,7 +8,7 @@ reference to the collection. Modify it at your peril.
 
 Usage:
 
-    local use_meta = require('lettersmith-meta')
+    local use_collections = require('lettersmith-collections')
     local lettersmith = require('lettersmith')
     local docs = lettersmith.docs('raw')
 
@@ -16,7 +16,7 @@ Usage:
 
     build(docs, "out")
 --]]
-local streams = require('colist')
+local streams = require("streams")
 local map = streams.map
 local filter = streams.filter
 local collect = streams.collect
