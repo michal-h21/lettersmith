@@ -14,6 +14,7 @@ local zip_with = list.zip_with
 local take = list.take
 local skim = list.skim
 local prepend = list.prepend
+local chunk = list.chunk
 
 suite("map()", function ()
   function mult2(x) return x * 2 end
@@ -110,4 +111,17 @@ suite("skim()", function ()
   equal(top_3[3], 4, "Sorted correctly")
   equal(top_3[1], 6, "Sorted correctly")
   equal(#top_3, 3, "Did not take beyond correct number")
+end)
+
+suite("chunk(stream, n)", function ()
+  local a = values({1, 2, 3, 4, 5, 6, 7})
+
+  local pairs_stream = chunk(a, 3)
+
+  local pairs_list = collect(pairs_stream)
+
+  equal(pairs_list[1][1], 1, "Chunks stream")
+  equal(pairs_list[1][2], 2, "Chunks stream")
+  equal(#pairs_list, 3, "Chunks correct number of chunks")
+  equal(#pairs_list[3], 1, "Collects leftover chunk")
 end)

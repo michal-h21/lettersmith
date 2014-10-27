@@ -241,4 +241,30 @@ local function skim(stream, compare, n)
 end
 exports.skim = skim
 
+local function chunk(stream, n)
+  -- Divide a stream into chunks, returning a new stream with tables containing
+  -- `n` items.
+  return function (callback)
+    local chunk = {}
+    local i = 0
+
+    for item in to_coroutine(stream) do
+      -- Count up i
+      i = i + 1
+      if i % n == 0 then
+        -- Send chunk.
+        callback(chunk)
+        -- Create new chunk table.
+        chunk = {}
+      else
+        append_to_table(chunk, item)
+      end
+    end
+
+    -- Send any left-over chunk
+    if #chunk > 0 then callback(chunk) end
+  end
+end
+exports.chunk = chunk
+
 return exports
