@@ -41,8 +41,6 @@ local extend = util.extend
 
 local path = require("path")
 
-local tokens = require("token-templates")
-
 local date = require("date")
 
 local exports = {}
@@ -107,20 +105,17 @@ local function render_doc_permalink_from_template(doc, url_template)
     dd = dd
   }, doc_context)
 
-  local path_string = tokens.render(url_template, context)
+  local path_string = url_template:gsub(":([%w_]+)", context)
 
   -- Add index file to end of path and return.
   return path_string:gsub("/$", "/index" .. extension)
 end
 
--- @TODO permalinks should be route-based rather than blanket rewrites,
--- or at least should target only .html. This way we don't rewrite CSS
--- and assets
-local function use(doc_stream, path_query_string, url_template)
-  -- Reject all documents that are drafts.
-  -- Returns a new generator list of documents that are not drafts.
+local function use(doc_stream, path_query_string, relative_path_template)
+  -- Write pretty permalinks for 
   return route(doc_stream, path_query_string, function (doc)
-    local permalink = render_doc_permalink_from_template(doc, url_template)
+    local permalink = render_doc_permalink_from_template(
+      doc, relative_path_template)
 
     return merge(doc, {
       relative_filepath = permalink
