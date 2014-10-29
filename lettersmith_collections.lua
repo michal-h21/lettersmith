@@ -34,7 +34,7 @@ local exports = {}
 
 local function compare_doc_by_date(a_doc, b_doc)
   -- Compare 2 docs by date, reverse chronological.
-  return date(a_doc.date) < date(b_doc.date)
+  return date(a_doc.date) > date(b_doc.date)
 end
 exports.compare_doc_by_date = compare_doc_by_date
 
