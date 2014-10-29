@@ -45,7 +45,7 @@ local function map(t, transform)
   -- Returns new indexed table.
   return fold(t, function (out, v, i)
     -- Set transformed value on `out` table at `i` index.
-    return set(out, transform(v), i)
+    return set(out, i, transform(v))
   end, {})
 end
 exports.map = map
