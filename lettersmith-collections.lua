@@ -17,20 +17,18 @@ Usage:
     build(docs, "out")
 --]]
 local lettersmith = require("lettersmith")
-local query = lettersmith.query
+local query_docs = lettersmith.query
 
 local streams = require("streams")
-local map = streams.map
-local filter = streams.filter
-local skim = streams.skim
-local values = streams.values
-local collect = streams.collect
+local map_stream = streams.map
+local skim_stream = streams.skim
 
 local date = require("date")
 
-local util = require("util")
-local merge = util.merge
-local shallow_copy = util.shallow_copy
+local table_utils = require("util")
+local merge = table_utils.merge
+local shallow_copy = table_utils.shallow_copy
+local map_table = table_utils.map_table
 
 local exports = {}
 
@@ -46,16 +44,12 @@ local function list_in_order(doc_stream, path_query_string, compare, n)
   -- Returns sorted list table of shallow copied doc objects.
 
   -- Create new filtered stream containing only files that match pattern.
-  local matches = query(doc_stream, path_query_string)
+  local matches = query_docs(doc_stream, path_query_string)
 
-  local top_n = skim(matches, compare, n)
+  local top_n = skim_stream(matches, compare, n)
 
-  -- Create shallow copies of doc objects for collection
-  -- @TODO not ideal that we have to convert back to stream here. Maybe
-  -- create a set of table functions (map_table, etc).
-  local shallow_copies = map(values(top_n), shallow_copy)
-
-  return collect(shallow_copies)
+  -- Create shallow copies of doc objects for collection.
+  return map_table(top_n, shallow_copy)
 end
 exports.list_in_order = list_in_order
 
@@ -66,7 +60,7 @@ local function use(doc_stream, name, path_query_string, compare, n)
   -- Create collection of shallow copies
   local collection = list_in_order(doc_stream, path_query_string, compare, n)
 
-  return map(doc_stream, function (doc)
+  return map_stream(doc_stream, function (doc)
     return merge(doc, {
       [name] = collection
     })
