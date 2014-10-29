@@ -1,16 +1,18 @@
--- Support functions for Unix-esque path query strings with wildcards:
+-- Unix-style wildcard path queries:
 --
 -- `hello/*.md` matches `hello/x.md` but not `hello/y/x.md`.
 -- `hello/**.md` matches `hello/x.md` and `hello/y/x.md`.
+-- `hello/???.md` matches `hello/you.md`
 
-local query = {}
+local exports = {}
 
-function query.escape_pattern(pattern_string)
+local function escape_pattern(pattern_string)
   -- Auto-escape all magic characters in a string.
   return pattern_string:gsub("[%-%.%+%[%]%(%)%$%^%%%?%*]", "%%%1")
 end
+exports.escape_pattern = escape_pattern
 
-function query.parse(query_string)
+local function parse(query_string)
   -- Parses a path query string into a proper Lua pattern string that can be
   -- used with find and gsub.
 
@@ -21,7 +23,7 @@ function query.parse(query_string)
     :gsub("%*", "__WILDCARD__")
     :gsub("%?", "__ANY_CHAR__")
   -- Then escape any magic characters.
-  local escaped = query.escape_pattern(tokenized)
+  local escaped = escape_pattern(tokenized)
   -- Finally, replace tokens with true magic-character patterns.
   -- Double-asterisk will traverse any number of characters to make a match.
   -- single-asterisk will only traverse non-slash characters (i.e. in same dir).
@@ -36,5 +38,6 @@ function query.parse(query_string)
 
   return bounded
 end
+exports.parse = parse
 
-return query
+return exports

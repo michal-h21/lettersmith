@@ -10,7 +10,7 @@ local merge = table_utils.merge
 
 local path = require("path")
 
-local path_query = require("query")
+local wildcards = require("wildcards")
 
 local file_utils = require("file_utils")
 local children = file_utils.children
@@ -33,7 +33,7 @@ local function route(doc_stream, path_query_string, transform)
   -- `*.md` or `/**.md`.
 
   -- Parse query string into pattern.
-  local pattern = path_query.parse(path_query_string)
+  local pattern = wildcards.parse(path_query_string)
 
   return map(doc_stream, function (doc)
     -- Skip processing if path does not match query pattern.
@@ -48,7 +48,7 @@ exports.route = route
 local function query(doc_stream, path_query_string)
   -- Filter doc stream to only docs matching `path_query_string`.
   -- `path_query_string` supports wildcard paths.
-  local pattern = path_query.parse(path_query_string)
+  local pattern = wildcards.parse(path_query_string)
 
   -- Note the difference between `query` and `route`: `route` will apply a
   -- transformation to each matching doc, but the resulting stream contains all

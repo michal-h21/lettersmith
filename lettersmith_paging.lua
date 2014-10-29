@@ -10,8 +10,6 @@ local streams = require("streams")
 local chunk = streams.chunk
 local folds = streams.folds
 
-local path_query = require("query")
-
 local table_utils = require("table_utils")
 local merge = table_utils.merge
 
@@ -45,7 +43,7 @@ end
 local function use(doc_stream, options)
   options = merge(defaults, options)
 
-  local matching = query(options.matching)
+  local matching = query(doc_stream, options.matching)
 
   local page_lists = chunk(matching, options.per_page)
 
