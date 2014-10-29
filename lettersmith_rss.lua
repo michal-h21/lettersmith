@@ -15,7 +15,11 @@ local lustache = require("lustache")
 
 local path = require("path")
 
-local extend = require("table_utils").extend
+local table_utils = require("table_utils")
+local extend = table_utils.extend
+local map_table = table_utils.map
+
+local date = require("date")
 
 local exports = {}
 
@@ -35,34 +39,15 @@ local rss_template_string = [[
     {{/title}}
     <link>{{{url}}}</link>
     <description>{{contents}}></description>
-    <pubDate>{{date}}</pubDate>
+    <pubDate>{{pubdate}}</pubDate>
     {{#author}}
     <author>{{author}}</author>
     {{/author}}
-    {{#category}}
-    <category>{{category}}</category>
-    {{/category}}
   </item>
   {{/items}}
 </channel>
 </rss>
 ]]
-
-local function ensure_doc_url(doc, root_url_string)
-  -- Make sure a `url` field is present on doc object, using doc
-  -- `relative_filepath` and `root_url_string` to create field if it
-  -- doesn't exist.
-  -- Returns a shallow-copied doc object with `url` field.
-
-  -- Create absolute url from root URL and relative path.
-  local url = path.join(root_url_string, doc.relative_filepath)
-  local pretty_url = url:gsub("/index%.html$", "/")
-
-  -- Extend doc object into our new object with `url` field. If a `url` field
-  -- is already present on the doc object, this will take precidence.
-  return extend({ url = pretty_url }, doc)
-end
-exports.ensure_doc_url = ensure_doc_url
 
 local function render_feed(context_table)
   -- Given table with feed data, render feed string.
@@ -71,23 +56,45 @@ local function render_feed(context_table)
 end
 exports.render_feed = render_feed
 
-local function generate_feed_doc(doc_stream, relative_path_string, site_url, site_title, site_description)
-  local docs_with_url = map(doc_stream, function(doc)
-    return ensure_doc_url(doc, site_url)
-  end)
+local function to_rss_item_from_doc(doc, root_url_string)
+  local title = doc.title
+  local contents = doc.contents
+  local author = doc.author
 
+  local pubdate = date(doc.date):fmt("${rfc1123}")
+
+  -- Create absolute url from root URL and relative path.
+  local url = path.join(root_url_string, doc.relative_filepath)
+  local pretty_url = url:gsub("/index%.html$", "/")
+
+  -- The RSS template doesn't really change, so no need to get fancy.
+  -- Return just the properties we need for the RSS template.
+  return {
+    title = title,
+    url = pretty_url,
+    contents = contents,
+    pubdate = pubdate,
+    author = author
+  }
+end
+
+local function generate_feed_doc(doc_stream, relative_path_string, site_url, site_title, site_description)
   -- @TODO what is the standard number of items in an RSS feed? Going with 20.
-  local top_n_docs = skim(docs_with_url, compare_doc_by_date, 20)
+  local top_n_docs = skim(doc_stream, compare_doc_by_date, 20)
+
+  local items = map_table(top_n_docs, function(doc)
+    return to_rss_item_from_doc(doc, site_url)
+  end)
 
   local contents = render_feed({
     site_url = site_url,
     site_title = site_title,
     site_description = site_description,
-    items = top_n_docs
+    items = items
   })
 
   return {
-    -- Set date to most recent document date.
+    -- Set date of feed to most recent document date.
     date = top_n_docs[1].date,
     contents = contents,
     relative_filepath = relative_path_string
