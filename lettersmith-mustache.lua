@@ -32,7 +32,7 @@ local map = streams.map
 local table_utils = require("table_utils")
 local merge = table_utils.merge
 
-local file_utils = require('file-utils')
+local file_utils = require("file_utils")
 local read_entire_file = file_utils.read_entire_file
 
 local path = require('path')

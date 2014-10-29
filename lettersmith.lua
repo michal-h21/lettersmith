@@ -12,7 +12,7 @@ local path = require("path")
 
 local path_query = require("query")
 
-local file_utils = require("file-utils")
+local file_utils = require("file_utils")
 local children = file_utils.children
 local is_file = file_utils.is_file
 local is_dir = file_utils.is_dir
