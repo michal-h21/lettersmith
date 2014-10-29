@@ -15,7 +15,7 @@ local lustache = require("lustache")
 
 local path = require("path")
 
-local extend = require("util").extend
+local extend = require("table_utils").extend
 
 local exports = {}
 

@@ -17,16 +17,16 @@ Usage:
     build(use_meta(docs, site_meta), "out")
 --]]
 local streams = require("streams")
-local map = streams.map
+local map_stream = streams.map
 
-local util = require("util")
-local merge = util.merge
+local table_utils = require("table_utils")
+local merge = table_utils.merge
 
-return function (docs, meta)
+return function (doc_stream, meta)
   -- Add metadata to all documents.
   -- Returns new list of documents with metadata mixed in.
   -- Fields from document take precidence.
-  return map(docs, function (doc)
+  return map_stream(doc_stream, function (doc)
     return merge(meta, doc)
   end)
 end

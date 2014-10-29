@@ -12,8 +12,8 @@ local folds = streams.folds
 
 local path_query = require("query")
 
-local utils = require("utils")
-local merge = utils.merge
+local table_utils = require("table_utils")
+local merge = table_utils.merge
 
 local exports = {}
 

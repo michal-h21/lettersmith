@@ -42,6 +42,6 @@ build = {
     ["lettersmith.headmatter"] = "headmatter.lua",
     ["lettersmith.path"] = "lettersmith.path",
     ["lettersmith.file_utils"] = "file-utils.lua",
-    ["lettersmith.util"] = "util.lua"
+    ["lettersmith.table_utils"] = "table_utils.lua"
   }
 }

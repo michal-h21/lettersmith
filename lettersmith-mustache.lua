@@ -29,8 +29,8 @@ local lustache = require('lustache')
 local streams = require("streams")
 local map = streams.map
 
-local util = require('util')
-local merge = util.merge
+local table_utils = require("table_utils")
+local merge = table_utils.merge
 
 local file_utils = require('file-utils')
 local read_entire_file = file_utils.read_entire_file

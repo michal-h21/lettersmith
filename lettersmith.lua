@@ -5,8 +5,8 @@ local map = streams.map
 local fold = streams.fold
 local filter = streams.filter
 
-local util = require("util")
-local merge = util.merge
+local table_utils = require("table_utils")
+local merge = table_utils.merge
 
 local path = require("path")
 

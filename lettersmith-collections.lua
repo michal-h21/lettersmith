@@ -25,10 +25,10 @@ local skim_stream = streams.skim
 
 local date = require("date")
 
-local table_utils = require("util")
+local table_utils = require("table_utils")
 local merge = table_utils.merge
 local shallow_copy = table_utils.shallow_copy
-local map_table = table_utils.map_table
+local map_table = table_utils.map
 
 local exports = {}
 
