@@ -8,7 +8,7 @@ reference to the collection. Modify it at your peril.
 
 Usage:
 
-    local use_collections = require('lettersmith-collections')
+    local use_collections = require('lettersmith.collections')
     local lettersmith = require('lettersmith')
     local docs = lettersmith.docs('raw')
 

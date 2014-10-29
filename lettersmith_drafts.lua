@@ -6,7 +6,7 @@ in the headmatter section.
 
 Usage:
 
-    local use_drafts = require('lettersmith-drafts')
+    local use_drafts = require('lettersmith.drafts')
     local lettersmith = require('lettersmith')
 
     local docs = lettersmith.docs('raw')

@@ -8,7 +8,7 @@ local map = streams.map
 local values = streams.values
 local skim = streams.skim
 
-local collections = require("lettersmith-collections")
+local collections = require("lettersmith_collections")
 local compare_doc_by_date = collections.compare_doc_by_date
 
 local lustache = require("lustache")

@@ -31,11 +31,11 @@ build = {
     ["lettersmith"] = "lettersmith.lua",
 
     -- Plugins
-    ["lettersmith.mustache"] = "lettersmith-mustache.lua",
-    ["lettersmith.permalinks"] = "lettersmith-permalinks.lua",
-    ["lettersmith.drafts"] = "lettersmith-drafts.lua",
-    ["lettersmith.markdown"] = "lettersmith-markown.lua",
-    ["lettersmith.meta"] = "lettersmith-meta.lua",
+    ["lettersmith.mustache"] = "lettersmith_mustache.lua",
+    ["lettersmith.permalinks"] = "lettersmith_permalinks.lua",
+    ["lettersmith.drafts"] = "lettersmith_drafts.lua",
+    ["lettersmith.markdown"] = "lettersmith_markown.lua",
+    ["lettersmith.meta"] = "lettersmith_meta.lua",
 
     -- Libraries
     ["lettersmith.streams"] = "streams.lua",

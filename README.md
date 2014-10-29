@@ -69,7 +69,7 @@ Creating a site is simple. Just create a new lua file. Call it anything you like
 
 ```lua
 local lettersmith = require("lettersmith")
-local use_markdown = require("lettersmith-markdown")
+local use_markdown = require("lettersmith.markdown")
 local filter = require("streams").filter
 
 -- Get docs list
@@ -96,12 +96,12 @@ Extending Lettersmith with new functionality is easy. There are no fancy plugin 
 
 Lettersmith comes with a few useful plugins out of the box:
 
-* Render markdown posts with `lettersmith-markdown`
-* Mustache templates with `lettersmith-mustache`
-* Generate pretty permalinks with `lettersmith-permalinks`
-* Add site metadata to posts with `lettersmith-meta`
-* Hide draft posts with `lettersmith-drafts`
-* Generate RSS feeds with `lettersmith-rss`
+* Render markdown posts with `lettersmith.markdown`
+* Mustache templates with `lettersmith.mustache`
+* Generate pretty permalinks with `lettersmith.permalinks`
+* Add site metadata to posts with `lettersmith.meta`
+* Hide draft posts with `lettersmith.drafts`
+* Generate RSS feeds with `lettersmith.rss`
 
 Of course, this is just a start. "Plugins" are really just functions that modify a list of tables. This makes Lettersmith simple. It also means it is extremely flexible. Lettersmith can be anything you want: a website builder, a blog, a documentation generation script... If you need to transform text files, this is an easy way to do it.
 

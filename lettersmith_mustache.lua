@@ -5,7 +5,7 @@ Template your docs with mustache.
 
 Usage:
 
-    local use_mustache = require('lettersmith-mustache')
+    local use_mustache = require('lettersmith.mustache')
     local lettersmith = require('lettersmith')
     local docs = lettersmith.docs("raw")
 

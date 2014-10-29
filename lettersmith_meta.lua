@@ -5,7 +5,7 @@ Add metadata to every doc object. This is useful for things like site meta.
 
 Usage:
 
-    local use_meta = require('lettersmith-meta')
+    local use_meta = require('lettersmith.meta')
     local lettersmith = require('lettersmith')
     local docs = lettersmith.docs('raw')
 
