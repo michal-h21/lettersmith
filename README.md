@@ -149,44 +149,6 @@ Why use Lettersmith?
 - Your data is in plain text. No databases to worry about, no export necessary. Want to take your data elsewhere? It's all there in text files.
 
 
-Status
-------
-
-Core @todo
-
-* Package as Luarock
-* Windows hasn't been tested. Should be an easy fix. LFS supports Win, but we might need to do some filepath conversion.
-  - Will also need to deal with opening files in "text mode" vs binary.
-* (Maybe) alternative site config approach based on Lua tables or YAML
-* Someday: embed into Mac app for drag/drop site generation
-
-Themes @todo
-
-* Default theme that can be used by calling a single function
-* Twitter Bootstrap theme
-* Photo/gallery theme (just drop images into a directory and get a gallery)
-* Podcast theme (automatic player controls)
-
-Plugins @todo
-
-* `lettersmith-thumbnails` for generating multiple image sizes. Someting like `use_thumbnails(docs, { { w: 200, h: 200, crop: true } })`.
-  * lua-gd https://ittner.github.io/lua-gd/
-  * http://lua-users.org/wiki/GdThumbnail
-  * Lua imagemagick bindings https://github.com/leafo/magick
-  * lua-thumbnailer https://github.com/mah0x211/lua-thumbnailer 
-* `lettersmith-pagninate` for creating lists of pages of queried files and linking prev/next files. This could actually be lumped in with `lettersmith-query`.
-* `lettersmith-watch` watch files for modification and re-build.
-* `lettersmith-local` local server that watches files using `lettersmith-watch` and serves up the results.
-* `lettersmith-excerpt` create from first sentence or title.
-* `lettersmith-hash` calc hash of file contents http://keplerproject.org/md5/
-* `lettersmith-tags` tagging via headmatter
-* `lettersmith-hashtags` tagging via `#hashtags`
-* `lettersmith-haml` https://github.com/norman/lua-haml
-* `lettersmith-sass`
-  * https://github.com/sass/libsass
-  * https://github.com/craigbarnes/lua-sass
-
-
 Thoughts
 --------
 
