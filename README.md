@@ -1,9 +1,9 @@
 Lettersmith
 ===========
 
-Lettersmith is a simple, flexible, fast  _static site generator_, written in [Lua](http://lua.org).
+Lettersmith is a simple, flexible, fast  _static site generator_. It's written in [Lua](http://lua.org).
 
-Lettersmith is built around simple idea: load files as Lua tables. So this:
+Lettersmith is built around a simple idea: load files as Lua tables. So this:
 
 `example.md`:
 
