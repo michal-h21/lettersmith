@@ -82,6 +82,21 @@ Lettersmith comes with a few useful plugins out of the box:
 
 Pressed for time? The [lettersmith.blogging](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith_blogging.lua) plugin bundles together Markdown, pretty permalinks, RSS feeds and more, so you can blog right out of the box.
 
+Here's a simple blogging setup, using [Mustache](https://mustache.github.io/) templates:
+
+```lua
+local lettersmith = require("lettersmith")
+local use_blogging = require("lettersmith.blogging")
+local use_mustache = require("lettersmith.blogging")
+
+local docs = lettersmith.docs("raw")
+
+docs = use_blogging(docs)
+docs = use_mustache(docs, "templates")
+
+lettersmith.build(docs, "out")
+```
+
 Of course, this is just a start. "Plugins" are really just functions that modify a list of tables. This makes Lettersmith simple. It also means it is extremely flexible. Lettersmith can be anything you want: a website builder, a blog, a documentation generation script... If you need to transform text files, Lettersmith is an easy way to do it.
 
 
