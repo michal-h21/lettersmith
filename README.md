@@ -159,8 +159,6 @@ Core @todo
   - Will also need to deal with opening files in "text mode" vs binary.
 * (Maybe) alternative site config approach based on Lua tables or YAML
 * Someday: embed into Mac app for drag/drop site generation
-* <strike>Need to fix writing to nested directories</strike>
-* <strike>Clean previous build dir before writing new one </strike>
 
 Themes @todo
 
@@ -176,7 +174,6 @@ Plugins @todo
   * http://lua-users.org/wiki/GdThumbnail
   * Lua imagemagick bindings https://github.com/leafo/magick
   * lua-thumbnailer https://github.com/mah0x211/lua-thumbnailer 
-* `lettersmith-query` to easily generate lists of docs, filtered and sorted.
 * `lettersmith-pagninate` for creating lists of pages of queried files and linking prev/next files. This could actually be lumped in with `lettersmith-query`.
 * `lettersmith-watch` watch files for modification and re-build.
 * `lettersmith-local` local server that watches files using `lettersmith-watch` and serves up the results.
@@ -188,8 +185,6 @@ Plugins @todo
 * `lettersmith-sass`
   * https://github.com/sass/libsass
   * https://github.com/craigbarnes/lua-sass
-* <strike>`lettersmith-date` calc nice dates from date field or file changed date. Maybe this should be part of core?</strike>
-* <strike>`lettersmith-permalinks` for clean urls. `about.html` -> `about/index.html`.</strike>
 
 
 Thoughts
