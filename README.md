@@ -87,7 +87,7 @@ Here's a simple blogging setup, using [Mustache](https://mustache.github.io/) te
 ```lua
 local lettersmith = require("lettersmith")
 local use_blogging = require("lettersmith.blogging")
-local use_mustache = require("lettersmith.blogging")
+local use_mustache = require("lettersmith.mustache")
 
 local docs = lettersmith.docs("raw")
 
