@@ -15,13 +15,12 @@ Usage:
 
     build(docs, "out")
 --]]
-local streams = require("streams")
-local reject = streams.reject
+local foldable = require("foldable")
 
 return function (docs)
   -- Reject all documents that are drafts.
   -- Returns a new generator list of documents that are not drafts.
-  return reject(docs, function (doc)
+  return foldable.reject(docs, function (doc)
     return doc.draft
   end)
 end
