@@ -3,10 +3,11 @@
 
 local query = require("lettersmith").query
 
-local streams = require("streams")
-local map = streams.map
-local values = streams.values
-local skim = streams.skim
+local foldable = require("foldable")
+local map = foldable.map
+local harvest = foldable.harvest
+local concat = foldable.concat
+local collect = foldable.collect
 
 local collections = require("lettersmith_collections")
 local compare_doc_by_date = collections.compare_doc_by_date
@@ -17,7 +18,6 @@ local path = require("path")
 
 local table_utils = require("table_utils")
 local extend = table_utils.extend
-local map_table = table_utils.map
 
 local date = require("date")
 
@@ -78,13 +78,15 @@ local function to_rss_item_from_doc(doc, root_url_string)
   }
 end
 
-local function generate_feed_doc(doc_stream, relative_path_string, site_url, site_title, site_description)
+local function generate_feed_doc(docs_foldable, relative_path_string, site_url, site_title, site_description)
   -- @TODO what is the standard number of items in an RSS feed? Going with 20.
-  local top_n_docs = skim(doc_stream, compare_doc_by_date, 20)
+  local top_n_docs = harvest(docs_foldable, compare_doc_by_date, 20)
 
-  local items = map_table(top_n_docs, function(doc)
+  local items_foldable = map(top_n_docs, function(doc)
     return to_rss_item_from_doc(doc, site_url)
   end)
+
+  local items = collect(items_foldable)
 
   local contents = render_feed({
     site_url = site_url,
@@ -101,7 +103,7 @@ local function generate_feed_doc(doc_stream, relative_path_string, site_url, sit
   }
 end
 
-local function use(doc_stream, options)
+local function use(docs_foldable, options)
   -- Generate RSS feed file and merge into doc stream.
   local relative_path = options.relative_path or "feed.xml"
   local site_url = options.site_url
@@ -110,7 +112,7 @@ local function use(doc_stream, options)
 
   local path_query_string = options.matching or "*.html"
 
-  local matching = query(doc_stream, path_query_string)
+  local matching = query(docs_foldable, path_query_string)
 
   local rss = generate_feed_doc(
     matching,
@@ -120,7 +122,7 @@ local function use(doc_stream, options)
     site_description
   )
 
-  return streams.merge(doc_stream, values({rss}))
+  return concat(docs_foldable, {rss})
 end
 exports.use = use
 

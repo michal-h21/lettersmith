@@ -19,16 +19,16 @@ Usage:
 local lettersmith = require("lettersmith")
 local query_docs = lettersmith.query
 
-local streams = require("streams")
-local map_stream = streams.map
-local skim_stream = streams.skim
+local foldable = require("foldable")
+local map = foldable.map
+local harvest = foldable.harvest
+local collect = foldable.collect
 
 local date = require("date")
 
 local table_utils = require("table_utils")
 local merge = table_utils.merge
 local shallow_copy = table_utils.shallow_copy
-local map_table = table_utils.map
 
 local exports = {}
 
@@ -38,29 +38,31 @@ local function compare_doc_by_date(a_doc, b_doc)
 end
 exports.compare_doc_by_date = compare_doc_by_date
 
-local function list_in_order(doc_stream, path_query_string, compare, n)
+local function list_in_order(docs_foldable, path_query_string, compare, n)
   -- Query document stream, returning a list table filtered by path query
   -- string, ordered by `compare` and capped by `n`.
   -- Returns sorted list table of shallow copied doc objects.
 
   -- Create new filtered stream containing only files that match pattern.
-  local matches = query_docs(doc_stream, path_query_string)
+  local matches = query_docs(docs_foldable, path_query_string)
 
-  local top_n = skim_stream(matches, compare, n)
-
+  local top_n = harvest(matches, compare, n)
   -- Create shallow copies of doc objects for collection.
-  return map_table(top_n, shallow_copy)
+  local top_n_shallow_copies = map(top_n, shallow_copy)
+
+  -- Collect into indexed table
+  return collect(top_n_shallow_copies)
 end
 exports.list_in_order = list_in_order
 
-local function use(doc_stream, name, path_query_string, compare, n)
+local function use(docs_foldable, name, path_query_string, compare, n)
   -- Default to comparing files by date.
   compare = compare or compare_doc_by_date
 
   -- Create collection of shallow copies
-  local collection = list_in_order(doc_stream, path_query_string, compare, n)
+  local collection = list_in_order(docs_foldable, path_query_string, compare, n)
 
-  return map_stream(doc_stream, function (doc)
+  return map(docs_foldable, function (doc)
     return merge(doc, {
       [name] = collection
     })
