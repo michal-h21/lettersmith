@@ -186,11 +186,8 @@ local function chunk(foldable, n)
       end
     end, {})
 
-    -- If any values are left over in the last chunk, reduce them too.
-    if #last_chunk > 0 then seed = step(seed, last_chunk) end
-
-    -- Finally, return folded value.
-    return seed
+    -- Finally, return the last folded value from the last chunk.
+    return step(seed, last_chunk)
   end
 end
 exports.chunk = chunk

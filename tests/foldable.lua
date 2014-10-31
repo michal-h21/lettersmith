@@ -145,4 +145,13 @@ suite("chunk(foldable, n)", function ()
   equal(b[1][2], 2, "Chunks it!")
   equal(#b, 3, "Chunks correct number of chunks")
   equal(#b[3], 1, "Collects leftover chunk")
+
+  local even_chunks = chunk({1, 2}, 2)
+
+  local c = collect(even_chunks)
+
+  equal(c[1][1], 1, "Chunks even chunks!")
+  equal(c[1][2], 2, "Chunks even chunks!")
+  equal(#c, 1, "Chunks correct number of chunks")
+  equal(#c[1], 2, "Collects leftover chunk")
 end)
