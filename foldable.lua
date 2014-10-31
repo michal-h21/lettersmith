@@ -75,9 +75,9 @@ exports.map = map
 local filter = transformer(function (step, predicate)
   return function(seed, v)
     if predicate(v) then
-      return step(seed, transform(v))
+      return step(seed, v)
     else
-      return v
+      return seed
     end
   end
 end)
@@ -86,9 +86,9 @@ exports.filter = filter
 local reject = transformer(function (step, predicate)
   return function(seed, v)
     if not predicate(v) then
-      return step(seed, transform(v))
+      return step(seed, v)
     else
-      return v
+      return seed
     end
   end
 end)

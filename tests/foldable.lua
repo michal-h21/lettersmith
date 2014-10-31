@@ -6,6 +6,7 @@ local test = microtest.test
 local _ = require("foldable")
 local fold = _.fold
 local map = _.map
+local filter = _.filter
 local collect = _.collect
 
 local function sum(x, y)
@@ -14,6 +15,10 @@ end
 
 local function inc(x)
   return x + 1
+end
+
+local function is_even(x)
+  return x % 2 == 0
 end
 
 suite("fold(foldable, step, seed)", function()
@@ -58,4 +63,15 @@ suite("map(foldable, transform)", function()
   local mapped_t = collect(mapped)
 
   equal(mapped_t[1], 2, "Maps values using transform function")
+end)
+
+suite("filter(foldable, predicate)", function()
+  local t = {1, 2, 3}
+
+  local a = filter(t, is_even)
+
+  local b = collect(a)
+
+  equal(#b, 1, "Filters out correct number of values")
+  equal(b[1], 2, "Includes values that match predicate")
 end)
