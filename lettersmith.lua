@@ -1,9 +1,9 @@
 local exports = {}
 
-local streams = require("streams")
-local map = streams.map
-local fold = streams.fold
-local filter = streams.filter
+local foldable = require("foldable")
+local map = foldable.map
+local fold = foldable.fold
+local filter = foldable.filter
 
 local table_utils = require("table_utils")
 local merge = table_utils.merge
@@ -27,15 +27,18 @@ local date = require("date")
 
 local headmatter = require("headmatter")
 
-local function route(doc_stream, path_query_string, transform)
-  -- Transform documents in stream that match a particular route.
+local function route(docs_foldable, path_query_string, transform)
+  -- Transform documents in foldable that match a particular route.
   -- You can use query strings to match documents by wildcard, e.g.
   -- `*.md` or `/**.md`.
 
   -- Parse query string into pattern.
   local pattern = wildcards.parse(path_query_string)
 
-  return map(doc_stream, function (doc)
+  -- @todo I'm pretty sure I can better express my weird map/filter situations
+  -- with a `folds` function. The idea is that a passing value returns
+  -- transformed seed, whereas a non-passing value simply returns seed.
+  return map(docs_foldable, function (doc)
     -- Skip processing if path does not match query pattern.
     if not doc.relative_filepath:find(pattern) then return doc end
     -- Otherwise transform doc table, replacing it with whatever `transform`
@@ -45,30 +48,30 @@ local function route(doc_stream, path_query_string, transform)
 end
 exports.route = route
 
-local function query(doc_stream, path_query_string)
-  -- Filter doc stream to only docs matching `path_query_string`.
+local function query(docs_foldable, path_query_string)
+  -- Filter docs matching `path_query_string`.
   -- `path_query_string` supports wildcard paths.
   local pattern = wildcards.parse(path_query_string)
 
   -- Note the difference between `query` and `route`: `route` will apply a
-  -- transformation to each matching doc, but the resulting stream contains all
-  -- docs, wheras query actually returns a filtered stream of docs.
-  return filter(doc_stream, function (doc)
+  -- transformation to each matching doc, but the resulting foldable contains
+  -- all docs, wheras query actually returns a filtered foldable of docs.
+  return filter(docs_foldable, function (doc)
     return doc.relative_filepath:find(pattern)
   end)
 end
 exports.query = query
 
-local function render(doc_stream, path_query_string, rendered_extension, render)
+local function render(docs_foldable, path_query_string, rendered_extension, render)
   -- A convenience function for writing renderers.
-  -- `doc_stream`: the stream of documents to process.
+  -- `docs_foldable`: the foldable of documents to process.
   -- `path_query_string`: a path with optional wildcards.
   -- `rendered_extension`: the extension to use on rendered doc (including .)
   -- `render`: a function to render content.
-  -- Returns a new doc stream containing rendered docs and non-rendered docs.
+  -- Returns a new foldable containing rendered docs and non-rendered docs.
 
   -- A special route type
-  return route(doc_stream, path_query_string, function(doc)
+  return route(docs_foldable, path_query_string, function(doc)
     -- Render contents
     local rendered = render(doc.contents)
 
@@ -87,7 +90,7 @@ local function render(doc_stream, path_query_string, rendered_extension, render)
 end
 exports.render = render
 
-local function walk_file_paths_cps(path_string, callback)
+local function walk_file_paths_cps(callback, path_string)
   -- Recursively walk through directory at `path_string` calling
   -- `callback` with each file path found.
   for f in children(path_string) do
@@ -96,18 +99,16 @@ local function walk_file_paths_cps(path_string, callback)
     if is_file(filepath) then
       callback(filepath)
     elseif is_dir(filepath) then
-      walk_file_paths_cps(filepath, callback)
+      walk_file_paths_cps(callback, filepath)
     end
   end
 end
 
-local function walk_file_paths(path_string)
-  -- Given `path_string` -- a path to a directory -- recursively walks through
-  -- directory and returns a stream of all file paths.
-  -- Returns a stream of file path strings.
-  return function(callback)
-    walk_file_paths_cps(path_string, callback)
-  end
+-- Given `path_string` -- a path to a directory -- recursively walks through
+-- directory and returns a foldable of all file paths.
+-- Returns a foldable of file path strings.
+function walk_file_paths(path_string)
+  return foldable.from_cps(walk_file_paths_cps, path_string)
 end
 exports.walk_file_paths = walk_file_paths
 
@@ -150,9 +151,9 @@ local function docs(base_path_string)
   -- more than once, call `docs` again, or use `collect` to load all docs into
   -- an array table.
 
-  local path_stream = walk_file_paths(base_path_string)
+  local path_foldable = walk_file_paths(base_path_string)
 
-  return map(path_stream, function (path_string)
+  return map(path_foldable, function (path_string)
     -- Remove the base path string to get the relative file path.
     local relative_path_string = path_string:sub(#base_path_string + 1)
     return load_doc(base_path_string, relative_path_string)
@@ -160,12 +161,12 @@ local function docs(base_path_string)
 end
 exports.docs = docs
 
-local function build(doc_stream, path_string)
+local function build(docs_foldable, path_string)
   local start = os.time()
 
   if location_exists(path_string) then assert(remove_recursive(path_string)) end
 
-  local number_of_files = fold(doc_stream, function (number_of_files, doc)
+  local number_of_files = fold(docs_foldable, function (number_of_files, doc)
     local filepath = path.join(path_string, doc.relative_filepath)
     assert(write_entire_file_deep(filepath, doc.contents))
     return number_of_files + 1
