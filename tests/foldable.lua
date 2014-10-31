@@ -11,6 +11,7 @@ local reject = _.reject
 local collect = _.collect
 local concat = _.concat
 local take = _.take
+local zip_with = _.zip_with
 
 local function sum(x, y)
   return x + y
@@ -99,6 +100,16 @@ suite("concat(foldable_a, foldable_b)", function()
 
   equal(#b, 6, "Concat folds correct number of values")
   equal(b[4], 1, "Folds foldable_b after foldable_a")
+end)
+
+suite("zip_with()", function ()
+  local a = {1, 2, 3}
+  local b = {4, 5, 6}
+  local ab = zip_with(a, b, sum)
+  local t = collect(ab)
+
+  test(#t == 3, "All items collected")
+  test(t[1] == 5 and t[2] == 7 and t[3] == 9, 'Items zipped correctly')
 end)
 
 suite("take()", function ()

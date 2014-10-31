@@ -116,7 +116,9 @@ end
 exports.collect = collect
 
 local function yield_next_ipair(i, v)
-  coroutine.yield(i + 1, v)
+  i = i + 1
+  coroutine.yield(i, v)
+  return i
 end
 
 -- Convert any foldable to a for loop-compatible coroutine. The coroutine will
@@ -198,11 +200,13 @@ exports.chunk = chunk
 local function zip_with(foldable_a, foldable_b, combine)
   return function (step, seed)
     local a, b = foldable_ipairs(foldable_a), foldable_ipairs(foldable_b)
-    local x, y = a(), b()
+    local ai, left = a()
+    local bi, right = b()
 
-    while x and y do
-      seed = step(seed, combine(x, y))
-      x, y = a(), b()
+    while left and right do
+      seed = step(seed, combine(left, right))
+      ai, left = a()
+      bi, right = b()
     end
 
     return seed
