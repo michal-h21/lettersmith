@@ -94,9 +94,19 @@ local reject = transformer(function (step, predicate)
 end)
 exports.reject = reject
 
--- @todo I'm pretty sure I can better express my weird map/filter situations
--- with a `folds` function. The idea is that a passing value returns transformed
--- seed, whereas a non-passing value simply returns seed.
+-- Returns a foldable function that is good for _every permutation_ created
+-- by `step_permutation` with `seed_permutation`. Think of it this way:
+-- fold produces one value: the last permutation of `step`. `folds` produces
+-- many values: every permutation of `step`.
+local function folds(foldable, step_permutation, seed_permutation)
+  return function(step, seed)
+    return fold(foldable, function (seed, v)
+      seed_permutation = step_permutation(seed_permutation, v)
+      return step(seed, seed_permutation)
+    end, seed)
+  end
+end
+exports.folds = folds
 
 -- Wrap `table.insert` with a fold-friendly interface.
 local function append_to_table(t, v)

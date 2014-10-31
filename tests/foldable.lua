@@ -14,6 +14,7 @@ local take = _.take
 local zip_with = _.zip_with
 local chunk = _.chunk
 local harvest = _.harvest
+local folds = _.folds
 
 local function sum(x, y)
   return x + y
@@ -91,6 +92,19 @@ suite("reject(foldable, predicate)", function()
 
   equal(#b, 2, "Rejects correct number of values")
   equal(b[1], 1, "Includes values that match predicate")
+end)
+
+suite("folds()", function ()
+  local a = {1, 2, 3}
+
+  local permutations = folds(a, sum, 0)
+
+  local b = collect(permutations)
+
+  equal(b[1], 1, "Generates first permutation correctly")
+  equal(b[2], 3, "Generates second permutation correctly")
+  equal(b[3], 6, "Generates third permutation correctly")
+  equal(#b, 3, "Generates correct number of permutations")
 end)
 
 suite("concat(foldable_a, foldable_b)", function()
