@@ -1,12 +1,19 @@
 local microtest = require("microtest")
 local suite = microtest.suite
 local equal = microtest.equal
+local test = microtest.test
 
 local _ = require("foldable")
 local fold = _.fold
+local map = _.map
+local collect = _.collect
 
 local function sum(x, y)
   return x + y
+end
+
+local function inc(x)
+  return x + 1
 end
 
 suite("fold(foldable, step, seed)", function()
@@ -32,4 +39,23 @@ suite("fold(foldable, step, seed)", function()
 
   local tally_d = fold(foldable_example, sum, 0)
   equal(tally_d, 6, "It can fold a foldable function")
+end)
+
+suite("collect(foldable)", function()
+  local a = {1, 2, 3}
+
+  local collected_a = collect(a)
+
+  test(collected_a ~= a, "Returns a new table")
+  equal(collected_a[1], 1, "Collects ipairs in order")
+end)
+
+suite("map(foldable, transform)", function()
+  local t = {1, 2, 3}
+
+  local mapped = map(t, inc)
+
+  local mapped_t = collect(mapped)
+
+  equal(mapped_t[1], 2, "Maps values using transform function")
 end)
