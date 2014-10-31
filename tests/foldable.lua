@@ -10,6 +10,7 @@ local filter = _.filter
 local reject = _.reject
 local collect = _.collect
 local concat = _.concat
+local take = _.take
 
 local function sum(x, y)
   return x + y
@@ -98,4 +99,25 @@ suite("concat(foldable_a, foldable_b)", function()
 
   equal(#b, 6, "Concat folds correct number of values")
   equal(b[4], 1, "Folds foldable_b after foldable_a")
+end)
+
+suite("take()", function ()
+  local a = {1, 2, 3, 4, 5, 6}
+
+  local a_3 = take(a, 3)
+
+  local t = collect(a_3)
+
+  equal(t[3], 3, "Took up to correct number")
+  equal(t[4], nil, "Did not take beyond correct number")
+
+  local a_3_3 = take(a, 3.3)
+  local a_3_3 = collect(a_3_3)
+
+  equal(t[3], 3, "Handles taking floats by rounding down to nearest int")
+
+  local huge_stream = take(a, math.huge)
+
+  -- Note this is not a formal API requirement, just an optimization.
+  equal(huge_stream, a, "Returns original stream when number of items is math.huge")
 end)

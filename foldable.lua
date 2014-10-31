@@ -154,8 +154,13 @@ local function take(foldable, n)
     fold(foldable, function (taken, v)
       -- If we've not taken up to the requested amount yet, step with value.
       -- Return the number of taken items.
-      if taken < n then seed = step(seed, v) return taken + 1 end
+      if taken < n then
+        seed = step(seed, v) return taken + 1
+
       -- Ignore further input if we're past the requested amount.
+      else
+        return n
+      end
     end, 0)
     return seed
   end
