@@ -26,8 +26,8 @@ another field before templating.
 
 local lustache = require('lustache')
 
-local streams = require("streams")
-local map = streams.map
+local foldable = require("foldable")
+local map = foldable.map
 
 local table_utils = require("table_utils")
 local merge = table_utils.merge
