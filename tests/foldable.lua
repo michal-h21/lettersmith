@@ -9,6 +9,7 @@ local map = _.map
 local filter = _.filter
 local reject = _.reject
 local collect = _.collect
+local concat = _.concat
 
 local function sum(x, y)
   return x + y
@@ -86,4 +87,15 @@ suite("reject(foldable, predicate)", function()
 
   equal(#b, 2, "Rejects correct number of values")
   equal(b[1], 1, "Includes values that match predicate")
+end)
+
+suite("concat(foldable_a, foldable_b)", function()
+  local t = {1, 2, 3}
+
+  local tt = concat(t, t)
+
+  local b = collect(tt)
+
+  equal(#b, 6, "Concat folds correct number of values")
+  equal(b[4], 1, "Folds foldable_b after foldable_a")
 end)
