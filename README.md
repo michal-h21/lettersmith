@@ -29,7 +29,7 @@ Let's add some content to this file.
 - You can add an optional [YAML](yaml.org) headmatter block to files. Any YAML properties you put in the block will show up on the table!
 - The `date` will be read from the file's modified date, but you can provide your own by adding a `date` field to the headmatter. Lettersmith will automatically normalize any reasonable date format you provide to an [ISO date](https://en.wikipedia.org/wiki/ISO_8601).
 
-The function `lettersmith.docs(path)` takes a file path and returns a stream of document objects:
+The function `lettersmith.docs(path)` takes a file path and returns a list of document objects:
 
 ```lua
 {
@@ -50,7 +50,6 @@ Creating a site is simple. Just create a new lua file. Call it anything you like
 ```lua
 local lettersmith = require("lettersmith")
 local use_markdown = require("lettersmith.markdown")
-local filter = require("streams").filter
 
 -- Get documents from "raw" folder
 local docs = lettersmith.docs("raw")
@@ -115,7 +114,9 @@ end)
 
 Easy!
 
-The "list" that `lettersmith.docs` returns is actually a stream function:
+The [foldable](https://github.com/gordonbrander/lettersmith/blob/master/foldable.lua) library gives you some nice functions for working with lists of values: `map`, `filter`, `fold`, etc (you may have seen these functions before in libraries like Underscore.js).
+
+These functions have a special sauce: they can consume nearly any value: tables, single values, nil, or a _foldable functions_. What is a foldable function? The "list" that `lettersmith.docs` returns is actually a foldable function:
 
 ```lua
 local docs = lettersmith.docs('raw/')
@@ -123,28 +124,17 @@ print(docs)
 -- function: 0x7fc573700450
 ```
 
-Why streams? Unlike a table, with streams only one doc exists in memory at a time. This allows your list of files to be infinitely large (or as large as your hard-drive can handle, anyway). In fact, Lettersmith can build _thousands_ of files in just a few _seconds_.
+Why? This function is able to loop through the entire list of documents, but unlike a table, keeps only one doc in memory at a time. This allows your list of files to be infinitely large (or as large as your hard-drive can handle, anyway). In fact, Lettersmith can build _thousands_ of files in just a few _seconds_.
 
-A stream is just a function that calls a callback:
+`map`, `filter` and cousins all consume just about any value, but return foldable functions. This means no intermediate tables are created when transforming. Efficient!
 
-```lua
-local docs = lettersmith.docs('raw/')
-docs(print)
--- table: 0x7fc573700320
--- table: 0x7fc573700450
--- table: 0x7fc573700123
-...
-```
-
-The [streams](https://github.com/gordonbrander/lettersmith/blob/master/streams.lua) library gives you some nice functions for working with streams: `map`, `filter`, `fold`, etc (you may have seen these in libraries like Underscore.js).
-
-What if you want to use a `for` loop? `to_coroutine` will give you an iterator you can use with traditional loops.
+What if you want to use a `for` loop? Not to worry, `foldable.ipairs` will return a coroutine iterator you can use with traditional loops:
 
 ```lua
-local to_coroutine = require("streams").to_coroutine
+local foldable = require("foldable")
 
-for doc in to_coroutine(docs) do
-  print(doc)
+for i, doc in foldable.ipairs(docs) do
+  print(i, doc)
 end
 ```
 
