@@ -177,7 +177,8 @@ local function chunk(foldable, n)
       -- If chunk has reached size, then send chunk to `step` and start a new
       -- chunk.
       if (#chunk == n) then
-        seed = step(seed, chunk) return {}
+        seed = step(seed, chunk)
+        return append_to_table({}, v)
 
       -- Otherwise, append value to chunk table.
       else

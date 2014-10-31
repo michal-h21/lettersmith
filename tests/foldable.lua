@@ -12,6 +12,7 @@ local collect = _.collect
 local concat = _.concat
 local take = _.take
 local zip_with = _.zip_with
+local chunk = _.chunk
 
 local function sum(x, y)
   return x + y
@@ -131,4 +132,17 @@ suite("take()", function ()
 
   -- Note this is not a formal API requirement, just an optimization.
   equal(huge_stream, a, "Returns original stream when number of items is math.huge")
+end)
+
+suite("chunk(foldable, n)", function ()
+  local a = {1, 2, 3, 4, 5, 6, 7}
+
+  local chunks = chunk(a, 3)
+
+  local b = collect(chunks)
+
+  equal(b[1][1], 1, "Chunks it!")
+  equal(b[1][2], 2, "Chunks it!")
+  equal(#b, 3, "Chunks correct number of chunks")
+  equal(#b[3], 1, "Collects leftover chunk")
 end)
