@@ -1,3 +1,5 @@
+-- A reinterpretation of Clojure Reducers for Lua.
+
 local exports = {}
 
 -- Fold a table into a result from a `seed` using `step` function.
@@ -19,7 +21,7 @@ local function fold(foldable, step, seed)
     -- Foldable functions are functions can take a `step` function and a `seed`
     -- value and fold themselves, returning a value.
     return foldable(step, seed)
-  else if type(foldable) == "table" then
+  elseif type(foldable) == "table" then
     -- Tables are folded using ipairs.
     return fold_table(foldable, step, seed)
   elseif foldable ~= nil then
@@ -48,11 +50,6 @@ exports.fold = fold
 --
 -- See http://clojure.com/blog/2012/05/15/anatomy-of-reducer.html for more on
 -- this idea.
---
--- Like Clojure, Lua APIs all block, so you don't gain anything outside of
--- CPS ergonomics by using a callback.
--- Rather than using a callback approach, it's a better idea to use a 
--- long-polling approach with coroutines.
 
 -- A higher-level function that will create a folding transformation
 -- with a collection-like API from a `transforming` recipe that will 
@@ -182,7 +179,7 @@ local function chunk(foldable, n)
     end, {})
 
     -- If any values are left over in the last chunk, reduce them too.
-    if #last_chunk > 0 then seed = step(seed, last_chunk)
+    if #last_chunk > 0 then seed = step(seed, last_chunk) end
 
     -- Finally, return folded value.
     return seed
@@ -218,12 +215,23 @@ local function from_cps(cps_function, ...)
     cps_function(function (v)
       -- Fold seed for each value passed to callback.
       seed = step(seed, v)
-    end, arg)
+    end, unpack(arg))
 
     -- Return folded seed value.
     return seed
   end
 end
 exports.from_cps = from_cps
+
+-- ## Design notes
+--
+-- Note that within Lua, there may only be one process operating at a given
+-- time. It is impossible to have 2 processes operating in parallel within the
+-- same Lua state. If you want that kind of thing, you have to turn to C, then
+-- expose a Lua API of some kind.
+--
+-- See https://stackoverflow.com/questions/15943785/thread-priorities-in-lua/15944052#15944052
+--
+-- For this reason, all calls to fold are blocking.
 
 return exports
