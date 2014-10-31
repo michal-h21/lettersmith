@@ -10,10 +10,7 @@ local attributes = lfs.attributes
 local mkdir = lfs.mkdir
 local rmdir = lfs.rmdir
 
-local streams = require("streams")
-local values = streams.values
-local folds = streams.folds
-local to_coroutine = streams.to_coroutine
+local foldable = require("foldable")
 
 local path = require("path")
 
@@ -56,7 +53,7 @@ end
 
 local function children(location)
   return coroutine.wrap(function ()
-    -- We use a for-loop instead of streams.reject because lfs.dir requires the
+    -- We use a for-loop instead of reject because lfs.dir requires the
     -- context of a userdata table it returns as a second argument.
     for sub_location in lfs.dir(location) do
       if is_plain_location(sub_location) then coroutine.yield(sub_location) end
@@ -72,11 +69,11 @@ local function mkdir_deep(location)
 
   -- Need to convert parts (table) to generator. @todo perhaps change
   -- parts to return generator?
-  local path_strings = folds(values(parts), function (seed, part)
+  local path_strings = foldable.folds(parts, function (seed, part)
     if seed == "" then return part else return seed .. "/" .. part end
   end, "")
 
-  for path_string in to_coroutine(path_strings) do
+  for i, path_string in foldable.ipairs(path_strings) do
     local is_success, message = mkdir_if_missing(path_string)
     if not is_success then return is_success, message end
   end
