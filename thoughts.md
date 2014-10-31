@@ -12,3 +12,9 @@ It would be great to foster a culture of "hack and learn".
 - Lettersmith mac app should be a tool you can use without knowing anything about programming. At worst, a manifest file. At best, just click-to-configure.
 - Modifying a theme should be something you can do with entry-level HTML and CSS chops.
 - From there, writing Lettersmith and plugins as LuaLit could be a good way to introduce people to programming.
+
+
+Notes
+-----
+
+Embedding Lua http://lua-users.org/wiki/BuildingLua
