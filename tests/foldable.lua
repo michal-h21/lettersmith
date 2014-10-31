@@ -13,6 +13,7 @@ local concat = _.concat
 local take = _.take
 local zip_with = _.zip_with
 local chunk = _.chunk
+local harvest = _.harvest
 
 local function sum(x, y)
   return x + y
@@ -154,4 +155,18 @@ suite("chunk(foldable, n)", function ()
   equal(c[1][2], 2, "Chunks even chunks!")
   equal(#c, 1, "Chunks correct number of chunks")
   equal(#c[1], 2, "Collects leftover chunk")
+end)
+
+suite("harvest()", function ()
+  function is_greater_than(a, b)
+    return a > b
+  end
+
+  local a = {1, 2, 3, 4, 5, 6}
+
+  local top_3 = harvest(a, is_greater_than, 3)
+
+  equal(top_3[3], 4, "Sorted correctly")
+  equal(top_3[1], 6, "Sorted correctly")
+  equal(#top_3, 3, "Did not take beyond correct number")
 end)
