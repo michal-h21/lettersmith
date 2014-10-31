@@ -16,17 +16,17 @@ Usage:
 
     build(use_meta(docs, site_meta), "out")
 --]]
-local streams = require("streams")
-local map_stream = streams.map
+local foldable = require("foldable")
+local map = foldable.map
 
 local table_utils = require("table_utils")
 local merge = table_utils.merge
 
-return function (doc_stream, meta)
+return function (docs_foldable, meta)
   -- Add metadata to all documents.
   -- Returns new list of documents with metadata mixed in.
   -- Fields from document take precidence.
-  return map_stream(doc_stream, function (doc)
+  return map(docs_foldable, function (doc)
     return merge(meta, doc)
   end)
 end
