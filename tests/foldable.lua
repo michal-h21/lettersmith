@@ -7,6 +7,7 @@ local _ = require("foldable")
 local fold = _.fold
 local map = _.map
 local filter = _.filter
+local reject = _.reject
 local collect = _.collect
 
 local function sum(x, y)
@@ -74,4 +75,15 @@ suite("filter(foldable, predicate)", function()
 
   equal(#b, 1, "Filters out correct number of values")
   equal(b[1], 2, "Includes values that match predicate")
+end)
+
+suite("reject(foldable, predicate)", function()
+  local t = {1, 2, 3}
+
+  local a = reject(t, is_even)
+
+  local b = collect(a)
+
+  equal(#b, 2, "Rejects correct number of values")
+  equal(b[1], 1, "Includes values that match predicate")
 end)
