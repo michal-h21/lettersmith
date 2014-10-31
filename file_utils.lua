@@ -11,7 +11,6 @@ local mkdir = lfs.mkdir
 local rmdir = lfs.rmdir
 
 local streams = require("streams")
-local reject = streams.reject
 local values = streams.values
 local folds = streams.folds
 local to_coroutine = streams.to_coroutine
