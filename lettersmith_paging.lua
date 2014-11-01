@@ -6,10 +6,12 @@ local query = lettersmith.query
 local foldable = require("foldable")
 local map = foldable.map
 local chunk = foldable.chunk
+local concat = foldable.concat
 
 local collections = require("lettersmith_collections")
 local link_circularly = collections.link_circularly
 local compare_doc_by_date = collections.compare_doc_by_date
+local list_collection = collections.list_collection
 
 local function expand_docs_to_page(docs_table)
   -- @todo this should be considered a page doc.
@@ -36,7 +38,7 @@ end
 exports.to_pages = to_pages
 
 local function use(docs_foldable, options)
-  local path_query_string = options.path_query_string
+  local path_query_string = options.matching
   local limit = options.limit
   local compare = options.compare or compare_doc_by_date
   local per_page = options.per_page or 20
@@ -57,7 +59,7 @@ local function use(docs_foldable, options)
     return doc
   end)
 
-  return concat(docs_foldable, pages)
+  return concat(docs_foldable, page_docs)
 end
 exports.use = use
 
