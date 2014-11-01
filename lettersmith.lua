@@ -168,7 +168,7 @@ local function build(docs_foldable, path_string)
 
   local number_of_files = fold(docs_foldable, function (number_of_files, doc)
     local filepath = path.join(path_string, doc.relative_filepath)
-    assert(write_entire_file_deep(filepath, doc.contents))
+    assert(write_entire_file_deep(filepath, doc.contents or ""))
     return number_of_files + 1
   end, 1)
 
