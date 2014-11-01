@@ -47,12 +47,13 @@ exports.compare_doc_by_date = compare_doc_by_date
 -- As Clojure puts it "if a tree mutates in a forest and no one hears it...".
 local function detain(foldable)
   return function(step, seed)
-    local v = fold(foldable, function (last, v)
-      if (last) then seed = step(seed, last) end
+    local final_v = fold(foldable, function (prev, v)
+      if (prev) then seed = step(seed, prev) end
       return v
     end, nil)
 
-    return step(seed, v)
+    -- Acumulate last left-over value.
+    return step(seed, final_v)
   end
 end
 
