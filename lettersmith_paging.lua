@@ -38,11 +38,12 @@ end
 exports.to_pages = to_pages
 
 local function use(docs_foldable, options)
+  local template = options.template
   local path_query_string = options.matching
-  local limit = options.limit
+  local limit = options.limit or math.huge
   local compare = options.compare or compare_doc_by_date
   local per_page = options.per_page or 20
-  local relative_path_template = options.template or "page-:number.html"
+  local relative_path_template = options.relative_path or "page-:number.html"
 
   local matches = query(docs_foldable, path_query_string)
 
@@ -56,6 +57,7 @@ local function use(docs_foldable, options)
     -- We're mutating doc, but since it was created within the parent closure,
     -- we can get away with it.
     doc.relative_filepath = relative_path
+    doc.template = template
     return doc
   end)
 
