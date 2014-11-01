@@ -81,9 +81,16 @@ local function link_circularly(tables_foldable)
 end
 exports.link_circularly = link_circularly
 
-local function list_collection(docs_foldable, compare, n)
+local function query_and_list_by(docs_foldable, path_query_string, compare, n)
+  return harvest(query(docs_foldable, path_query_string), compare, n)
+end
+exports.query_and_list_by = query_and_list_by
+
+local function query_collection(docs_foldable, path_query_string, compare, n)
+  local matches = query(docs_foldable, path_query_string)
+
   -- Harvest the top `n` sorted tables.
-  local top_n = harvest(docs_foldable, compare, n)
+  local top_n = harvest(matches, compare, n)
 
   -- Create circular next/prev references between shallow copies.
   local linked = link_circularly(top_n)
@@ -91,16 +98,13 @@ local function list_collection(docs_foldable, compare, n)
   -- Collect into indexed table
   return collect(linked)
 end
-exports.list_collection = list_collection
+exports.query_collection = query_collection
 
 local function use(docs_foldable, name, path_query_string, compare, n)
   -- Default to comparing files by date.
   compare = compare or compare_doc_by_date
 
-  local matches =
-    query(docs_foldable, path_query_string, compare, n)
-
-  local collection = list_collection(matches, compare, n)
+  local collection = query_collection(matches, path_query_string, compare, n)
 
   return map(docs_foldable, function (doc)
     return merge(doc, {

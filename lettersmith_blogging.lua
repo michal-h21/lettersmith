@@ -26,13 +26,19 @@ Template metadata: anything you add to the `options` table will be available
 within your templates.
 ]]--
 
+local concat = require("foldable").concat
+
 local use_markdown = require("lettersmith_markdown")
 local use_drafts = require("lettersmith_drafts")
 local use_meta = require("lettersmith_meta")
 local use_permalinks = require("lettersmith_permalinks").use
-local use_collections = require("lettersmith_collections").use
-local use_paging = require("lettersmith_paging").use
-local use_rss = require("lettersmith_rss").use
+
+local collections = require("lettersmith_collections")
+local compare_doc_by_date = collections.compare_doc_by_date
+local query_and_list_by = collections.query_and_list_by
+
+local to_page_docs = require("lettersmith_paging").to_page_docs
+local generate_feed_doc = require("lettersmith_rss").generate_feed_doc
 
 local exports = {}
 
@@ -55,38 +61,37 @@ local function use(docs_foldable, options)
   -- So `post 1.html` becomes `2014/10/26/post-title/`.
   docs_foldable = use_permalinks(docs_foldable, "*.html", ":yyyy/:mm/:dd/:slug/")
 
-  -- A query that we can use to grab all of the blog posts.
-  local post_path_query_string = "????/??/??/*/index.html"
-
-  -- @TODO we lose a lot of time to re-walking the docs_foldable twice -- once
-  -- for paging, once for rss. To speed things up, we could:
-  -- create a lower-level paging and RSS function,
-  -- query docs ourselves,
-  -- harvest (and sort) the query results into a table,
-  -- pass harvested table to rss and paging.
-  -- I think this should act as a memoization -- we keep the docs in memory we
-  -- need to list in memory. We don't even lose anything memory-pressure-wise.
-  -- Paging needs to be able to sort everything before chunking anyhow.
-
-  docs_foldable = use_paging(docs_foldable, {
-    matching = post_path_query_string,
-    per_page = n_per_page,
-    template = archive_template,
-    relative_path = "page/:number/index.html"
-  })
-
-  -- Configure RSS for posts.
-  docs_foldable = use_rss(docs_foldable, {
-    matching = post_path_query_string,
-    relative_path = "feed/index.xml",
-    site_title = site_title,
-    site_description = site_description,
-    site_url = site_url
-  })
-
   -- Anything in pages directory is re-written to pretty page URL.
   -- So `pages/about.html` becomes `about/`
   docs_foldable = use_permalinks(docs_foldable, "pages/*.html", ":slug/")
+
+  -- Query docs for posts. Collect all of those posts into a sorted table.
+  -- This allows us to walk the docs list only 2x. Once for each doc and then
+  -- once for list consumers like RSS and archive pages.
+  local posts_list = query_and_list_by(
+    docs_foldable,
+    "????/??/??/*/index.html",
+    compare_doc_by_date
+  )
+
+  local archive_pages = to_page_docs(
+    posts_list,
+    archive_template,
+    "page/:number/index.html",
+    n_per_page
+  )
+
+  docs_foldable = concat(docs_foldable, archive_pages)
+
+  local rss_doc = generate_feed_doc(
+    posts_list,
+    "feed/index.xml",
+    site_url,
+    site_title,
+    site_title
+  )
+
+  docs_foldable = concat(docs_foldable, {rss_doc})
 
   return docs_foldable
 end

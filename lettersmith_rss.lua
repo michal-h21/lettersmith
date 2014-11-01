@@ -102,6 +102,7 @@ local function generate_feed_doc(docs_foldable, relative_path_string, site_url, 
     relative_filepath = relative_path_string
   }
 end
+exports.generate_feed_doc = generate_feed_doc
 
 local function use(docs_foldable, options)
   -- Generate RSS feed file and merge into doc stream.
