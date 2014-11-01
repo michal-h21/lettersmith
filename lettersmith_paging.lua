@@ -1,70 +1,63 @@
---[[
-Lettersmith paginate
+local exports = {}
 
-Don't forget next/prev urls on page docs.
---]]
 local lettersmith = require("lettersmith")
 local query = lettersmith.query
 
-local streams = require("streams")
-local chunk = streams.chunk
-local folds = streams.folds
+local foldable = require("foldable")
+local map = foldable.map
+local chunk = foldable.chunk
 
-local table_utils = require("table_utils")
-local merge = table_utils.merge
+local collections = require("lettersmith_collections")
+local link_circularly = collections.link_circularly
+local compare_doc_by_date = collections.compare_doc_by_date
 
-local exports = {}
-
-local defaults = {
-  -- template = "whatever.html",
-  matching = "*.html",
-  relative_path = "page/:number/index.html",
-  per_page = 10
-}
-
-local function maybe_get(t, k)
-  if t then
-    return t[k]
-  else
-    return nil
-  end
+local function expand_docs_to_page(docs_table)
+  -- @todo this should be considered a page doc.
+  -- Should we give those a date or contents? Probably not. That would
+  -- be pretty pointless.
+  return { docs = docs_table }
 end
 
-local function set_circular_link(doc_1, doc_2)
-  -- Set circular link references on document objects. This is pretty
-  -- similar to a doubly-linked list.
-  -- @todo determine if we actually want to link references or use keys...
-  -- perhaps relative_path?
-  doc_1.next = doc_2
-  doc_2.prev = doc_1
-  return doc_1, doc_2
+local function to_pages(docs_foldable, n_per_page)
+  -- Link docs.
+  local linked = link_circularly(docs_foldable)
+
+  -- Chunk into pages
+  local chunks = chunk(linked, n_per_page)
+
+  local pages = map(chunks, expand_docs_to_page)
+
+  -- Link pages
+  local linked_pages = link_circularly(pages)
+
+  -- Return page chunks.
+  return linked_pages
 end
+exports.to_pages = to_pages
 
-local function use(doc_stream, options)
-  options = merge(defaults, options)
+local function use(docs_foldable, options)
+  local path_query_string = options.path_query_string
+  local limit = options.limit
+  local compare = options.compare or compare_doc_by_date
+  local per_page = options.per_page or 20
+  local relative_path_template = options.template or "page-:number.html"
 
-  local matching = query(doc_stream, options.matching)
+  local matches = query(docs_foldable, path_query_string)
 
-  local page_lists = chunk(matching, options.per_page)
+  local collection = list_collection(matches, compare, limit)
 
-  local relative_path_template = options.relative_path
+  local pages = to_pages(collection, per_page)
 
-  local page_docs = folds(page_lists, function (prev_doc, list)
-    local prev_number = maybe_get(prev_doc, "number") or 0
-    local number = prev_number + 1
+  local page_docs = map(pages, function (doc)
+    -- Generate path from template.
+    local relative_path = relative_path_template:gsub(":number", doc.number)
+    -- We're mutating doc, but since it was created within the parent closure,
+    -- we can get away with it.
+    doc.relative_filepath = relative_path
+    return doc
+  end)
 
-    local relative_filepath = relative_path_template:gsub(":number", number)
-
-    return {
-      relative_filepath = relative_filepath,
-      number = number,
-      list = list
-    }
-  end, nil)
-
-  local linked_page_docs = colist(page_docs, link_docs_circular)
-
-  return linked_page_docs
+  return concat(docs_foldable, pages)
 end
 exports.use = use
 
