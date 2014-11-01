@@ -162,8 +162,6 @@ end
 exports.docs = docs
 
 local function build(docs_foldable, path_string)
-  local start = os.time()
-
   if location_exists(path_string) then assert(remove_recursive(path_string)) end
 
   local number_of_files = fold(docs_foldable, function (number_of_files, doc)
@@ -172,9 +170,7 @@ local function build(docs_foldable, path_string)
     return number_of_files + 1
   end, 1)
 
-  local build_time = os.time() - start
-
-  print("Done! Generated " .. number_of_files .. " files in " .. build_time .. 's.')
+  return true, number_of_files
 end
 exports.build = build
 
