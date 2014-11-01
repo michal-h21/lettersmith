@@ -31,40 +31,52 @@ local use_drafts = require("lettersmith_drafts")
 local use_meta = require("lettersmith_meta")
 local use_permalinks = require("lettersmith_permalinks").use
 local use_collections = require("lettersmith_collections").use
+local use_paging = require("lettersmith_paging").use
 local use_rss = require("lettersmith_rss").use
 
 local exports = {}
 
-local function use(doc_stream, options)
+local function use(docs_foldable, options)
   local site_title = options.site_title
   local site_description = options.site_description
   local site_url = options.site_url
-  local n_per_page = options.per_page or 10
+  local n_per_page = options.per_page or 20
+  local archive_template = options.archive_template or "archive.html"
 
-  doc_stream = use_drafts(doc_stream)
+  docs_foldable = use_drafts(docs_foldable)
 
   -- Mix options object into doc meta.
-  doc_stream = use_meta(doc_stream, options)
+  docs_foldable = use_meta(docs_foldable, options)
 
   -- Parse markdown
-  doc_stream = use_markdown(doc_stream)
+  docs_foldable = use_markdown(docs_foldable)
 
   -- Configure pretty blog permalinks for all html files in root directory.
   -- So `post 1.html` becomes `2014/10/26/post-title/`.
-  doc_stream = use_permalinks(doc_stream, "*.html", ":yyyy/:mm/:dd/:slug/")
+  docs_foldable = use_permalinks(docs_foldable, "*.html", ":yyyy/:mm/:dd/:slug/")
 
   -- A query that we can use to grab all of the blog posts.
   local post_path_query_string = "????/??/??/*/index.html"
 
-  -- Collect all posts in "posts" collection
-  doc_stream = use_collections(doc_stream, "posts", post_path_query_string)
+  -- @TODO we lose a lot of time to re-walking the docs_foldable twice -- once
+  -- for paging, once for rss. To speed things up, we could:
+  -- create a lower-level paging and RSS function,
+  -- query docs ourselves,
+  -- harvest (and sort) the query results into a table,
+  -- pass harvested table to rss and paging.
+  -- I think this should act as a memoization -- we keep the docs in memory we
+  -- need to list in memory. We don't even lose anything memory-pressure-wise.
+  -- Paging needs to be able to sort everything before chunking anyhow.
 
-  -- @TODO
-  -- doc_stream = use_paging(doc_stream, 
-  --   post_path_query_string, n_per_page, "page/:num/index.html")
+  docs_foldable = use_paging(docs_foldable, {
+    matching = post_path_query_string,
+    per_page = n_per_page,
+    template = archive_template,
+    relative_path = "page/:number/index.html"
+  })
 
   -- Configure RSS for posts.
-  doc_stream = use_rss(doc_stream, {
+  docs_foldable = use_rss(docs_foldable, {
     matching = post_path_query_string,
     relative_path = "feed/index.xml",
     site_title = site_title,
@@ -74,12 +86,9 @@ local function use(doc_stream, options)
 
   -- Anything in pages directory is re-written to pretty page URL.
   -- So `pages/about.html` becomes `about/`
-  doc_stream = use_permalinks(doc_stream, "pages/*.html", ":slug/")
+  docs_foldable = use_permalinks(docs_foldable, "pages/*.html", ":slug/")
 
-  -- Collect all pages in "pages" collection
-  doc_stream = use_collections(doc_stream, "pages", "*/index.html")
-
-  return doc_stream
+  return docs_foldable
 end
 exports.use = use
 
