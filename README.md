@@ -3,6 +3,19 @@ Lettersmith
 
 Lettersmith is a simple, flexible, fast  _static site generator_. It's written in [Lua](http://lua.org).
 
+Lettersmith's goals are:
+
+- Simple: no fancy classes, no silly conventions. Just a minimal library for transforming files with functions.
+- Flexible: everything is a plugin.
+- Fast: build thousands of pages in seconds or less.
+- Embeddable: we're going to put this thing in an Mac app so normal people can use it.
+
+Lettersmith is open-source and a work-in-progress. [You can help](https://github.com/gordonbrander/lettersmith/issues).
+
+
+What does it do?
+----------------
+
 Lettersmith is built around a simple idea: load files as Lua tables. So this:
 
 `example.md`:
