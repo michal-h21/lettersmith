@@ -127,7 +127,9 @@ end)
 
 Easy!
 
-The [foldable](https://github.com/gordonbrander/lettersmith/blob/master/foldable.lua) library gives you some nice functions for working with lists of values: `map`, `filter`, `fold`, etc (you may have seen these functions before in libraries like Underscore.js).
+The [foldable](https://github.com/gordonbrander/lettersmith/blob/master/foldable.lua) library gives you some nice functions for working with lists of values: `map`, `filter`, `fold`, etc (you may have seen these functions before in libraries like [underscore.js][u1]).
+
+[u1]: http://underscorejs.org/
 
 These functions have a special sauce: they can consume nearly any value: tables, single values, nil, or _foldable functions_. What is a foldable function? The "list" that `lettersmith.docs` returns is actually a foldable function:
 
