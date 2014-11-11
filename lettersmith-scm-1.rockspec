@@ -1,6 +1,6 @@
 -- http://www.luarocks.org/en/Creating_a_rock
 package = "Lettersmith"
-version = "0.0-1"
+version = "scm-1"
 source = {
   url = "git://github.com/gordonbrander/lettersmith"
 }
