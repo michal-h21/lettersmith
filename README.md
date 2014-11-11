@@ -51,7 +51,7 @@ The function `lettersmith.docs(path)` takes a file path and returns a list of do
   date = "2014-10-17T01:25:59"
 },
 {
-  relative_filepath = 'bar/y.md",
+  relative_filepath = "bar/y.md",
   contents = "...",
   date = "2014-10-17T01:25:59"
 },
