@@ -45,7 +45,7 @@ build = {
     -- Libraries
     ["lettersmith.foldable"] = "foldable.lua",
     ["lettersmith.headmatter"] = "headmatter.lua",
-    ["lettersmith.path"] = "lettersmith.path",
+    ["lettersmith.path"] = "path.lua",
     ["lettersmith.file_utils"] = "file_utils.lua",
     ["lettersmith.table_utils"] = "table_utils.lua"
   }
