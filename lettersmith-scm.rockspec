@@ -7,14 +7,19 @@ source = {
 description = {
   summary = "A simple, flexible static site generator based on plugins",
   detailed = [[
-  Lettersmith is a simple, flexible static site generator that lets you create
-  websites from text files and images.
+  Lettersmith is a static site generator. It's goals are:
 
-  Lettersmith provides Markdown support, Mustache templates, metadata support
-  and more. It's core concept is that files everything is a plugin. That means
-  adding new functionality to Lettersmith is as easy as writing a Lua function!
+  - Simple: no fancy classes, no silly conventions. Just a minimal library for
+    transforming files with functions.
+  - Flexible: everything is a plugin.
+  - Fast: build thousands of pages in seconds or less.
+  - Embeddable: we're going to put this thing in an Mac app so normal people
+    can use it.
+
+  It ships with plugins for blogging, Markdown and Mustache, but can be easily
+  extended and configured to build any type of static site.
   ]],
-  -- homepage = "http://...", -- We don't have one yet
+  homepage = "https://github.com/gordonbrander/lettersmith",
   license = "MIT/X11"
 }
 dependencies = {
