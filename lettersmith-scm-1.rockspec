@@ -39,7 +39,7 @@ build = {
     ["lettersmith.mustache"] = "lettersmith_mustache.lua",
     ["lettersmith.permalinks"] = "lettersmith_permalinks.lua",
     ["lettersmith.drafts"] = "lettersmith_drafts.lua",
-    ["lettersmith.markdown"] = "lettersmith_markown.lua",
+    ["lettersmith.markdown"] = "lettersmith_markdown.lua",
     ["lettersmith.meta"] = "lettersmith_meta.lua",
 
     -- Libraries
