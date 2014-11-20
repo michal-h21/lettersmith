@@ -116,11 +116,9 @@ exports.doc_renderer = doc_renderer
 local function renderer_plugin(render, default_query, rendered_extension)
   local render = doc_renderer(render, rendered_extension)
 
-  return function(options)
-    options = defaults({ query = default_query }, options)
-
+  return function(query)
     return function(docs)
-      return lazily.transform(routing(map(render), options.query), docs)
+      return lazily.transform(routing(map(render), query or default_query), docs)
     end
   end
 end
