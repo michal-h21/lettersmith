@@ -26,4 +26,21 @@ local function shallow_copy(t)
 end
 exports.shallow_copy = shallow_copy
 
+local function slice_table(t, from, to)
+  to = to or math.huge
+  from = from or 1
+
+  local at = math.min(from - 1, 0)
+  local iter = ipairs(t)
+  local sliced_t = {}
+
+  for i, v in iter, t, at do
+    if i > to then return sliced_t end
+    table.insert(sliced_t, v)
+  end
+
+  return sliced_t
+end
+exports.slice_table = slice_table
+
 return exports
