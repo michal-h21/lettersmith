@@ -1,16 +1,12 @@
 local exports = {}
 
-local foldable = require("foldable")
-local map = foldable.map
-local fold = foldable.fold
-local filter = foldable.filter
+local transducers = require("transducers")
+local apply_to = transducers.apply_to
+local reduce = transducers.reduce
 
-local table_utils = require("table_utils")
-local merge = table_utils.merge
+local lazily = require("lazily")
 
 local path = require("path")
-
-local wildcards = require("wildcards")
 
 local file_utils = require("file_utils")
 local children = file_utils.children
@@ -27,69 +23,6 @@ local date = require("date")
 
 local headmatter = require("headmatter")
 
-local function route(docs_foldable, path_query_string, transform)
-  -- Transform documents in foldable that match a particular route.
-  -- You can use query strings to match documents by wildcard, e.g.
-  -- `*.md` or `/**.md`.
-
-  -- Parse query string into pattern.
-  local pattern = wildcards.parse(path_query_string)
-
-  -- @todo I'm pretty sure I can better express my weird map/filter situations
-  -- with a `folds` function. The idea is that a passing value returns
-  -- transformed seed, whereas a non-passing value simply returns seed.
-  return map(docs_foldable, function (doc)
-    -- Skip processing if path does not match query pattern.
-    if not doc.relative_filepath:find(pattern) then return doc end
-    -- Otherwise transform doc table, replacing it with whatever `transform`
-    -- returns.
-    return transform(doc)
-  end)
-end
-exports.route = route
-
-local function query(docs_foldable, path_query_string)
-  -- Filter docs matching `path_query_string`.
-  -- `path_query_string` supports wildcard paths.
-  local pattern = wildcards.parse(path_query_string)
-
-  -- Note the difference between `query` and `route`: `route` will apply a
-  -- transformation to each matching doc, but the resulting foldable contains
-  -- all docs, wheras query actually returns a filtered foldable of docs.
-  return filter(docs_foldable, function (doc)
-    return doc.relative_filepath:find(pattern)
-  end)
-end
-exports.query = query
-
-local function render(docs_foldable, path_query_string, rendered_extension, render)
-  -- A convenience function for writing renderers.
-  -- `docs_foldable`: the foldable of documents to process.
-  -- `path_query_string`: a path with optional wildcards.
-  -- `rendered_extension`: the extension to use on rendered doc (including .)
-  -- `render`: a function to render content.
-  -- Returns a new foldable containing rendered docs and non-rendered docs.
-
-  -- A special route type
-  return route(docs_foldable, path_query_string, function(doc)
-    -- Render contents
-    local rendered = render(doc.contents)
-
-    -- Replace file extension
-    local relative_filepath = path.replace_extension(
-      doc.relative_filepath,
-      rendered_extension
-    )
-
-    -- Return new shallow-copied doc with rendered contents
-    return merge(doc, {
-      contents = rendered,
-      relative_filepath = relative_filepath
-    })
-  end)
-end
-exports.render = render
-
 local function walk_file_paths_cps(callback, path_string)
   -- Recursively walk through directory at `path_string` calling
   -- `callback` with each file path found.
@@ -105,10 +38,12 @@ local function walk_file_paths_cps(callback, path_string)
 end
 
 -- Given `path_string` -- a path to a directory -- recursively walks through
--- directory and returns a foldable of all file paths.
--- Returns a foldable of file path strings.
+-- directory and returns an iterator for all file paths.
+-- Returns a coroutine iterator which may be consumed once.
 function walk_file_paths(path_string)
-  return foldable.from_cps(walk_file_paths_cps, path_string)
+  return coroutine.wrap(function ()
+    walk_file_paths_cps(coroutine.yield, path_string)
+  end)
 end
 exports.walk_file_paths = walk_file_paths
 
@@ -146,32 +81,43 @@ exports.load_doc = load_doc
 
 local function docs(base_path_string)
   -- Walk directory, creating doc objects from files.
-  -- Returns a generator function of doc objects.
-  -- Warning: generator may only be consumed once! If you need to consume it
-  -- more than once, call `docs` again, or use `collect` to load all docs into
-  -- an array table.
-
-  local path_foldable = walk_file_paths(base_path_string)
-
-  return map(path_foldable, function (path_string)
+  -- Returns a coroutine iterator function good for each doc table.
+  function path_to_doc(path_string)
     -- Remove the base path string to get the relative file path.
     local relative_path_string = path_string:sub(#base_path_string + 1)
     return load_doc(base_path_string, relative_path_string)
-  end)
+  end
+
+  return lazily.map(path_to_doc, walk_file_paths(base_path_string))
 end
 exports.docs = docs
 
-local function build(docs_foldable, path_string)
-  if location_exists(path_string) then assert(remove_recursive(path_string)) end
+local function build(out_path_string, iter, state, at)
+  -- Remove old build directory recursively.
+  if location_exists(out_path_string) then
+    assert(remove_recursive(out_path_string))
+  end
 
-  local number_of_files = fold(docs_foldable, function (number_of_files, doc)
-    local filepath = path.join(path_string, doc.relative_filepath)
-    assert(write_entire_file_deep(filepath, doc.contents or ""))
+  function write_and_tally(number_of_files, doc)
+    -- Create new file path from relative path and out path.
+    local file_path = path.join(out_path_string, doc.relative_filepath)
+    assert(write_entire_file_deep(file_path, doc.contents or ""))
     return number_of_files + 1
-  end, 1)
+  end
 
-  return true, number_of_files
+  -- Consume transformed doc iterator. Return a tally representing number
+  -- of files written.
+  return reduce(write_and_tally, 0, iter, state, at)
 end
 exports.build = build
+
+-- Load, process and write all in a single function.
+local function generate(in_path_string, out_path_string, ...)
+  -- Transform documents using plugins, starting from left-most plugin and
+  -- working our way right.
+  local transformed_docs = reduce(apply_to, docs(in_path_string), ipairs(arg))
+  return build(out_path_string, transformed_docs)
+end
+exports.generate = generate
 
 return exports

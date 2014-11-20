@@ -32,8 +32,14 @@ Usage:
     docs = use_permalinks(docs, "*.html", ":yyyy/:mm/:dd/:slug")
     build(docs, "out")
 --]]
-local lettersmith = require("lettersmith")
-local route = lettersmith.route
+
+local exports = {}
+
+local plugin_utils = require("plugin_utils")
+local routing = plugin_utils.routing
+
+local transducers = require("transducers")
+local lazily = require("lazily")
 
 local table_utils = require("table_utils")
 local merge = table_utils.merge
@@ -42,8 +48,6 @@ local extend = table_utils.extend
 local path = require("path")
 
 local date = require("date")
-
-local exports = {}
 
 local function trim_string(str)
   return str:gsub("^%s+", ""):gsub("%s+$", "")
@@ -57,18 +61,20 @@ local function to_slug(str)
 end
 exports.to_slug = to_slug
 
-local function filter_map_table_values(t, predicate, transform)
+local function is_json_safe(thing)
+  local thing_type = type(thing)
+  return thing_type == "string" or thing_type == "number"
+end
+
+local function build_json_safe_table(t, a2b)
   -- Filter and map values in t, retaining fields that return a value.
   -- Returns new table with values mapped via function `transform`.
   local out = {}
   for k, v in pairs(t) do
-    if predicate(v) then out[k] = transform(v) end
+    -- Only keep fields which are JSON safe.
+    if is_json_safe(k) and is_json_safe(v) then out[k] = a2b(v) end
   end
   return out
-end
-
-local function is_string(thing)
-  return type(thing) == "string"
 end
 
 local function render_doc_permalink_from_template(doc, url_template)
@@ -92,7 +98,7 @@ local function render_doc_permalink_from_template(doc, url_template)
     :fmt("%Y %y %m %d"):match("(%d%d%d%d) (%d%d) (%d%d) (%d%d)")
 
   -- Generate context object that contains only strings in doc, mapped to slugs
-  local doc_context = filter_map_table_values(doc, is_string, to_slug)
+  local doc_context = build_json_safe_table(doc, to_slug)
 
   -- Merge doc context and extra template vars, favoring template vars.
   local context = extend({
@@ -111,17 +117,21 @@ local function render_doc_permalink_from_template(doc, url_template)
   return path_string:gsub("/$", "/index" .. extension)
 end
 
-local function use(doc_stream, path_query_string, relative_path_template)
-  -- Write pretty permalinks for 
-  return route(doc_stream, path_query_string, function (doc)
-    local permalink = render_doc_permalink_from_template(
-      doc, relative_path_template)
-
-    return merge(doc, {
-      relative_filepath = permalink
-    })
+local function xform_permalinks(template)
+  return transducers.map(function(doc)
+    local permalink = render_doc_permalink_from_template(doc, template)
+    return merge(doc, { relative_filepath = permalink })
   end)
 end
-exports.use = use
+exports.xform_permalinks = xform_permalinks
+
+local function plugin(options)
+  return function(docs)
+    -- Write pretty permalinks for
+    local xf = xform_permalinks(options.template)
+    return lazily.transform(routing(xf, options.query), docs)    
+  end
+end
+exports.plugin = plugin
 
 return exports

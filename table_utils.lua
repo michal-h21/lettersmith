@@ -21,6 +21,11 @@ local function merge(a, b)
 end
 exports.merge = merge
 
+local function defaults(defaults, options)
+  return merge(defaults or {}, options or {})
+end
+exports.defaults = defaults
+
 local function shallow_copy(t)
   return extend({}, t)
 end

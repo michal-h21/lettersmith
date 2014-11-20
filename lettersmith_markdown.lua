@@ -5,17 +5,18 @@ Renders markdown files (.md, .markdown, .mdown).
 
 Usage:
 
-    local use_markdown = require('lettersmith.markdown')
+    local use_markdown = require('lettersmith.markdown').plugin
     local lettersmith = require('lettersmith')
 
-    local docs = lettersmith.docs("raw")
-    build(use_markdown(docs), "out")
+    lettersmith.generate("raw", "out", use_markdown{ query = "**.txt" })
 --]]
+local exports = {}
+
 local markdown = require('discount')
 
-local lettersmith = require('lettersmith')
-local render = lettersmith.render
+local plugin_utils = require('plugin_utils')
+local renderer_plugin = plugin_utils.renderer_plugin
 
-return function(doc_stream)
-  return render(doc_stream, "**.md", '.html', markdown)
-end
+exports.plugin = renderer_plugin(markdown, "**.md", ".html")
+
+return exports

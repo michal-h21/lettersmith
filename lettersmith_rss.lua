@@ -1,13 +1,13 @@
 -- Given a doc list, will generate an RSS feed file.
 -- Can be used as a plugin, or as a helper for a theme plugin.
 
-local query = require("lettersmith").query
+local plugin_utils = require("plugin_utils")
+local query = plugin_utils.query
+local compare_doc_by_date = plugin_utils.compare_doc_by_date
 
-local foldable = require("foldable")
-local map = foldable.map
-local harvest = foldable.harvest
-local concat = foldable.concat
-local collect = foldable.collect
+local xf = require("transducers")
+local transduce = xf.transduce
+local map = xf.map
 
 local collections = require("lettersmith_collections")
 local compare_doc_by_date = collections.compare_doc_by_date
@@ -78,15 +78,14 @@ local function to_rss_item_from_doc(doc, root_url_string)
   }
 end
 
-local function generate_feed_doc(docs_foldable, relative_path_string, site_url, site_title, site_description)
-  -- @TODO what is the standard number of items in an RSS feed? Going with 20.
-  local top_n_docs = harvest(docs_foldable, compare_doc_by_date, 20)
+local function generate_feed_doc(docs_table, relative_path_string, site_url, site_title, site_description)
+  table.sort(docs_table, compare_doc_by_date)
 
-  local items_foldable = map(top_n_docs, function(doc)
+  local function to_rss_item(doc)
     return to_rss_item_from_doc(doc, site_url)
-  end)
+  end
 
-  local items = collect(items_foldable)
+  local items = transduce(map(to_rss_item), append, {}, ipairs(docs_table))
 
   local contents = render_feed({
     site_url = site_url,
@@ -97,12 +96,16 @@ local function generate_feed_doc(docs_foldable, relative_path_string, site_url, 
 
   return {
     -- Set date of feed to most recent document date.
-    date = top_n_docs[1].date,
+    date = items[1].date,
     contents = contents,
     relative_filepath = relative_path_string
   }
 end
 exports.generate_feed_doc = generate_feed_doc
+
+local function implement_rss(docs, options)
+
+end
 
 local function use(docs_foldable, options)
   -- Generate RSS feed file and merge into doc stream.

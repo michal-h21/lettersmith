@@ -42,6 +42,26 @@ local generate_feed_doc = require("lettersmith_rss").generate_feed_doc
 
 local exports = {}
 
+local function implement_blogging(docs, options)
+  local markdown_rendering = routing(map_markdown, "**.md")
+  local blog_posts = routing(map_permalinks(":yyyy/:mm/:dd/:slug/"), "*.html")
+  local pages = routing(map_permalinks(":slug/"), "pages/*.html")
+
+  local xform_blogging = comp(
+    pages,
+    blog_posts,
+    markdown_rendering,
+    map_meta(options),
+    reject_drafts
+  )
+
+  local function blogging(docs)
+    return lazily(xform_blogging, docs)
+  end
+
+  return comp(use_rss{}, use_archives{}, blogging)
+end
+
 local function use(docs_foldable, options)
   local site_title = options.site_title
   local site_description = options.site_description

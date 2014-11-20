@@ -5,11 +5,10 @@ Template your docs with mustache.
 
 Usage:
 
-    local use_mustache = require('lettersmith.mustache')
+    local use_mustache = require('lettersmith.mustache').plugin
     local lettersmith = require('lettersmith')
-    local docs = lettersmith.docs("raw")
 
-    build(use_mustache(docs, "templates"), "out")
+    lettersmith.generate("raw", "out", use_mustache{ path = "templates" })
 
 Lettersmith `mustache` takes 2 arguments: the docs list and a relative path
 to the templates directory.
@@ -24,10 +23,14 @@ around, you can copy the docs list, or simply copy the contents field to
 another field before templating.
 --]]
 
+local exports = {}
+
 local lustache = require('lustache')
 
-local foldable = require("foldable")
-local map = foldable.map
+local lazily = require("lazily")
+
+local xf = require("transducers")
+local map = xf.map
 
 local table_utils = require("table_utils")
 local merge = table_utils.merge
@@ -37,10 +40,10 @@ local read_entire_file = file_utils.read_entire_file
 
 local path = require('path')
 
-return function (docs, template_path)
+local function xform_template(template_path)
   -- Render docs through mustache template defined in headmatter `template`
   -- field. Returns new docs list.
-  return map(docs, function (doc)
+  return map(function (doc)
     -- Pass on docs that don't have template field.
     if not doc.template then return doc end
 
@@ -51,3 +54,15 @@ return function (docs, template_path)
     return merge(doc, { contents = rendered })
   end)
 end
+exports.xform_template = xform_template
+
+local function plugin(template_path)
+  local xform = xform_template(template_path)
+
+  return function (docs)
+    return lazily.transform(xform, docs)
+  end
+end
+exports.plugin = plugin
+
+return exports
