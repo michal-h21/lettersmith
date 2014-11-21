@@ -9,8 +9,8 @@ local xf = require("transducers")
 local transduce = xf.transduce
 local map = xf.map
 
-local collections = require("lettersmith_collections")
-local compare_doc_by_date = collections.compare_doc_by_date
+local lazily = require("lazily")
+local append = lazily.append
 
 local lustache = require("lustache")
 
@@ -18,6 +18,8 @@ local path = require("path")
 
 local table_utils = require("table_utils")
 local extend = table_utils.extend
+local shallow_copy = table_utils.shallow_copy
+local slice_table = table_utils.slice_table
 
 local date = require("date")
 
@@ -78,9 +80,13 @@ local function to_rss_item_from_doc(doc, root_url_string)
   }
 end
 
-local function generate_feed_doc(docs_table, relative_path_string, site_url, site_title, site_description)
-  table.sort(docs_table, compare_doc_by_date)
+local function sort(t, compare)
+  t = shallow_copy(t)
+  table.sort(t, compare)
+  return t
+end
 
+local function generate_feed_doc(docs_table, relative_path_string, site_url, site_title, site_description)
   local function to_rss_item(doc)
     return to_rss_item_from_doc(doc, site_url)
   end
@@ -103,31 +109,29 @@ local function generate_feed_doc(docs_table, relative_path_string, site_url, sit
 end
 exports.generate_feed_doc = generate_feed_doc
 
-local function implement_rss(docs, options)
+local function plugin(options)
+  local function append_rss(docs_table)
+    docs_table = sort(docs_table, compare_doc_by_date)
 
+    local rss_items = slice_table(docs_table, 1, 20)
+
+    local feed_doc = generate_feed_doc(
+      rss_items,
+      options.relative_filepath,
+      options.site_url,
+      options.site_title,
+      options.site_description
+    )
+
+    table.insert(docs_table, feed_doc)
+
+    return docs_table
+  end
+
+  return function(docs)
+    return query(append_rss, options.query, docs)
+  end
 end
-
-local function use(docs_foldable, options)
-  -- Generate RSS feed file and merge into doc stream.
-  local relative_path = options.relative_path or "feed.xml"
-  local site_url = options.site_url
-  local site_title = options.site_title
-  local site_description = options.site_description
-
-  local path_query_string = options.matching or "*.html"
-
-  local matching = query(docs_foldable, path_query_string)
-
-  local rss = generate_feed_doc(
-    matching,
-    relative_path,
-    site_url,
-    site_title,
-    site_description
-  )
-
-  return concat(docs_foldable, {rss})
-end
-exports.use = use
+exports.plugin = plugin
 
 return exports
