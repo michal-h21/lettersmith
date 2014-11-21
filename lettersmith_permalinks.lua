@@ -38,7 +38,7 @@ local exports = {}
 local plugin_utils = require("plugin_utils")
 local routing = plugin_utils.routing
 
-local transducers = require("transducers")
+local xf = require("transducers")
 local lazily = require("lazily")
 
 local table_utils = require("table_utils")
@@ -77,7 +77,7 @@ local function build_json_safe_table(t, a2b)
   return out
 end
 
-local function render_doc_permalink_from_template(doc, url_template)
+local function render_doc_path_from_template(doc, url_template)
   local basename, dir_path = path.basename(doc.relative_filepath)
   local extension = path.extension(basename)
   local filename = path.replace_extension(basename, "")
@@ -117,10 +117,21 @@ local function render_doc_permalink_from_template(doc, url_template)
   return path_string:gsub("/$", "/index" .. extension)
 end
 
-local function xform_permalinks(template)
-  return transducers.map(function(doc)
-    local permalink = render_doc_permalink_from_template(doc, template)
-    return merge(doc, { relative_filepath = permalink })
+-- Remove "index" from end of URL.
+local function make_pretty_url(root_url_string, relative_path_string)
+  local path_string = path.join(root_url_string, relative_path_string)
+  return path_string:gsub("/index%.[^.]*$", "/")
+end
+exports.make_pretty_url = make_pretty_url
+
+local function xform_permalinks(template, root_url)
+  return xf.map(function(doc)
+    local path = render_doc_path_from_template(doc, template)
+    local url = make_pretty_url(root_url or "/", path)
+    return merge(doc, {
+      relative_filepath = path,
+      url = url
+    })
   end)
 end
 exports.xform_permalinks = xform_permalinks
@@ -128,8 +139,8 @@ exports.xform_permalinks = xform_permalinks
 local function plugin(options)
   return function(docs)
     -- Write pretty permalinks for
-    local xf = xform_permalinks(options.template)
-    return lazily.transform(routing(xf, options.query), docs)    
+    local xform = xform_permalinks(options.template)
+    return lazily.transform(routing(xform, options.query), docs)    
   end
 end
 exports.plugin = plugin
