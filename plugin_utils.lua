@@ -11,6 +11,8 @@ local table_utils = require("table_utils")
 local merge = table_utils.merge
 local defaults = table_utils.defaults
 
+local date = require("date")
+
 local path = require("path")
 
 -- Easily create plugins that only operate on documents matching the given
@@ -126,13 +128,13 @@ exports.renderer_plugin = renderer_plugin
 
 -- Capture a subset of an iterator in a buffer table in order to modify it.
 -- Returns a coroutine iterator.
-local function capture_and_transform(predicate, transform_list, docs)
+local function capture_and_transform(transform_list, predicate, docs)
   return coroutine.wrap(function ()
     local buffer = {}
 
     -- Consumes an iterator, capturing each item that passes `predicate` test
     -- in a buffer table. Items that do not pass are yielded immediately.
-    for v in iter, state, at do
+    for v in docs do
       if predicate(v) then
         table.insert(buffer, v)
       else
@@ -156,17 +158,11 @@ exports.capture_and_transform = capture_and_transform
 -- The return value of `transform_list` will be folded back into reduction at
 -- the very end.
 -- Returns a list processing function.
-local function query_plugin(transform_list, default_query)
-  return function (options)
-    options = default({ query = default_query }, options)
-    local matches_path = relative_path_matcher(options.query)
-
-    return function(docs)
-      return capture_and_transform(matches_path, transform_list, docs)
-    end    
-  end
+local function query(transform_list, wildcard_string, docs)
+  local matches_path = relative_path_matcher(wildcard_string)
+  return capture_and_transform(transform_list, matches_path, docs)
 end
-exports.query_plugin = query_plugin
+exports.query = query
 
 local function compare_doc_by_date(a_doc, b_doc)
   -- Compare 2 docs by date, reverse chronological.
