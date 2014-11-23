@@ -109,7 +109,7 @@ local function generate_feed_doc(docs_table, relative_path_string, site_url, sit
 end
 exports.generate_feed_doc = generate_feed_doc
 
-local function plugin(options)
+local function use_rss(options)
   local function append_rss(docs_table)
     docs_table = sort(docs_table, compare_doc_by_date)
 
@@ -132,6 +132,6 @@ local function plugin(options)
     return query(append_rss, options.query, docs)
   end
 end
-exports.plugin = plugin
+exports.use_rss = use_rss
 
 return exports

@@ -6,10 +6,10 @@ in the headmatter section.
 
 Usage:
 
-    local use_drafts = require('lettersmith.drafts').plugin
+    local use_drafts = require('lettersmith.drafts').use_drafts
     local lettersmith = require('lettersmith')
 
-    lettersmith.generate("raw", "out", use_drafts())
+    lettersmith.generate("raw", "out", use_drafts)
 --]]
 local exports = {}
 
@@ -24,13 +24,9 @@ local reject_drafts = reject(function (doc)
 end)
 exports.reject_drafts = reject_drafts
 
-local function reject_draft_docs(docs)
+local function use_drafts(docs)
   return lazily.transform(reject_drafts, docs)
 end
-
-local function plugin()
-  return reject_draft_docs
-end
-exports.plugin = plugin
+exports.use_drafts = use_drafts
 
 return exports

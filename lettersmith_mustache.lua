@@ -5,10 +5,10 @@ Template your docs with mustache.
 
 Usage:
 
-    local use_mustache = require('lettersmith.mustache').plugin
+    local use_mustache = require('lettersmith.mustache').use_mustache
     local lettersmith = require('lettersmith')
 
-    lettersmith.generate("raw", "out", use_mustache{ path = "templates" })
+    lettersmith.generate("raw", "out", use_mustache { path = "templates" })
 
 Lettersmith `mustache` takes 2 arguments: the docs list and a relative path
 to the templates directory.
@@ -56,13 +56,13 @@ local function xform_template(template_path)
 end
 exports.xform_template = xform_template
 
-local function plugin(template_path)
+local function use_mustache(template_path)
   local xform = xform_template(template_path)
 
   return function (docs)
     return lazily.transform(xform, docs)
   end
 end
-exports.plugin = plugin
+exports.use_mustache = use_mustache
 
 return exports

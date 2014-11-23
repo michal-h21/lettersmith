@@ -25,12 +25,13 @@ For example, this template:
 
 Usage:
 
-    local use_permalinks = require('lettersmith.permalinks').use
+    local use_permalinks = require('lettersmith.permalinks').use_permalinks
     local lettersmith = require('lettersmith')
 
-    local docs = lettersmith.docs("raw")
-    docs = use_permalinks(docs, "*.html", ":yyyy/:mm/:dd/:slug")
-    build(docs, "out")
+    lettersmith.generate("raw", "out", use_permalinks {
+      query = "*.html",
+      template = ":yyyy/:mm/:slug"
+    })
 --]]
 
 local exports = {}
@@ -136,13 +137,13 @@ local function xform_permalinks(template, root_url)
 end
 exports.xform_permalinks = xform_permalinks
 
-local function plugin(options)
+local function use_permalinks(options)
   return function(docs)
     -- Write pretty permalinks for
     local xform = xform_permalinks(options.template)
     return lazily.transform(routing(xform, options.query), docs)    
   end
 end
-exports.plugin = plugin
+exports.use_permalinks = use_permalinks
 
 return exports
