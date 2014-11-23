@@ -9,7 +9,7 @@ local exports = {}
 -- as a unique message identity. Used by `reduce_iterator` to allow for
 -- early termination of reduction.
 local function reduced(v)
-  return v, "Finished reduction"
+  return v, reduced
 end
 exports.reduced = reduced
 
@@ -34,10 +34,10 @@ local function reduce(step, seed, iter, state, at)
     result, msg = step(result, b or a)
     -- If step returned a `msg`, then return early. This is useful for reporting
     -- errors during reduction or halting reduction early.
-    if msg then return result, msg end
+    if msg == reduced then return result end
   end
   -- Return result along with "finished" message.
-  return reduced(result)
+  return result
 end
 exports.reduce = reduce
 
@@ -92,13 +92,20 @@ exports.ipairs_rev = ipairs_rev
 -- `b(a(x))` is equivalent to `compose(b, a)(x)`.
 -- https://en.wikipedia.org/wiki/Function_composition_%28computer_science%29
 -- Returns the composed function.
-local function comp(...)
-  -- Capture magic `arg` variable.
-  local fns = arg
-  return function(v)
-    -- Loop through all functions and transform value with each function
-    -- successively. Feed transformed value to next function in line.
-    return reduce(apply_to, v, ipairs_rev(fns))
+local function comp(a, b, ...)
+  if not ... then
+    -- Slightly faster path for simply wrapping 2 functions. Doesn't need to
+    -- create table.
+    return function (v)
+      return a(b(v))
+    end
+  else
+    local fns = {a, b, ...}
+    return function(v)
+      -- Loop through all functions and transform value with each function
+      -- successively. Feed transformed value to next function in line.
+      return reduce(apply_to, v, ipairs_rev(fns))
+    end
   end
 end
 exports.comp = comp
