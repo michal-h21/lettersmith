@@ -10,7 +10,11 @@ local attributes = lfs.attributes
 local mkdir = lfs.mkdir
 local rmdir = lfs.rmdir
 
-local foldable = require("foldable")
+local xf = require("transducers")
+local reductions = xf.reductions
+local transduce = xf.transduce
+
+local append = require("lazily").append
 
 local path = require("path")
 
@@ -62,18 +66,26 @@ local function children(location)
 end
 exports.children = children
 
-local function mkdir_deep(location)
+local function step_traversal(dir, path)
+  if dir == "" then return path else return dir .. "/" .. path end
+end
+
+-- Returns every iteration of a path traversal:
+--
+--     traversals("foo/bar/baz")
+--     > {"foo", "foo/bar", "foo/bar/baz"}
+local function traversals(path_string)
+  local parts = path.parts(path_string)
+  return transduce(reductions(step_traversal, ""), append, {}, ipairs(parts))  
+end
+
+local function mkdir_deep(path_string)
   -- Create deeply nested directory at `location`.
   -- Returns `true` on success, or `nil, message` on failure.
-  local parts = path.parts(location)
 
-  -- Need to convert parts (table) to generator. @todo perhaps change
-  -- parts to return generator?
-  local path_strings = foldable.folds(parts, function (seed, part)
-    if seed == "" then return part else return seed .. "/" .. part end
-  end, "")
+  local traversal_paths = traversals(path_string)
 
-  for i, path_string in foldable.ipairs(path_strings) do
+  for i, path_string in ipairs(traversal_paths) do
     local is_success, message = mkdir_if_missing(path_string)
     if not is_success then return is_success, message end
   end
