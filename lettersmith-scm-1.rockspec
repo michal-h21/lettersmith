@@ -41,12 +41,17 @@ build = {
     ["lettersmith.drafts"] = "lettersmith_drafts.lua",
     ["lettersmith.markdown"] = "lettersmith_markdown.lua",
     ["lettersmith.meta"] = "lettersmith_meta.lua",
+    ["lettersmith.rss"] = "lettersmith_rss.lua",
+    ["lettersmith.collections"] = "lettersmith_collections.lua",
 
     -- Libraries
-    ["lettersmith.foldable"] = "foldable.lua",
+    ["lettersmith.transducers"] = "transducers.lua",
+    ["lettersmith.lazily"] = "lazily.lua",
     ["lettersmith.headmatter"] = "headmatter.lua",
     ["lettersmith.path"] = "path.lua",
+    ["lettersmith.wildcards"] = "wildcards.lua",
     ["lettersmith.file_utils"] = "file_utils.lua",
-    ["lettersmith.table_utils"] = "table_utils.lua"
+    ["lettersmith.table_utils"] = "table_utils.lua",
+    ["lettersmith.plugin_utils"] = "plugin_utils.lua"
   }
 }
