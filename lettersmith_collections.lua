@@ -16,29 +16,25 @@ Usage:
 
     build(docs, "out")
 --]]
-local lettersmith = require("lettersmith")
-local query = lettersmith.query
+local plugin_utils = require("plugin_utils")
+local query = plugin_utils.query
+local compare_doc_by_date = plugin_utils.compare_doc_by_date
 
-local foldable = require("foldable")
-local fold = foldable.fold
-local map = foldable.map
-local folds = foldable.folds
-local harvest = foldable.harvest
-local collect = foldable.collect
+local xf = require("transducers")
+local transduce = xf.transduce
+local map = xf.map
+local reductions = xf.reductions
+local comp = xf.comp
 
-local date = require("date")
+local lazily = require("lazily")
+local append = lazily.append
 
 local table_utils = require("table_utils")
-local merge = table_utils.merge
+local extend = table_utils.extend
 local shallow_copy = table_utils.shallow_copy
+local slice_table = table_utils.slice_table
 
 local exports = {}
-
-local function compare_doc_by_date(a_doc, b_doc)
-  -- Compare 2 docs by date, reverse chronological.
-  return date(a_doc.date) > date(b_doc.date)
-end
-exports.compare_doc_by_date = compare_doc_by_date
 
 -- Delay each value in a foldable value by one turn.
 -- Why? It's useful for producing `folds` where both arguments to the folding
@@ -71,47 +67,49 @@ local function set_circular_link(prev_t, next_t)
   return next_t
 end
 
+local xform_circular_link = comp(
+  reductions(set_circular_link),
+  map(shallow_copy)
+)
+
 -- Turn foldable full of tables into a circular linked list. Note that tables
 -- will be shallow copied before this is done, so the originals won't be
 -- mutated. We also detain each value, so the circular link mutation is never
 -- seen by anyone. Basically this means you can still fold tables "just in time"
 -- and they will have both the `prev` and `next` property when you receive them.
-local function link_circularly(tables_foldable)
-  return detain(folds(map(tables_foldable, shallow_copy), set_circular_link))
+local function link_circularly(iter, state, at)
+  return transduce(xform_circular_link, append, {}, iter, state, at)
 end
 exports.link_circularly = link_circularly
 
-local function query_and_list_by(docs_foldable, path_query_string, compare, n)
-  return harvest(query(docs_foldable, path_query_string), compare, n)
+local function sort(t, compare)
+  local copy = slice_table(t)
+  table.sort(copy, compare)
+  return copy
 end
-exports.query_and_list_by = query_and_list_by
 
-local function query_collection(docs_foldable, path_query_string, compare, n)
-  local matches = query(docs_foldable, path_query_string)
-
-  -- Harvest the top `n` sorted tables.
-  local top_n = harvest(matches, compare, n)
-
-  -- Create circular next/prev references between shallow copies.
-  local linked = link_circularly(top_n)
-
-  -- Collect into indexed table
-  return collect(linked)
+local function create_collection(t, compare, limit)
+  local sorted = sort(t, compare)
+  if limit then sorted = slice_table(sorted, 1, limit) end
+  return link_circularly(ipairs(sorted))
 end
-exports.query_collection = query_collection
 
-local function use(docs_foldable, name, path_query_string, compare, n)
-  -- Default to comparing files by date.
+local function use_collections(name, wildcard_string, compare, limit)
   compare = compare or compare_doc_by_date
+  local function build_collection(docs_table)
+    local collection = create_collection(docs_table, compare, limit)
 
-  local collection = query_collection(matches, path_query_string, compare, n)
+    local function add_collection_to_doc(doc)
+      return extend({ [name] = collection }, doc)
+    end
 
-  return map(docs_foldable, function (doc)
-    return merge(doc, {
-      [name] = collection
-    })
-  end)
+    return transduce(map(add_collection_to_doc), append, {}, ipairs(docs_table))
+  end
+
+  return function(docs)
+    return query(build_collection, wildcard_string, docs)
+  end
 end
-exports.use = use
+exports.use_collections = use_collections
 
 return exports
