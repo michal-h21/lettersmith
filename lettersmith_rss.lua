@@ -109,7 +109,7 @@ local function generate_feed_doc(docs_table, relative_path_string, site_url, sit
 end
 exports.generate_feed_doc = generate_feed_doc
 
-local function use_rss(options)
+local function use_rss(wildcard_string, file_path_string, site_url, site_title, site_description)
   local function append_rss(docs_table)
     docs_table = sort(docs_table, compare_doc_by_date)
 
@@ -117,10 +117,10 @@ local function use_rss(options)
 
     local feed_doc = generate_feed_doc(
       rss_items,
-      options.relative_filepath,
-      options.site_url,
-      options.site_title,
-      options.site_description
+      file_path_string,
+      site_url,
+      site_title,
+      site_description
     )
 
     table.insert(docs_table, feed_doc)
@@ -129,7 +129,7 @@ local function use_rss(options)
   end
 
   return function(docs)
-    return query(append_rss, options.query, docs)
+    return query(append_rss, wildcard_string, docs)
   end
 end
 exports.use_rss = use_rss

@@ -137,11 +137,11 @@ local function xform_permalinks(template, root_url)
 end
 exports.xform_permalinks = xform_permalinks
 
-local function use_permalinks(options)
+local function use_permalinks(wildcard_string, template_string)
   return function(docs)
     -- Write pretty permalinks for
-    local xform = xform_permalinks(options.template)
-    return lazily.transform(routing(xform, options.query), docs)    
+    local xform = xform_permalinks(template_string)
+    return lazily.transform(routing(xform, wildcard_string), docs)    
   end
 end
 exports.use_permalinks = use_permalinks
