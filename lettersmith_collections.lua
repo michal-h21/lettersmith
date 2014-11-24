@@ -94,7 +94,7 @@ local function create_collection(t, compare, limit)
   return link_circularly(ipairs(sorted))
 end
 
-local function use_collections(name, wildcard_string, compare, limit)
+local function use_collections(name, wildcard_string, limit, compare)
   compare = compare or compare_doc_by_date
   local function build_collection(docs_table)
     local collection = create_collection(docs_table, compare, limit)
