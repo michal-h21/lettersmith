@@ -46,6 +46,17 @@ local function collect(iter, state, at)
 end
 exports.collect = collect
 
+-- Turn a table into a stateful iterator of table values, compatible with
+-- `lazily` functions.
+local function values(t)
+  local i = 0
+  return function()
+    i = i + 1
+    return t[i]
+  end
+end
+exports.values = values
+
 local function xformer(xform_factory)
   return function(lambda, iter, state, at)
     return transform(xform_factory(lambda), iter, state, at)
