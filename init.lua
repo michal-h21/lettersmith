@@ -1,14 +1,14 @@
 local exports = {}
 
-local transducers = require("transducers")
+local transducers = require("lettersmith.transducers")
 local apply_to = transducers.apply_to
 local reduce = transducers.reduce
 
-local lazily = require("lazily")
+local lazily = require("lettersmith.lazily")
 
-local path = require("path")
+local path = require("lettersmith.path")
 
-local file_utils = require("file_utils")
+local file_utils = require("lettersmith.file_utils")
 local children = file_utils.children
 local is_file = file_utils.is_file
 local is_dir = file_utils.is_dir
@@ -21,7 +21,7 @@ local lfs = require("lfs")
 
 local date = require("date")
 
-local headmatter = require("headmatter")
+local headmatter = require("lettersmith.headmatter")
 
 local function walk_file_paths_cps(callback, path_string)
   -- Recursively walk through directory at `path_string` calling

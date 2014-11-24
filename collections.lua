@@ -16,20 +16,20 @@ Usage:
 
     build(docs, "out")
 --]]
-local plugin_utils = require("plugin_utils")
+local plugin_utils = require("lettersmith.plugin_utils")
 local query = plugin_utils.query
 local compare_doc_by_date = plugin_utils.compare_doc_by_date
 
-local xf = require("transducers")
+local xf = require("lettersmith.transducers")
 local transduce = xf.transduce
 local map = xf.map
 local reductions = xf.reductions
 local comp = xf.comp
 
-local lazily = require("lazily")
+local lazily = require("lettersmith.lazily")
 local append = lazily.append
 
-local table_utils = require("table_utils")
+local table_utils = require("lettersmith.table_utils")
 local extend = table_utils.extend
 local shallow_copy = table_utils.shallow_copy
 local slice_table = table_utils.slice_table

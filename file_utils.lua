@@ -10,13 +10,13 @@ local attributes = lfs.attributes
 local mkdir = lfs.mkdir
 local rmdir = lfs.rmdir
 
-local xf = require("transducers")
+local xf = require("lettersmith.transducers")
 local reductions = xf.reductions
 local transduce = xf.transduce
 
-local append = require("lazily").append
+local append = require("lettersmith.lazily").append
 
-local path = require("path")
+local path = require("lettersmith.path")
 
 local exports = {}
 

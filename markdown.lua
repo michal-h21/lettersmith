@@ -14,7 +14,7 @@ local exports = {}
 
 local markdown = require('discount')
 
-local plugin_utils = require('plugin_utils')
+local plugin_utils = require('lettersmith.plugin_utils')
 local renderer_plugin = plugin_utils.renderer_plugin
 
 exports.use_markdown = renderer_plugin(markdown, "**.md", ".html")

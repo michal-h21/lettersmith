@@ -36,17 +36,17 @@ Usage:
 
 local exports = {}
 
-local plugin_utils = require("plugin_utils")
+local plugin_utils = require("lettersmith.plugin_utils")
 local routing = plugin_utils.routing
 
-local xf = require("transducers")
-local lazily = require("lazily")
+local xf = require("lettersmith.transducers")
+local lazily = require("lettersmith.lazily")
 
-local table_utils = require("table_utils")
+local table_utils = require("lettersmith.table_utils")
 local merge = table_utils.merge
 local extend = table_utils.extend
 
-local path = require("path")
+local path = require("lettersmith.path")
 
 local date = require("date")
 
@@ -64,7 +64,7 @@ exports.to_slug = to_slug
 
 local function is_json_safe(thing)
   local thing_type = type(thing)
-  return thing_type == "string" or thing_type == "number"
+  return thing_type == "string"
 end
 
 local function build_json_safe_table(t, a2b)

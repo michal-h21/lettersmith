@@ -27,18 +27,18 @@ local exports = {}
 
 local lustache = require('lustache')
 
-local lazily = require("lazily")
+local lazily = require("lettersmith.lazily")
 
-local xf = require("transducers")
+local xf = require("lettersmith.transducers")
 local map = xf.map
 
-local table_utils = require("table_utils")
+local table_utils = require("lettersmith.table_utils")
 local merge = table_utils.merge
 
-local file_utils = require("file_utils")
+local file_utils = require("lettersmith.file_utils")
 local read_entire_file = file_utils.read_entire_file
 
-local path = require('path')
+local path = require('lettersmith.path')
 
 local function xform_template(template_path)
   -- Render docs through mustache template defined in headmatter `template`

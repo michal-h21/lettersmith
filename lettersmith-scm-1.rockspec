@@ -33,16 +33,16 @@ dependencies = {
 build = {
   type = "builtin",
   modules = {
-    ["lettersmith"] = "lettersmith.lua",
+    ["lettersmith"] = "init.lua",
 
     -- Plugins
-    ["lettersmith.mustache"] = "lettersmith_mustache.lua",
-    ["lettersmith.permalinks"] = "lettersmith_permalinks.lua",
-    ["lettersmith.drafts"] = "lettersmith_drafts.lua",
-    ["lettersmith.markdown"] = "lettersmith_markdown.lua",
-    ["lettersmith.meta"] = "lettersmith_meta.lua",
-    ["lettersmith.rss"] = "lettersmith_rss.lua",
-    ["lettersmith.collections"] = "lettersmith_collections.lua",
+    ["lettersmith.mustache"] = "mustache.lua",
+    ["lettersmith.permalinks"] = "permalinks.lua",
+    ["lettersmith.drafts"] = "drafts.lua",
+    ["lettersmith.markdown"] = "markdown.lua",
+    ["lettersmith.meta"] = "meta.lua",
+    ["lettersmith.rss"] = "rss.lua",
+    ["lettersmith.collections"] = "collections.lua",
 
     -- Libraries
     ["lettersmith.transducers"] = "transducers.lua",

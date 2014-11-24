@@ -12,10 +12,10 @@ Usage:
 --]]
 local exports = {}
 
-local lazily = require("lazily")
-local transducers = require("transducers")
+local lazily = require("lettersmith.lazily")
+local transducers = require("lettersmith.transducers")
 
-local table_utils = require("table_utils")
+local table_utils = require("lettersmith.table_utils")
 local merge = table_utils.merge
 
 local function map_meta(meta)

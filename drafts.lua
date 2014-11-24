@@ -13,10 +13,10 @@ Usage:
 --]]
 local exports = {}
 
-local transducers = require("transducers")
+local transducers = require("lettersmith.transducers")
 local reject = transducers.reject
 
-local lazily = require("lazily")
+local lazily = require("lettersmith.lazily")
 
 local reject_drafts = reject(function (doc)
   -- Treat any document path that starts with an underscore as a draft.

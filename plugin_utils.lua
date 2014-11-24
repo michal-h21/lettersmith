@@ -1,19 +1,19 @@
 local exports = {}
 
-local wildcards = require("wildcards")
+local wildcards = require("lettersmith.wildcards")
 
-local lazily = require("lazily")
+local lazily = require("lettersmith.lazily")
 
-local xf = require("transducers")
+local xf = require("lettersmith.transducers")
 local map = xf.map
 
-local table_utils = require("table_utils")
+local table_utils = require("lettersmith.table_utils")
 local merge = table_utils.merge
 local defaults = table_utils.defaults
 
 local date = require("date")
 
-local path = require("path")
+local path = require("lettersmith.path")
 
 -- Easily create plugins that only operate on documents matching the given
 -- wildcard string:

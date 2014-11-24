@@ -1,7 +1,7 @@
 -- Create a table to store our exported values.
 local exports = {}
 
-local xf = require("transducers")
+local xf = require("lettersmith.transducers")
 local transduce = xf.transduce
 local reduce = xf.reduce
 
