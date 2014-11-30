@@ -4,22 +4,19 @@
 local plugin_utils = require("lettersmith.plugin_utils")
 local query = plugin_utils.query
 local compare_doc_by_date = plugin_utils.compare_doc_by_date
+local harvest = plugin_utils.harvest
 
 local xf = require("lettersmith.transducers")
 local transduce = xf.transduce
-local map = xf.map
 
-local lazily = require("lettersmith.lazily")
-local append = lazily.append
+local reducers = require("lettersmith.reducers")
+local append = reducers.append
+local from_table = reducers.from_table
+local concat = reducers.concat
 
 local lustache = require("lustache")
 
 local path = require("lettersmith.path")
-
-local table_utils = require("lettersmith.table_utils")
-local extend = table_utils.extend
-local shallow_copy = table_utils.shallow_copy
-local slice_table = table_utils.slice_table
 
 local date = require("date")
 
@@ -80,18 +77,15 @@ local function to_rss_item_from_doc(doc, root_url_string)
   }
 end
 
-local function sort(t, compare)
-  t = shallow_copy(t)
-  table.sort(t, compare)
-  return t
-end
-
-local function generate_feed_doc(docs_table, relative_path_string, site_url, site_title, site_description)
+local function generate_feed_doc(docs, relative_path_string, site_url, site_title, site_description)
   local function to_rss_item(doc)
     return to_rss_item_from_doc(doc, site_url)
   end
 
-  local items = transduce(map(to_rss_item), append, {}, ipairs(docs_table))
+  -- Harvest most recent 20 docs.
+  local docs_table = harvest(docs, compare_doc_by_date, 20)
+  -- Map table of docs to table of rss items using transducers.
+  local items = transduce(xf.map(to_rss_item), append, {}, ipairs(docs_table))
 
   local contents = render_feed({
     site_url = site_url,
@@ -100,9 +94,15 @@ local function generate_feed_doc(docs_table, relative_path_string, site_url, sit
     items = items
   })
 
+  if #items > 0 then
+    local feed_date = items[1].date
+  else
+    local feed_date = date(os.time()):fmt("${rfc1123}")
+  end
+
   return {
     -- Set date of feed to most recent document date.
-    date = items[1].date,
+    date = feed_date,
     contents = contents,
     relative_filepath = relative_path_string
   }
@@ -110,26 +110,16 @@ end
 exports.generate_feed_doc = generate_feed_doc
 
 local function use_rss(wildcard_string, file_path_string, site_url, site_title, site_description)
-  local function append_rss(docs_table)
-    docs_table = sort(docs_table, compare_doc_by_date)
-
-    local rss_items = slice_table(docs_table, 1, 20)
-
+  return function(docs)
     local feed_doc = generate_feed_doc(
-      rss_items,
+      query(wildcard_string, docs),
       file_path_string,
       site_url,
       site_title,
       site_description
     )
 
-    table.insert(docs_table, feed_doc)
-
-    return docs_table
-  end
-
-  return function(docs)
-    return query(append_rss, wildcard_string, docs)
+    return concat(docs, from_table({ feed_doc }))
   end
 end
 exports.use_rss = use_rss
