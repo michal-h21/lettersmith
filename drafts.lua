@@ -13,19 +13,17 @@ Usage:
 --]]
 local exports = {}
 
-local transducers = require("lettersmith.transducers")
-local reject = transducers.reject
+local reducers = require("lettersmith.reducers")
+local reject = reducers.reject
 
-local lazily = require("lettersmith.lazily")
-
-local reject_drafts = reject(function (doc)
+local function is_doc_path_prefixed_with_underscore(doc)
   -- Treat any document path that starts with an underscore as a draft.
   return doc.relative_filepath:find("^_")
-end)
-exports.reject_drafts = reject_drafts
+end
 
+-- Reject all draft docs.
 local function use_drafts(docs)
-  return lazily.transform(reject_drafts, docs)
+  return reject(is_doc_path_prefixed_with_underscore, docs)
 end
 exports.use_drafts = use_drafts
 
