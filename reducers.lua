@@ -30,6 +30,8 @@
 -- function transformations. Reducers just wraps it to provide a
 -- "collection-like" API.
 
+local exports = {}
+
 local xf = require("transducers")
 local reduce_iter = xf.reduce
 
@@ -155,3 +157,6 @@ local function concat(reducible_a, reducible_b)
   end
 end
 exports.concat = concat
+
+return exports
+
