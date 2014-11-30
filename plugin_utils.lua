@@ -18,11 +18,11 @@ local path = require("lettersmith.path")
 -- Returns predicate function.
 local function relative_path_matcher(wildcard_string)
   local pattern = wildcards.parse(wildcard_string)
-  return function (doc)
+  return function(doc)
     return doc.relative_filepath:find(pattern)
   end
 end
-exports.relative_path_matcher
+exports.relative_path_matcher = relative_path_matcher
 
 -- Apply transform only to documents that match a particular route.
 -- This will trasform each doc that matches the route. Docs that don't
@@ -97,5 +97,51 @@ local function compare_doc_by_date(a_doc, b_doc)
   return date(a_doc.date) > date(b_doc.date)
 end
 exports.compare_doc_by_date = compare_doc_by_date
+
+local function chop(t, n)
+  -- Remove items from end of table `t`, until table length is `n`.
+  -- Mutates and returns table.
+  while #t > n do table.remove(t, #t) end
+  return t
+end
+
+local function chop_sorted_buffer(buffer_table, compare, n)
+  -- Sort `buffer_table` and remove elements from end until buffer is only
+  -- `n` items long.
+  -- Mutates and returns buffer.
+  table.sort(buffer_table, compare)
+  return chop(buffer_table, n)
+end
+
+local function harvest(reducible, compare, n)
+  -- Skim the cream off the top... given a reducible, a comparison function
+  -- and a buffer size, collect the `n` highest values into a table.
+  -- This allows you to get a sorted list of items out of a reducible.
+  --
+  -- `harvest` is useful for very large finite reducibles, where you want
+  -- to limit the number of results collected to a set of results that are "more
+  -- important" (greater than) by some criteria.
+
+  -- Make sure we have a useful value for `n`.
+  -- If you don't provide `n`, `harvest` ends up being equivalent to
+  -- collect, then sort.
+  n = n or math.huge
+
+  -- Fold a buffer table of items. We mutate this table, but no-one outside
+  -- of the function sees it happen.
+  local buffer = reducible(function(buffer, item)
+    table.insert(buffer, item)
+    -- If buffer overflows by 100 items, sort and chop buffer.
+    -- In other words, a sort/chop will happen every 100 items over the
+    -- threshold... 100 is just an arbitrary batching number to avoid sorting
+    -- too often or overflowing buffer... larger than 1, but not too large.
+    if #buffer > n + 100 then chop_sorted_buffer(buffer, compare, n) end
+    return buffer
+  end, {})
+
+  -- Sort and chop buffer one last time on the way out.
+  return chop_sorted_buffer(buffer, compare, n)
+end
+exports.harvest = harvest
 
 return exports
