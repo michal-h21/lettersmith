@@ -27,10 +27,8 @@ local exports = {}
 
 local lustache = require('lustache')
 
-local lazily = require("lettersmith.lazily")
-
-local xf = require("lettersmith.transducers")
-local map = xf.map
+local reducers = require("lettersmith.reducers")
+local map = reducers.map
 
 local table_utils = require("lettersmith.table_utils")
 local merge = table_utils.merge
@@ -40,10 +38,10 @@ local read_entire_file = file_utils.read_entire_file
 
 local path = require('lettersmith.path')
 
-local function xform_template(template_path)
+local function template_renderer(template_path)
   -- Render docs through mustache template defined in headmatter `template`
   -- field. Returns new docs list.
-  return map(function (doc)
+  return function (doc)
     -- Pass on docs that don't have template field.
     if not doc.template then return doc end
 
@@ -52,15 +50,15 @@ local function xform_template(template_path)
     -- Create shallow-copy rendered doc, overwriting doc's contents with
     -- rendered contents.
     return merge(doc, { contents = rendered })
-  end)
+  end
 end
-exports.xform_template = xform_template
+exports.template_renderer = template_renderer
 
 local function use_mustache(template_path)
-  local xform = xform_template(template_path)
+  local render_template = template_renderer(template_path)
 
   return function (docs)
-    return lazily.transform(xform, docs)
+    return map(render_template, docs)
   end
 end
 exports.use_mustache = use_mustache
