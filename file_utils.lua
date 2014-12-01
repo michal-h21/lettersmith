@@ -14,7 +14,7 @@ local xf = require("lettersmith.transducers")
 local reductions = xf.reductions
 local transduce = xf.transduce
 
-local append = require("lettersmith.lazily").append
+local append = require("lettersmith.reducers").append
 
 local path = require("lettersmith.path")
 
