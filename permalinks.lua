@@ -37,10 +37,7 @@ Usage:
 local exports = {}
 
 local plugin_utils = require("lettersmith.plugin_utils")
-local routing = plugin_utils.routing
-
-local xf = require("lettersmith.transducers")
-local lazily = require("lettersmith.lazily")
+local route = plugin_utils.route
 
 local table_utils = require("lettersmith.table_utils")
 local merge = table_utils.merge
@@ -125,23 +122,22 @@ local function make_pretty_url(root_url_string, relative_path_string)
 end
 exports.make_pretty_url = make_pretty_url
 
-local function xform_permalinks(template, root_url)
-  return xf.map(function(doc)
-    local path = render_doc_path_from_template(doc, template)
-    local url = make_pretty_url(root_url or "/", path)
+local function permalink_renderer(template_string, root_url_string)
+  return function(doc)
+    local path = render_doc_path_from_template(doc, template_string)
+    local url = make_pretty_url(root_url_string or "/", path)
     return merge(doc, {
       relative_filepath = path,
       url = url
     })
-  end)
+  end
 end
 exports.xform_permalinks = xform_permalinks
 
-local function use_permalinks(wildcard_string, template_string)
+local function use_permalinks(wildcard_string, template_string, root_url_string)
   return function(docs)
-    -- Write pretty permalinks for
-    local xform = xform_permalinks(template_string)
-    return lazily.transform(routing(xform, wildcard_string), docs)    
+    local render_permalink = permalink_renderer(template_string, root_url_string)
+    return route(wildcard_string, render_permalink, docs)
   end
 end
 exports.use_permalinks = use_permalinks
