@@ -32,7 +32,7 @@
 
 local exports = {}
 
-local xf = require("transducers")
+local xf = require("lettersmith.transducers")
 local reduce_iter = xf.reduce
 
 -- Create a reducible function from an iterator.
