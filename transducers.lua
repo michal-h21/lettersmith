@@ -6,30 +6,33 @@
 local exports = {}
 
 -- Given a value, returns value plus "reduced" function which is used 
--- as a unique message identity. Used by `reduce_iterator` to allow for
--- early termination of reduction.
+-- as a unique message identity. Used as a message passing mechanism for
+-- `reduce()` to allow for early termination of reduction.
+--
+-- @TODO may want to switch to boxing reduced values in a table so I can add
+-- something like preservingReduced which will be compatible with non-savvy
+-- reduce functions.
 local function reduced(v)
   return v, reduced
 end
 exports.reduced = reduced
 
 -- Reduce an iterator function into a value.
--- `iter`, `state`, `at` are intended to be the return result of
--- an iterator factory function. `state` and `at` are optional and
--- are provided for looping over stateless iterators. You may pass just the
--- `iter` function if it is a stateful iterator.
+-- `step` is the reducing function.
+-- `seed` is the seed value for reduction.
+-- `iter` is an iterator function. `...` allows for the additional state
+-- variables that are returned from stateless iterator factories like `ipairs`.
 --
 -- Example:
 --
 --     reduce(sum, 0, ipairs{1, 2, 3})
---     > 9
-local function reduce(step, seed, iter, state, at)
+local function reduce(step, seed, iter, ...)
   local result, msg = seed, nil
   -- Note `reduce` will work for iterators that return a single value or a
   -- pair of values... If a pair is returned, `b` is considered the value
-  -- to reduce. This is handy if you want to consume stateless iterators, like
+  -- to reduce. This is handy if you want to consume standard iterators, like
   -- those returned from `ipairs` or `pairs`.
-  for a, b in iter, state, at do
+  for a, b in iter, ... do
     -- Allow `step` to return a result and an optional message.
     result, msg = step(result, b or a)
     -- If step returned a `msg`, then return early. This is useful for reporting
@@ -55,58 +58,59 @@ exports.reduce = reduce
 --
 -- Typical use:
 --
---     transduce(map(add_one), sum, 0, ipairs{1, 2, 3})
+--     xform = map(inc)
+--     transduce(xform, sum, 0, ipairs{1, 2, 3})
 --     > 9
-local function transduce(xform, step, seed, iter, state, at)
+local function transduce(xform, step, seed, iter, ...)
   -- Transform stepping function with transforming function.
   -- Then fold over `thing` using transformed `step` function and `result`
   -- seed value.
-  return reduce(xform(step), seed, iter, state, at)
+  return reduce(xform(step), seed, iter, ...)
 end
 exports.transduce = transduce
 
-local function apply_to(v, f)
-  return f(v)
+-- Insert value into table, mutating table.
+-- Returns table.
+local function append(t, v)
+  table.insert(t, v)
+  return t
 end
-exports.apply_to = apply_to
+exports.append = append
 
-local function prev_ipair(t, i)
-  i = i - 1
-  if i < 1 then
-    return nil
-  else
-    return i, t[i]
-  end
+-- Transform an iterator through an `xform` function, appending results to
+-- `into_table`. Mutates `into_table`.
+--
+--     into({}, map(is_even), ipairs {1, 2, 3})
+--
+-- If you're familiar with Clojure's `into`, you'll note that this is a bit of
+-- a twist on the original. In Clojure sequences implement a sequence interface.
+-- In Lua we use iterator factories to return a consistant iterator interface.
+-- Hence, `into` takes an iterator function and optional state variables.
+local function into(into_table, xform, iter, ...)
+  return transduce(xform, append, into_table, iter, ...)
 end
+exports.into = into
 
--- Iterate over a table in reverse, starting with last element.
-local function ipairs_rev(t)
-  return prev_ipair, t, #t + 1
+local function id(thing)
+  return thing
 end
-exports.ipairs_rev = ipairs_rev
+exports.id = id
+
+-- Compose 2 functions.
+local function comp2(z, y)
+  return function(x) return z(y(x)) end
+end
 
 -- Compose multiple functions of one argument into a single function of one
 -- argument that will transform argument through each function, starting with
 -- the last in the list.
--- `compose(b, a)` can be read as "b after a". Or to put it another way,
--- `b(a(x))` is equivalent to `compose(b, a)(x)`.
+--
+-- `compose(z, y)` can be read as "z after y". Or to put it another way,
+-- `z(y(x))` is equivalent to `compose(z, y)(x)`.
 -- https://en.wikipedia.org/wiki/Function_composition_%28computer_science%29
 -- Returns the composed function.
-local function comp(a, b, ...)
-  if not ... then
-    -- Slightly faster path for simply wrapping 2 functions. Doesn't need to
-    -- create table.
-    return function (v)
-      return a(b(v))
-    end
-  else
-    local fns = {a, b, ...}
-    return function(v)
-      -- Loop through all functions and transform value with each function
-      -- successively. Feed transformed value to next function in line.
-      return reduce(apply_to, v, ipairs_rev(fns))
-    end
-  end
+local function comp(z, y, ...)
+  return reduce(comp2, z or id, ipairs{y, ...})
 end
 exports.comp = comp
 
@@ -120,6 +124,24 @@ local function map(a2b)
   end
 end
 exports.map = map
+
+-- Given inputs that are tables, `cat` will step through all values in tables
+-- and append to reduction.
+-- More concretely: imagine you have an iterator of tables. `cat` conceptually
+-- "flattens" the tables, reducing over each of the values of each of the tables.
+local function cat(step)
+  return function(result, input)
+    return reduce(step, result, ipairs(input))
+  end
+end
+exports.cat = cat
+
+-- Expand a seqence into a sequence of tables, then flatten those tables using
+-- cat. This allows you to expand a single input into multiple inputs.
+local function mapcat(a2b)
+  return comp(map(a2b), cat)
+end
+exports.mapcat = mapcat
 
 -- Define `filter` in terms of a fold `step` transformation.
 -- Throws out any value that does not pass `predicate` test function.
@@ -141,6 +163,7 @@ exports.filter = filter
 
 -- Reject values that do not pass `predicate` test function.
 -- Returns `xform` function.
+-- @TODO may want to rename this to `remove` for parity with Clojure.
 local function reject(predicate)
   return function(step)
     return function(result, input)
@@ -225,5 +248,20 @@ local function take_while(predicate)
   end
 end
 exports.take_while = take_while
+
+--[[
+@TODO take_nth
+https://clojure.github.io/clojure/branch-master/clojure.core-api.html#clojure.core/take-nth
+
+@TODO drop
+https://clojure.github.io/clojure/branch-master/clojure.core-api.html#clojure.core/drop
+
+@TODO drop-last
+https://clojure.github.io/clojure/branch-master/clojure.core-api.html#clojure.core/drop-last
+
+@TODO drop-while
+https://clojure.github.io/clojure/branch-master/clojure.core-api.html#clojure.core/drop-while
+
+]]--
 
 return exports
