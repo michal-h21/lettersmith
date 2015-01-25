@@ -41,6 +41,10 @@ build = {
     ["lettersmith.drafts"] = "lettersmith/drafts.lua",
     ["lettersmith.markdown"] = "lettersmith/markdown.lua",
     ["lettersmith.meta"] = "lettersmith/meta.lua",
+    ["lettersmith.blogging"] = "lettersmith/blogging.lua",
+    ["lettersmith.collections"] = "lettersmith/collections.lua",
+    ["lettersmith.paging"] = "lettersmith/paging.lua",
+    ["lettersmith.rss"] = "lettersmith/rss.lua",
 
     -- Libraries
     ["lettersmith.foldable"] = "lettersmith/foldable.lua",
