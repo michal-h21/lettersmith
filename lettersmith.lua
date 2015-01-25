@@ -1,18 +1,18 @@
 local exports = {}
 
-local foldable = require("foldable")
+local foldable = require("lettersmith.foldable")
 local map = foldable.map
 local fold = foldable.fold
 local filter = foldable.filter
 
-local table_utils = require("table_utils")
+local table_utils = require("lettersmith.table_utils")
 local merge = table_utils.merge
 
-local path = require("path")
+local path = require("lettersmith.path")
 
-local wildcards = require("wildcards")
+local wildcards = require("lettersmith.wildcards")
 
-local file_utils = require("file_utils")
+local file_utils = require("lettersmith.file_utils")
 local children = file_utils.children
 local is_file = file_utils.is_file
 local is_dir = file_utils.is_dir
@@ -25,7 +25,7 @@ local lfs = require("lfs")
 
 local date = require("date")
 
-local headmatter = require("headmatter")
+local headmatter = require("lettersmith.headmatter")
 
 local function route(docs_foldable, path_query_string, transform)
   -- Transform documents in foldable that match a particular route.

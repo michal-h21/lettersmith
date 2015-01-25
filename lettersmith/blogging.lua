@@ -26,19 +26,19 @@ Template metadata: anything you add to the `options` table will be available
 within your templates.
 ]]--
 
-local concat = require("foldable").concat
+local concat = require("lettersmith.foldable").concat
 
-local use_markdown = require("lettersmith_markdown")
-local use_drafts = require("lettersmith_drafts")
-local use_meta = require("lettersmith_meta")
-local use_permalinks = require("lettersmith_permalinks").use
+local use_markdown = require("lettersmith.markdown")
+local use_drafts = require("lettersmith.drafts")
+local use_meta = require("lettersmith.meta")
+local use_permalinks = require("lettersmith.permalinks").use
 
-local collections = require("lettersmith_collections")
+local collections = require("lettersmith.collections")
 local compare_doc_by_date = collections.compare_doc_by_date
 local query_and_list_by = collections.query_and_list_by
 
-local to_page_docs = require("lettersmith_paging").to_page_docs
-local generate_feed_doc = require("lettersmith_rss").generate_feed_doc
+local to_page_docs = require("lettersmith.paging").to_page_docs
+local generate_feed_doc = require("lettersmith.rss").generate_feed_doc
 
 local exports = {}
 

@@ -3,7 +3,7 @@ local suite = microtest.suite
 local equal = microtest.equal
 local test = microtest.test
 
-local wildcards = require("wildcards")
+local wildcards = require("lettersmith.wildcards")
 
 suite("wildcards.parse(wildcard_path_string)", function()
   local pattern = wildcards.parse("foo/*.md")

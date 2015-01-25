@@ -3,7 +3,7 @@ local suite = microtest.suite
 local equal = microtest.equal
 local test = microtest.test
 
-local _ = require("foldable")
+local _ = require("lettersmith.foldable")
 local fold = _.fold
 local map = _.map
 local filter = _.filter

@@ -16,10 +16,10 @@ Usage:
 
     build(use_meta(docs, site_meta), "out")
 --]]
-local foldable = require("foldable")
+local foldable = require("lettersmith.foldable")
 local map = foldable.map
 
-local table_utils = require("table_utils")
+local table_utils = require("lettersmith.table_utils")
 local merge = table_utils.merge
 
 return function (docs_foldable, meta)
