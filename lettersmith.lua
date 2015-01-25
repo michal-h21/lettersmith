@@ -133,7 +133,7 @@ local function load_doc(base_path_string, relative_path_string)
   doc.contents = contents_string
 
   -- Assign date field from modified file date, if it doesn't already exist.
-  local date_string = doc.date or lfs.attributes(path_string, "modified")
+  local date_string = doc.date or lfs.attributes(path_string, "modification")
   doc.date = date(date_string):fmt("${iso}")
 
   -- Set relative_filepath on doc.
