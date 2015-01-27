@@ -119,13 +119,4 @@ local function build(out_path_string, reducible)
 end
 exports.build = build
 
--- Load, process and write all in a single function.
-local function generate(in_path_string, out_path_string, ...)
-  -- Transform documents using plugins, starting from left-most plugin and
-  -- working our way right.
-  local xformed_docs = reduce_iter(apply_to, docs(in_path_string), ipairs(arg))
-  return build(out_path_string, xformed_docs)
-end
-exports.generate = generate
-
 return exports
