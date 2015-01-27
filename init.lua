@@ -1,11 +1,9 @@
 local exports = {}
 
 local transducers = require("lettersmith.transducers")
-local apply_to = transducers.apply_to
-local reduce_iter = transducers.reduce
-
-local reducers = require("lettersmith.reducers")
-local map = reducers.map
+local reduce = transducers.reduce
+local map = transducers.map
+local eduction = transducers.eduction
 
 local path = require("lettersmith.path")
 
@@ -39,20 +37,12 @@ local function walk_file_paths_cps(callback, path_string)
 end
 
 -- Given `path_string` -- a path to a directory -- recursively walks through
--- directory and returns a reducible for all file paths.
--- Returns a reducible which will traverse directories every time it is
--- consumed.
+-- directory for all file paths.
+-- Returns a coroutine iterator.
 local function walk_file_paths(path_string)
-  return function(step, seed)
-    walk_file_paths_cps(function (file_path_string)
-      -- Step value from seed each time callback is called.
-      seed = step(seed, file_path_string)
-    end, path_string)
-
-    -- Note that all function calls are blocking in Lua, so it's safe to say
-    -- that `walk_file_paths_cps` has finished at this point.
-    return seed
-  end
+  return coroutine.wrap(function()
+    walk_file_paths_cps(coroutine.yield, path_string)
+  end)
 end
 exports.walk_file_paths = walk_file_paths
 
@@ -96,11 +86,11 @@ local function docs(base_path_string)
     return load_doc(base_path_string, relative_path_string)
   end
 
-  return map(load_path_as_doc, walk_file_paths(base_path_string))
+  return eduction(map(load_path_as_doc), walk_file_paths(base_path_string))
 end
 exports.docs = docs
 
-local function build(out_path_string, reducible)
+local function build(out_path_string, iter, ...)
   -- Remove old build directory recursively.
   if location_exists(out_path_string) then
     assert(remove_recursive(out_path_string))
@@ -115,7 +105,7 @@ local function build(out_path_string, reducible)
 
   -- Consume doc reducible. Return a tally representing number
   -- of files written.
-  return reducible(write_and_tally, 0)
+  return reduce(write_and_tally, 0, iter, ...)
 end
 exports.build = build
 
