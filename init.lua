@@ -42,7 +42,7 @@ end
 -- directory and returns a reducible for all file paths.
 -- Returns a reducible which will traverse directories every time it is
 -- consumed.
-function walk_file_paths(path_string)
+local function walk_file_paths(path_string)
   return function(step, seed)
     walk_file_paths_cps(function (file_path_string)
       -- Step value from seed each time callback is called.
@@ -90,7 +90,7 @@ exports.load_doc = load_doc
 local function docs(base_path_string)
   -- Walk directory, creating doc objects from files.
   -- Returns a coroutine iterator function good for each doc table.
-  function load_path_as_doc(path_string)
+  local function load_path_as_doc(path_string)
     -- Remove the base path string to get the relative file path.
     local relative_path_string = path_string:sub(#base_path_string + 1)
     return load_doc(base_path_string, relative_path_string)
@@ -106,7 +106,7 @@ local function build(out_path_string, reducible)
     assert(remove_recursive(out_path_string))
   end
 
-  function write_and_tally(number_of_files, doc)
+  local function write_and_tally(number_of_files, doc)
     -- Create new file path from relative path and out path.
     local file_path = path.join(out_path_string, doc.relative_filepath)
     assert(write_entire_file_deep(file_path, doc.contents or ""))
