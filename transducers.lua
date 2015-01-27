@@ -91,6 +91,18 @@ local function into(into_table, xform, iter, ...)
 end
 exports.into = into
 
+local function step_yield(_, v)
+  coroutine.yield(v)
+  return v
+end
+
+local function eduction(xform, iter, ...)
+  return coroutine.wrap(function ()
+    transduce(xform, step_yield, nil, iter, ...)
+  end)
+end
+exports.eduction = eduction
+
 local function id(thing)
   return thing
 end
