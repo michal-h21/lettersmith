@@ -1,22 +1,18 @@
 --[[
 Lettersmith Markdown
-
-Renders markdown files (.md, .markdown, .mdown).
-
-Usage:
-
-    local use_markdown = require('lettersmith.markdown').use_markdown
-    local lettersmith = require('lettersmith')
-
-    lettersmith.generate("raw", "out", use_markdown{ query = "**.txt" })
+Renders markdown in contents field.
 --]]
-local exports = {}
-
 local markdown = require('discount')
 
-local plugin_utils = require('lettersmith.plugin_utils')
-local renderer_plugin = plugin_utils.renderer_plugin
+local transducers = require('lettersmith.transducers')
+local map = transducers.map
 
-exports.use_markdown = renderer_plugin(markdown, "**.md", ".html")
+local table_utils = require("lettersmith.table_utils")
+local merge = table_utils.merge
 
-return exports
+local render_markdown = map(function (doc)
+  local contents = markdown(doc.contents)
+  return merge(doc, { contents = contents })
+end)
+
+return render_markdown
