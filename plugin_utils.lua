@@ -2,9 +2,9 @@ local exports = {}
 
 local wildcards = require("lettersmith.wildcards")
 
-local reducers = require("lettersmith.reducers")
-local map = reducers.map
-local filter = reducers.filter
+local trandsucers = require("trandsucers")
+local reduce = trandsucers.reduce
+local filter = trandsucers.filter
 
 local table_utils = require("lettersmith.table_utils")
 local merge = table_utils.merge
@@ -24,71 +24,13 @@ local function relative_path_matcher(wildcard_string)
 end
 exports.relative_path_matcher = relative_path_matcher
 
--- Apply transform only to documents that match a particular route.
--- This will trasform each doc that matches the route. Docs that don't
--- match will be untouched.
---
--- You can use query strings to match documents by wildcard, e.g.
--- `*.md` or `/**.md`.
---
--- Returns reducible function.
-local function route(wildcard_string, a2b, docs)
-  local matches_relative_path = relative_path_matcher(wildcard_string)
-  return map(function(doc)
-    -- Skip docs that don't match path.
-    if not matches_relative_path(doc) then return doc end
-
-    -- Transform docs that do match path.
-    return a2b(doc)
-  end, docs)
-end
-exports.route = route
-
-local function doc_renderer(render, rendered_extension)
-  return function (doc)
-    -- Render contents
-    local rendered = render(doc.contents)
-
-    -- Replace file extension
-    local relative_filepath = path.replace_extension(
-      doc.relative_filepath,
-      rendered_extension
-    )
-
-    -- Return new shallow-copied doc with rendered contents
-    return merge(doc, {
-      contents = rendered,
-      relative_filepath = relative_filepath
-    })
-  end
-end
-exports.doc_renderer = doc_renderer
-
--- Easily create a renderer plugin with a rendering function, default render
--- query and a rendered file extension:
---
---     plugin = renderer_plugin(markdown, "**.md", ".html")
---
--- `default_query` is a wildcard string that allows you to define the docs that
--- will be rendered. The user can override this by defining
--- `{ query = "whatever" }` for the options object.
---
--- Returns a plugin function.
-local function renderer_plugin(render, default_query, rendered_extension)
-  local render_doc = doc_renderer(render, rendered_extension)
-
-  return function(query)
-    return function(docs)
-      return route(query or default_query, render_doc, docs)
-    end
-  end
-end
-exports.renderer_plugin = renderer_plugin
-
--- Filter reducible to only docs who's relative path matches `wildcard_string`.
--- Returns new reducible function.
-local function query(wildcard_string, docs)
-  return filter(relative_path_matcher(wildcard_string), docs)
+-- Create a filtering `xform` function that will keep only docs who's path
+-- matches a wildcard path string.
+local function query(wildcard_string)
+  local pattern = wildcards.parse(wildcard_string)
+  return filter(function(doc)
+    return doc.relative_filepath:find(pattern)
+  end)
 end
 exports.query = query
 
@@ -113,7 +55,7 @@ local function chop_sorted_buffer(buffer_table, compare, n)
   return chop(buffer_table, n)
 end
 
-local function harvest(reducible, compare, n)
+local function harvest(compare, n, iter, ...)
   -- Skim the cream off the top... given a reducible, a comparison function
   -- and a buffer size, collect the `n` highest values into a table.
   -- This allows you to get a sorted list of items out of a reducible.
@@ -127,9 +69,7 @@ local function harvest(reducible, compare, n)
   -- collect, then sort.
   n = n or math.huge
 
-  -- Fold a buffer table of items. We mutate this table, but no-one outside
-  -- of the function sees it happen.
-  local buffer = reducible(function(buffer, item)
+  local function step_buffer(buffer, item)
     table.insert(buffer, item)
     -- If buffer overflows by 100 items, sort and chop buffer.
     -- In other words, a sort/chop will happen every 100 items over the
@@ -137,7 +77,11 @@ local function harvest(reducible, compare, n)
     -- too often or overflowing buffer... larger than 1, but not too large.
     if #buffer > n + 100 then chop_sorted_buffer(buffer, compare, n) end
     return buffer
-  end, {})
+  end
+
+  -- Fold a buffer table of items. We mutate this table, but no-one outside
+  -- of the function sees it happen.
+  local buffer = reduce(step_buffer, {}, iter, ...)
 
   -- Sort and chop buffer one last time on the way out.
   return chop_sorted_buffer(buffer, compare, n)
