@@ -27,8 +27,8 @@ local exports = {}
 
 local lustache = require('lustache')
 
-local reducers = require("lettersmith.reducers")
-local map = reducers.map
+local transducers = require('lettersmith.transducers')
+local map = transducers.map
 
 local table_utils = require("lettersmith.table_utils")
 local merge = table_utils.merge
@@ -38,29 +38,29 @@ local read_entire_file = file_utils.read_entire_file
 
 local path = require('lettersmith.path')
 
-local function template_renderer(template_path)
-  -- Render docs through mustache template defined in headmatter `template`
-  -- field. Returns new docs list.
-  return function (doc)
-    -- Pass on docs that don't have template field.
+local function load_and_render_template(template_path_string, context)
+  local template = read_entire_file(template_path_string)
+  return lustache:render(template, context)
+end
+
+local function render_mustache(template_path_string)
+  return map(function (doc)
+    local rendered = load_and_render_template(template_path_string, doc)
+    return merge(doc, { contents = rendered })    
+  end)
+end
+exports.render_mustache = render_mustache
+
+local function choose_mustache(template_dir_string)
+  return map(function (doc)
+    -- Skip document if it doesn't have a template field.
     if not doc.template then return doc end
 
-    local template = read_entire_file(path.join(template_path, doc.template))
-    local rendered = lustache:render(template, doc)
-    -- Create shallow-copy rendered doc, overwriting doc's contents with
-    -- rendered contents.
-    return merge(doc, { contents = rendered })
-  end
+    local template_path_string = path.join(template_dir_string, doc.template)
+    local rendered = load_and_render_template(template_path_string, doc)
+    return merge(doc, { contents = rendered })    
+  end)
 end
-exports.template_renderer = template_renderer
-
-local function use_mustache(template_path)
-  local render_template = template_renderer(template_path)
-
-  return function (docs)
-    return map(render_template, docs)
-  end
-end
-exports.use_mustache = use_mustache
+exports.choose_mustache = choose_mustache
 
 return exports
