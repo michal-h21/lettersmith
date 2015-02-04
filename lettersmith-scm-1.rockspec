@@ -46,7 +46,6 @@ build = {
 
     -- Libraries
     ["lettersmith.transducers"] = "transducers.lua",
-    ["lettersmith.reducers"] = "reducers.lua",
     ["lettersmith.headmatter"] = "headmatter.lua",
     ["lettersmith.path"] = "path.lua",
     ["lettersmith.wildcards"] = "wildcards.lua",
