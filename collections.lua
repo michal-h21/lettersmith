@@ -21,13 +21,11 @@ local query = plugin_utils.query
 local compare_doc_by_date = plugin_utils.compare_doc_by_date
 local harvest = plugin_utils.harvest
 
-local xf = require("lettersmith.transducers")
-local transduce = xf.transduce
-local comp = xf.comp
-
-local reducers = require("lettersmith.reducers")
-local append = reducers.append
-local map = reducers.map
+local transduce = require("lettersmith.transducers")
+local transduce = transduce.transduce
+local comp = transduce.comp
+local map = transduce.map
+local reductions = transduce.reductions
 
 local table_utils = require("lettersmith.table_utils")
 local extend = table_utils.extend
@@ -49,32 +47,17 @@ local function set_circular_link(prev_t, next_t)
   end
   return next_t
 end
+exports.set_circular_link = set_circular_link
 
-local xform_circular_link = comp(
-  xf.reductions(set_circular_link),
-  xf.map(shallow_copy)
+local link_tables = comp(
+  map(shallow_copy),
+  reductions(set_circular_link)
 )
+exports.link_tables = link_tables
 
-local function link_circularly(t)
-  return transduce(xform_circular_link, append, {}, ipairs(t))
+local function collect(iter, ...)
+  return into({}, link_tables, iter, ...)
 end
-exports.link_circularly = link_circularly
-
-local function use_collections(name, wildcard_string, compare, n)
-  compare = compare or compare_doc_by_date
-
-  return function(docs)
-    local docs_table = harvest(query(wildcard_string, docs), compare, n)
-    local collection = link_circularly(docs_table)
-
-    local function add_collection_to_doc(doc)
-      return extend({ [name] = collection }, doc)
-    end
-
-    -- Traverse docs a second time, adding collection to each doc object.
-    return map(add_collection_to_doc, docs)
-  end
-end
-exports.use_collections = use_collections
+exports.collect = collect
 
 return exports
