@@ -10,11 +10,10 @@ local attributes = lfs.attributes
 local mkdir = lfs.mkdir
 local rmdir = lfs.rmdir
 
-local xf = require("lettersmith.transducers")
-local reductions = xf.reductions
-local transduce = xf.transduce
-
-local append = require("lettersmith.reducers").append
+local transducers = require("lettersmith.transducers")
+local reductions = transducers.reductions
+local transduce = transducers.transduce
+local into = transducers.into
 
 local path = require("lettersmith.path")
 
@@ -76,7 +75,7 @@ end
 --     > {"foo", "foo/bar", "foo/bar/baz"}
 local function traversals(path_string)
   local parts = path.parts(path_string)
-  return transduce(reductions(step_traversal, ""), append, {}, ipairs(parts))  
+  return into({}, reductions(step_traversal, ""), ipairs(parts))
 end
 
 local function mkdir_deep(path_string)
