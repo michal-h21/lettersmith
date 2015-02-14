@@ -2,7 +2,7 @@
 package = "Lettersmith"
 version = "scm-1"
 source = {
-  url = "git://github.com/gordonbrander/lettersmith"
+   url = "git://github.com/gordonbrander/lettersmith"
 }
 description = {
   summary = "A simple, flexible static site generator based on plugins",
@@ -36,17 +36,22 @@ build = {
     ["lettersmith"] = "lettersmith.lua",
 
     -- Plugins
-    ["lettersmith.mustache"] = "lettersmith_mustache.lua",
-    ["lettersmith.permalinks"] = "lettersmith_permalinks.lua",
-    ["lettersmith.drafts"] = "lettersmith_drafts.lua",
-    ["lettersmith.markdown"] = "lettersmith_markdown.lua",
-    ["lettersmith.meta"] = "lettersmith_meta.lua",
+    ["lettersmith.mustache"] = "lettersmith/mustache.lua",
+    ["lettersmith.permalinks"] = "lettersmith/permalinks.lua",
+    ["lettersmith.drafts"] = "lettersmith/drafts.lua",
+    ["lettersmith.markdown"] = "lettersmith/markdown.lua",
+    ["lettersmith.meta"] = "lettersmith/meta.lua",
+    ["lettersmith.blogging"] = "lettersmith/blogging.lua",
+    ["lettersmith.collections"] = "lettersmith/collections.lua",
+    ["lettersmith.paging"] = "lettersmith/paging.lua",
+    ["lettersmith.rss"] = "lettersmith/rss.lua",
 
     -- Libraries
-    ["lettersmith.foldable"] = "foldable.lua",
-    ["lettersmith.headmatter"] = "headmatter.lua",
-    ["lettersmith.path"] = "path.lua",
-    ["lettersmith.file_utils"] = "file_utils.lua",
-    ["lettersmith.table_utils"] = "table_utils.lua"
+    ["lettersmith.foldable"] = "lettersmith/foldable.lua",
+    ["lettersmith.headmatter"] = "lettersmith/headmatter.lua",
+    ["lettersmith.path"] = "lettersmith/path.lua",
+    ["lettersmith.file_utils"] = "lettersmith/file_utils.lua",
+    ["lettersmith.table_utils"] = "lettersmith/table_utils.lua",
+    ["lettersmith.wildcards"] = "lettersmith/wildcards.lua",
   }
 }

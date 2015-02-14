@@ -272,13 +272,14 @@ exports.zip_with = zip_with
 -- `cps_function` will have any additional arguments applied after callback.
 -- Returns a foldable function.
 local function from_cps(cps_function, ...)
+  local args={...}
   return function(step, seed)
     -- The `cps_function` is assumed to block until finished. If it doesn't,
     -- consider wrapping it in a coroutine.
     cps_function(function (v)
       -- Fold seed for each value passed to callback.
       seed = step(seed, v)
-    end, unpack(arg))
+    end, unpack(args))
 
     -- Return folded seed value.
     return seed

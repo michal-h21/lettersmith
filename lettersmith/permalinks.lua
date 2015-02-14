@@ -35,11 +35,11 @@ Usage:
 local lettersmith = require("lettersmith")
 local route = lettersmith.route
 
-local table_utils = require("table_utils")
+local table_utils = require("lettersmith.table_utils")
 local merge = table_utils.merge
 local extend = table_utils.extend
 
-local path = require("path")
+local path = require("lettersmith.path")
 
 local date = require("date")
 

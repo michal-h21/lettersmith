@@ -10,9 +10,9 @@ local attributes = lfs.attributes
 local mkdir = lfs.mkdir
 local rmdir = lfs.rmdir
 
-local foldable = require("foldable")
+local foldable = require("lettersmith.foldable")
 
-local path = require("path")
+local path = require("lettersmith.path")
 
 local exports = {}
 

@@ -15,7 +15,7 @@ Usage:
 
     build(docs, "out")
 --]]
-local foldable = require("foldable")
+local foldable = require("lettersmith.foldable")
 
 return function (docs)
   -- Reject all documents that are drafts.
