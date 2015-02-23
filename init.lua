@@ -4,8 +4,13 @@ local transducers = require("lettersmith.transducers")
 local reduce = transducers.reduce
 local map = transducers.map
 local eduction = transducers.eduction
+local collect = transducers.collect
 
 local path = require("lettersmith.path")
+
+local plugin_utils = require("lettersmith.plugin_utils")
+local compare_by_file_path_date = plugin_utils.compare_by_file_path_date
+local match_date_in_file_path = plugin_utils.match_date_in_file_path
 
 local file_utils = require("lettersmith.file_utils")
 local children = file_utils.children
@@ -15,10 +20,6 @@ local location_exists = file_utils.location_exists
 local write_entire_file_deep = file_utils.write_entire_file_deep
 local read_entire_file = file_utils.read_entire_file
 local remove_recursive = file_utils.remove_recursive
-
-local lfs = require("lfs")
-
-local date = require("date")
 
 local headmatter = require("lettersmith.headmatter")
 
@@ -46,6 +47,19 @@ local function walk_file_paths(path_string)
 end
 exports.walk_file_paths = walk_file_paths
 
+-- Get a sorted list of all file paths under a given `path_string`.
+-- `compare` is a comparison function for `table.sort`.
+-- By default, will sort file paths using `compare_by_file_path_date`.
+-- Returns a Lua list table of file paths.
+local function list_file_paths(path_string)
+  -- Recursively walk through file paths. Collect result in table.
+  local file_paths_table = collect(walk_file_paths(path_string))
+  -- Sort our new table in-place, comparing by date.
+  table.sort(file_paths_table, compare_by_file_path_date)
+  return file_paths_table
+end
+exports.list_file_paths = list_file_paths
+
 -- Load contents of a file as a document table.
 -- Returns a new document table containing:
 -- `date`, `contents`, plus any other properties defined in headmatter.
@@ -65,9 +79,10 @@ local function load_doc(base_path_string, relative_path_string)
   -- as field.
   doc.contents = contents_string
 
-  -- Assign date field from modified file date, if it doesn't already exist.
-  local date_string = doc.date or lfs.attributes(path_string, "modified")
-  doc.date = date(date_string):fmt("${iso}")
+  -- If doc doesn't have a date field, try to extract a date from the file path.
+  if not doc.date then
+    doc.date = match_date_in_file_path(relative_path_string)
+  end
 
   -- Set relative_filepath on doc.
   -- Remove any leading slash so it is truly relative (not root relative).
@@ -86,7 +101,9 @@ local function docs(base_path_string)
     return load_doc(base_path_string, relative_path_string)
   end
 
-  return eduction(map(load_path_as_doc), walk_file_paths(base_path_string))
+  local paths_table = list_file_paths(base_path_string)
+
+  return eduction(map(load_path_as_doc), ipairs(paths_table))
 end
 exports.docs = docs
 
