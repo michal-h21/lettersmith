@@ -153,13 +153,13 @@ end
 
 -- Remove the explicit index at the end of a url.
 -- Returns URL with any index removed.
-local function path.drop_explicit_index(url_string)
+function path.drop_explicit_index(url_string)
   return url_string:gsub("/index%.[^.]+$", "/")
 end
 
 -- Given a path and a base URL, will return a pretty URL.
 -- `base_url_string` can be absolute or relative.
-local function path.to_url(base_url_string, relative_path_string)
+function path.to_url(base_url_string, relative_path_string)
   local normalized_path = path.normalize(relative_path_string)
   local pretty_path = path.drop_explicit_index(normalized_path)
   -- Rebase path and return.
