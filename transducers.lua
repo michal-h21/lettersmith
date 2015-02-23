@@ -91,17 +91,38 @@ local function into(into_table, xform, iter, ...)
 end
 exports.into = into
 
+-- Collect all values of an iterator into a list table using `reduce`.
+-- Returns a list table.
+local function collect(iter, ...)
+  return reduce(append, {}, iter, ...)
+end
+exports.collect = collect
+
 local function step_yield(_, v)
   coroutine.yield(v)
   return v
 end
 
 local function eduction(xform, iter, ...)
+  -- Capture optional iterator state variables.
+  local t, i = ...
   return coroutine.wrap(function ()
-    transduce(xform, step_yield, nil, iter, ...)
+    transduce(xform, step_yield, nil, iter, t, i)
   end)
 end
 exports.eduction = eduction
+
+-- Concatenate many stateful iterators together into a single coroutine
+-- iterator. Returns coroutine iterator.
+local function concat(...)
+  local iters = {...}
+  return coroutine.wrap(function ()
+    for _, iter in ipairs(iters) do
+      reduce(step_yield, nil, iter)
+    end
+  end)
+end
+exports.concat = concat
 
 local function id(thing)
   return thing
