@@ -1,30 +1,19 @@
 --[[
 Lettersmith Drafts
 
-Remove drafts from rendered docs. A drafts is any document that has `draft: yes`
-in the headmatter section.
-
-Usage:
-
-    local use_drafts = require('lettersmith.drafts').use_drafts
-    local lettersmith = require('lettersmith')
-
-    lettersmith.generate("raw", "out", use_drafts)
+Remove drafts from rendered docs. A draft is any file who's name starts with
+an underscore.
 --]]
-local exports = {}
-
-local reducers = require("lettersmith.reducers")
-local reject = reducers.reject
+local transducers = require("lettersmith.transducers")
+local path = require("lettersmith.path")
+local reject = transducers.reject
 
 local function is_doc_path_prefixed_with_underscore(doc)
   -- Treat any document path that starts with an underscore as a draft.
-  return doc.relative_filepath:find("^_")
+  return path.basename(doc.relative_filepath):find("^_")
 end
 
--- Reject all draft docs.
-local function use_drafts(docs)
-  return reject(is_doc_path_prefixed_with_underscore, docs)
-end
-exports.use_drafts = use_drafts
+-- Remove all docs who's path is prefixed with an underscore.
+local remove_drafts = reject(is_doc_path_prefixed_with_underscore)
 
-return exports
+return remove_drafts
