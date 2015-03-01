@@ -79,7 +79,7 @@ local render_markdown = require("lettersmith.markdown")
 local paths = lettersmith.paths("raw")
 
 -- Render markdown
-local docs = docs(paths)
+local docs = lettersmith.docs(paths)
 docs = use_markdown(docs)
 
 -- Build files, writing them to "www" folder
