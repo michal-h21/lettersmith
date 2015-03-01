@@ -51,7 +51,7 @@ paths table and returns an iterator of tables.
 local paths = lettersmith.paths("raw")
 local docs = lettersmith.docs(paths)
 
-for i, doc in docs do
+for doc in docs do
   print(doc)
 end
 
