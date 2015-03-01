@@ -80,7 +80,7 @@ local paths = lettersmith.paths("raw")
 
 -- Render markdown
 local docs = lettersmith.docs(paths)
-docs = use_markdown(docs)
+docs = render_markdown(docs)
 
 -- Build files, writing them to "www" folder
 lettersmith.build("www", docs)
