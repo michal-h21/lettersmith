@@ -5,8 +5,8 @@ Template your docs with mustache.
 
 Usage:
 
-    local use_mustache = require('lettersmith.mustache').use_mustache
-    local lettersmith = require('lettersmith')
+    local use_mustache = require("lettersmith.mustache").use_mustache
+    local lettersmith = require("lettersmith")
 
     lettersmith.generate("raw", "out", use_mustache { path = "templates" })
 
@@ -25,18 +25,17 @@ another field before templating.
 
 local exports = {}
 
-local lustache = require('lustache')
+local lustache = require("lustache")
 
-local transducers = require('lettersmith.transducers')
-local map = transducers.map
+local map = require("lettersmith.transducers").map
+local transformer = require("lettersmith.lazy").transformer
 
-local table_utils = require("lettersmith.table_utils")
-local merge = table_utils.merge
+local merge = require("lettersmith.table_utils").merge
 
 local file_utils = require("lettersmith.file_utils")
 local read_entire_file = file_utils.read_entire_file
 
-local path = require('lettersmith.path')
+local path = require("lettersmith.path")
 
 local function load_and_render_template(template_path_string, context)
   local template = read_entire_file(template_path_string)
@@ -44,22 +43,24 @@ local function load_and_render_template(template_path_string, context)
 end
 
 local function render_mustache(template_path_string)
-  return map(function (doc)
+  return transformer(map(function (doc)
+    -- @TODO should also have render function for {{site_url "filename"}}
+    -- that will create un-breakable permalink.
     local rendered = load_and_render_template(template_path_string, doc)
     return merge(doc, { contents = rendered })    
-  end)
+  end))
 end
 exports.render_mustache = render_mustache
 
 local function choose_mustache(template_dir_string)
-  return map(function (doc)
+  return transformer(map(function (doc)
     -- Skip document if it doesn't have a template field.
     if not doc.template then return doc end
 
     local template_path_string = path.join(template_dir_string, doc.template)
     local rendered = load_and_render_template(template_path_string, doc)
     return merge(doc, { contents = rendered })    
-  end)
+  end))
 end
 exports.choose_mustache = choose_mustache
 

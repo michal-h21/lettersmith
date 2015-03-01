@@ -78,16 +78,17 @@ end
 exports.append = append
 
 -- Transform an iterator through an `xform` function, appending results to
--- `into_table`. Mutates `into_table`.
+-- a table. Returns a table.
 --
---     into({}, map(is_even), ipairs {1, 2, 3})
+--     into(map(is_even), ipairs {1, 2, 3})
 --
 -- If you're familiar with Clojure's `into`, you'll note that this is a bit of
 -- a twist on the original. In Clojure sequences implement a sequence interface.
 -- In Lua we use iterator factories to return a consistant iterator interface.
--- Hence, `into` takes an iterator function and optional state variables.
-local function into(into_table, xform, iter, ...)
-  return transduce(xform, append, into_table, iter, ...)
+-- Clojure's `into` also takes 2 tables and `xform` is a special form.
+-- In our case, we simply transform each element and append to a new table.
+local function into(xform, iter, ...)
+  return transduce(xform, append, {}, iter, ...)
 end
 exports.into = into
 
@@ -97,32 +98,6 @@ local function collect(iter, ...)
   return reduce(append, {}, iter, ...)
 end
 exports.collect = collect
-
-local function step_yield(_, v)
-  coroutine.yield(v)
-  return v
-end
-
-local function eduction(xform, iter, ...)
-  -- Capture optional iterator state variables.
-  local t, i = ...
-  return coroutine.wrap(function ()
-    transduce(xform, step_yield, nil, iter, t, i)
-  end)
-end
-exports.eduction = eduction
-
--- Concatenate many stateful iterators together into a single coroutine
--- iterator. Returns coroutine iterator.
-local function concat(...)
-  local iters = {...}
-  return coroutine.wrap(function ()
-    for _, iter in ipairs(iters) do
-      reduce(step_yield, nil, iter)
-    end
-  end)
-end
-exports.concat = concat
 
 local function id(thing)
   return thing

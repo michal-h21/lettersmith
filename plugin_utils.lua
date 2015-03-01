@@ -1,56 +1,37 @@
 local exports = {}
 
 local wildcards = require("lettersmith.wildcards")
-
-local trandsucers = require("lettersmith.transducers")
-local reduce = trandsucers.reduce
-local filter = trandsucers.filter
+local filter = require("lettersmith.transducers").filter
+local transformer = require("lettersmith.lazy").transformer
 
 local table_utils = require("lettersmith.table_utils")
 local merge = table_utils.merge
 
-local date = require("date")
-
-local path = require("lettersmith.path")
-
--- Create a filtering `xform` function that will keep only docs who's path
+-- Create a plugin function that will keep only docs who's path
 -- matches a wildcard path string.
 local function query(wildcard_string)
-  local pattern = wildcards.parse(wildcard_string)
-  return filter(function(doc)
-    return doc.relative_filepath:find(pattern)
-  end)
+  return transformer(filter(function(doc)
+    return doc.relative_filepath:find(wildcards.parse(wildcard_string))
+  end))
 end
 exports.query = query
 
-local function match_date_in_file_path(file_path_string)
-  local basename = path.basename(file_path_string)
-  return basename:match("^(%d%d%d%d-%d%d-%d%d)")
-end
-exports.match_date_in_file_path = match_date_in_file_path
-
--- Parses a date from filenames that start with the format:
---
---     YEAR-MONTH-DAY
---
--- Where YEAR is a four-digit number, MONTH and DAY are both two-digit numbers.
---
--- Returns a date object from `date()` by parsing an iso date from the file
--- name. If we don't succeed at parsing a date, we return a Unix Epoch date.
-local function parse_date_from_file_path(file_path_string)
-  if match_date_in_file_path(file_path_string) then
-    return date(date_string)
-  else
-    return date.epoch()
+-- Render contents through mapping function `a2b`.
+-- Returns a rendering function which will transform a `doc` object,
+-- returning a new doc object with contents field transformed by `a2b`.
+local function renderer(a2b)
+  return function(doc)
+    return merge(doc, { contents = a2b(doc.contents) })
   end
 end
-exports.parse_date_from_file_path = parse_date_from_file_path
+exports.renderer = renderer
 
--- Compare 2 file name strings by parsing out a date from the beginning of
--- the file name.
-local function compare_by_file_path_date(a, b)
-  return parse_date_from_file_path(a) > parse_date_from_file_path(b)
+-- Wrap value in a coroutine iterator.
+local function wrap_in_iter(thing)
+  return coroutine.wrap(function ()
+    coroutine.yield(thing)
+  end)
 end
-exports.compare_by_file_path_date = compare_by_file_path_date
+exports.wrap_in_iter = wrap_in_iter
 
 return exports

@@ -36,8 +36,8 @@ Usage:
 
 local exports = {}
 
-local plugin_utils = require("lettersmith.plugin_utils")
-local route = plugin_utils.route
+local map = require("lettersmith.transducers").map
+local transformer = require("lettersmith.lazy").transformer
 
 local table_utils = require("lettersmith.table_utils")
 local merge = table_utils.merge
@@ -47,17 +47,10 @@ local path = require("lettersmith.path")
 
 local date = require("date")
 
-local function trim_string(str)
-  return str:gsub("^%s+", ""):gsub("%s+$", "")
-end
-
-local function to_slug(str)
-  -- Trim string, remove characters that are not numbers, letters or _ and -.
-  -- Replace spaces with dashes.
-  -- For example, `to_slug("   hEY. there! ")` returns `hey-there`.
-  return trim_string(str):gsub("[^%w%s-_]", ""):gsub("%s", "-"):lower()
-end
-exports.to_slug = to_slug
+local docs = require("lettersmith.docs")
+local derive_date = docs.derive_date
+local derive_slug = docs.derive_slug
+local to_slug = docs.to_slug
 
 local function is_json_safe(thing)
   local thing_type = type(thing)
@@ -76,23 +69,18 @@ local function build_json_safe_table(t, a2b)
 end
 
 local function render_doc_path_from_template(doc, url_template)
-  local basename, dir_path = path.basename(doc.relative_filepath)
-  local extension = path.extension(basename)
-  local filename = path.replace_extension(basename, "")
+  local file_path = doc.relative_filepath
+  local basename, dir = path.basename(doc.relative_filepath)
+  local ext = path.extension(basename)
+  local file_title = path.replace_extension(basename, "")
 
-  -- Uses title as slug, but falls back to the filename.
-  -- @TODO it would probably be better to slugify all the string meta
-  -- rather than treating title as a "magic" field. However, this might not
-  -- be worth the complication, since this does exactly what you want 80% of
-  -- the time.
-  local slug = to_slug(doc.title or filename)
+  -- Uses title as slug, but falls back to the file name, sans extension.
+  local slug = derive_slug(doc)
 
-  -- This gives you a way to favor filename.
-  local file_slug = to_slug(filename)
+  -- This gives you a way to favor file_name.
+  local file_slug = to_slug(file_title)
 
-  -- Parse date and capture granular year, month and day values.
-  local doc_date = date(doc.date)
-  local yyyy, yy, mm, dd = doc_date
+  local yyyy, yy, mm, dd = date(derive_date(doc))
     :fmt("%Y %y %m %d"):match("(%d%d%d%d) (%d%d) (%d%d) (%d%d)")
 
   -- Generate context object that contains only strings in doc, mapped to slugs
@@ -100,9 +88,12 @@ local function render_doc_path_from_template(doc, url_template)
 
   -- Merge doc context and extra template vars, favoring template vars.
   local context = extend({
+    basename = basename,
+    dir = dir,
+    file_path = file_path,
     file_slug = file_slug,
     slug = slug,
-    dir_path = dir_path,
+    ext = ext,
     yyyy = yyyy,
     yy = yy,
     mm = mm,
@@ -112,7 +103,7 @@ local function render_doc_path_from_template(doc, url_template)
   local path_string = url_template:gsub(":([%w_]+)", context)
 
   -- Add index file to end of path and return.
-  return path_string:gsub("/$", "/index" .. extension)
+  return path_string:gsub("/$", "/index" .. ext)
 end
 
 -- Remove "index" from end of URL.
@@ -122,24 +113,16 @@ local function make_pretty_url(root_url_string, relative_path_string)
 end
 exports.make_pretty_url = make_pretty_url
 
-local function permalink_renderer(template_string, root_url_string)
-  return function(doc)
+local function render_permalinks(template_string, root_url_string)
+  return transformer(map(function(doc)
     local path = render_doc_path_from_template(doc, template_string)
     local url = make_pretty_url(root_url_string or "/", path)
     return merge(doc, {
       relative_filepath = path,
       url = url
     })
-  end
+  end))
 end
-exports.xform_permalinks = xform_permalinks
-
-local function use_permalinks(wildcard_string, template_string, root_url_string)
-  return function(docs)
-    local render_permalink = permalink_renderer(template_string, root_url_string)
-    return route(wildcard_string, render_permalink, docs)
-  end
-end
-exports.use_permalinks = use_permalinks
+exports.render_permalinks = render_permalinks
 
 return exports

@@ -75,7 +75,7 @@ end
 --     > {"foo", "foo/bar", "foo/bar/baz"}
 local function traversals(path_string)
   local parts = path.parts(path_string)
-  return into({}, reductions(step_traversal, ""), ipairs(parts))
+  return into(reductions(step_traversal, ""), ipairs(parts))
 end
 
 local function mkdir_deep(path_string)
@@ -137,5 +137,29 @@ local function write_entire_file_deep(filepath, contents)
   return write_entire_file(filepath, contents)
 end
 exports.write_entire_file_deep = write_entire_file_deep
+
+-- Recursively walk through directory at `path_string` calling
+-- `callback` with each file path found.
+local function walk_file_paths_cps(callback, path_string)
+  for f in children(path_string) do
+    local filepath = path.join(path_string, f)
+
+    if is_file(filepath) then
+      callback(filepath)
+    elseif is_dir(filepath) then
+      walk_file_paths_cps(callback, filepath)
+    end
+  end
+end
+
+-- Given `path_string` -- a path to a directory -- recursively walks through
+-- directory for all file paths.
+-- Returns a coroutine iterator.
+local function walk_file_paths(path_string)
+  return coroutine.wrap(function()
+    walk_file_paths_cps(coroutine.yield, path_string)
+  end)
+end
+exports.walk_file_paths = walk_file_paths
 
 return exports

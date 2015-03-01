@@ -2,17 +2,11 @@
 Lettersmith Markdown
 Renders markdown in contents field.
 --]]
-local markdown = require('discount')
+local markdown = require("discount")
+local map = require("lettersmith.transducers").map
+local transformer = require("lettersmith.lazy").transformer
+local renderer = require("lettersmith.plugin_utils").renderer
 
-local transducers = require('lettersmith.transducers')
-local map = transducers.map
-
-local table_utils = require("lettersmith.table_utils")
-local merge = table_utils.merge
-
-local render_markdown = map(function (doc)
-  local contents = markdown(doc.contents)
-  return merge(doc, { contents = contents })
-end)
+local render_markdown = transformer(map(renderer(markdown)))
 
 return render_markdown

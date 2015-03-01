@@ -9,7 +9,7 @@ description = {
   detailed = [[
   Lettersmith is a static site generator. It's goals are:
 
-  - Simple: no fancy classes, no silly conventions. Just a minimal library for
+  - Simple: no fancy classes, or conventions. Just a small library for
     transforming files with functions.
   - Flexible: everything is a plugin.
   - Fast: build thousands of pages in seconds or less.
@@ -17,7 +17,7 @@ description = {
     can use it.
 
   It ships with plugins for blogging, Markdown and Mustache, but can be easily
-  extended and configured to build any type of static site.
+  configured to build any type of static site.
   ]],
   homepage = "https://github.com/gordonbrander/lettersmith",
   license = "MIT/X11"
@@ -42,10 +42,11 @@ build = {
     ["lettersmith.markdown"] = "markdown.lua",
     ["lettersmith.meta"] = "meta.lua",
     ["lettersmith.rss"] = "rss.lua",
-    ["lettersmith.collections"] = "collections.lua",
 
     -- Libraries
     ["lettersmith.transducers"] = "transducers.lua",
+    ["lettersmith.lazy"] = "lazy.lua",
+    ["lettersmith.docs"] = "docs.lua",
     ["lettersmith.headmatter"] = "headmatter.lua",
     ["lettersmith.path"] = "path.lua",
     ["lettersmith.wildcards"] = "wildcards.lua",
