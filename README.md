@@ -18,7 +18,7 @@ What does it do?
 
 Lettersmith is based on a simple idea: load files as Lua tables. So this:
 
-`2014-03-02-example.md`:
+`2015-03-01-example.md`:
 
 ```markdown
 ---
@@ -31,10 +31,10 @@ Let's add some content to this file.
 
 ```lua
 {
-  relative_filepath = "2014-03-02-example.md",
+  relative_filepath = "2015-03-01-example.md",
   title = "Trying out Lettersmith",
   contents = "Let's add some content to this file.",
-  date = "2014-10-17"
+  date = "2015-03-01"
 }
 ```
 
