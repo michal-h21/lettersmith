@@ -5,7 +5,7 @@ Lettersmith is a simple, flexible, fast  _static site generator_. It's written i
 
 Lettersmith's goals are:
 
-- Simple: no fancy classes, no silly conventions. Just a minimal library for transforming files with functions.
+- Simple
 - Flexible: everything is a plugin.
 - Fast: build thousands of pages in seconds or less.
 - Embeddable: we're going to put this thing in an Mac app so normal people can use it.
@@ -16,9 +16,9 @@ Lettersmith is open-source and a work-in-progress. [You can help](https://github
 What does it do?
 ----------------
 
-Lettersmith is built around a simple idea: load files as Lua tables. So this:
+Lettersmith is based on a simple idea: load files as Lua tables. So this:
 
-`example.md`:
+`2014-03-02-example.md`:
 
 ```markdown
 ---
@@ -31,50 +31,63 @@ Let's add some content to this file.
 
 ```lua
 {
-  relative_filepath = "example.md",
+  relative_filepath = "2014-03-02-example.md",
   title = "Trying out Lettersmith",
   contents = "Let's add some content to this file.",
-  date = "2014-10-17T01:25:59"
+  date = "2014-10-17"
 }
 ```
 
 - The file contents will end up in the `contents` field.
 - You can add an optional [YAML](yaml.org) headmatter block to files. Any YAML properties you put in the block will show up on the table!
-- The `date` will be read from the file's modified date, but you can provide your own by adding a `date` field to the headmatter. Lettersmith will automatically normalize any reasonable date format you provide to an [ISO date](https://en.wikipedia.org/wiki/ISO_8601).
+- Date will be inferred from file name, but you can provide your own by adding a `date` field to the headmatter.
 
-The function `lettersmith.docs(path)` takes a file path and returns a list of document objects:
+The function `lettersmith.paths(directory)` returns a table of file paths in that `directory`, sorted by file name. You can then transform those paths using plugins.
+
+The most basic plugin is `lettersmith.docs(paths_table)`. It takes a Lettersmith
+paths table and returns an iterator of tables.
 
 ```lua
+local paths = lettersmith.paths("raw")
+local docs = lettersmith.docs(paths)
+
+for i, doc in docs do
+  print(doc)
+end
+
+--[[
 {
   relative_filepath = "foo/x.md",
   contents = "...",
-  date = "2014-10-17T01:25:59"
-},
-{
-  relative_filepath = "bar/y.md",
-  contents = "...",
-  date = "2014-10-17T01:25:59"
-},
+  date = "2014-10-17"
+}
+...
+]]--
 ...
 ```
+
+
+Creating a site
+---------------
 
 Creating a site is simple. Just create a new lua file. Call it anything you like.
 
 ```lua
 local lettersmith = require("lettersmith")
-local use_markdown = require("lettersmith.markdown")
+local render_markdown = require("lettersmith.markdown")
 
--- Get documents from "raw" folder
-local docs = lettersmith.docs("raw")
+-- Get paths from "raw" folder
+local paths = lettersmith.paths("raw")
 
 -- Render markdown
+local docs = docs(paths)
 docs = use_markdown(docs)
 
--- Build files, writing them to "out" folder
-lettersmith.build(docs, "out")
+-- Build files, writing them to "www" folder
+lettersmith.build("www", docs)
 ```
 
-That's it! No fancy classes, no silly conventions. Just a convenient library for transforming files with functions.
+That's it! No fancy classes or complex conventions. Just a convenient library for transforming files with functions.
 
 
 Plugins
@@ -115,42 +128,33 @@ Of course, this is just a start. "Plugins" are really just functions that modify
 Creating new plugins
 --------------------
 
-Don't see the feature you want? No problem. "Plugins" are really just functions. Adding a feature is as easy as writing a function that changes what shows up in the document list.
+Don't see the feature you want? No problem. Creating a plugin is easy! "Plugins" are really just functions that return an iterator function.
 
-For example, let's write some code to remove drafts from the list:
-
-```lua
-docs = filter(docs, function (doc)
-  return not doc.draft
-end)
-```
-
-Easy!
-
-The [foldable](https://github.com/gordonbrander/lettersmith/blob/master/foldable.lua) library gives you some nice functions for working with lists of values: `map`, `filter`, `fold`, etc (you may have seen these functions before in libraries like [underscore.js][u1]).
-
-[u1]: http://underscorejs.org/
-
-These functions have a special sauce: they can consume nearly any value: tables, single values, nil, or _foldable functions_. What is a foldable function? The "list" that `lettersmith.docs` returns is actually a foldable function:
+For example, let's write a plugin to remove drafts:
 
 ```lua
-local docs = lettersmith.docs('raw/')
-print(docs)
--- function: 0x7fc573700450
-```
-
-Why? This function is able to loop through the entire list of documents, but unlike a table, keeps only one doc in memory at a time. This allows your list of files to be infinitely large (or as large as your hard-drive can handle, anyway). In fact, Lettersmith can build _thousands_ of files in just a few _seconds_.
-
-`map`, `filter` and cousins all consume just about any value, but return foldable functions. This means no intermediate tables are created when transforming. Efficient!
-
-What if you want to use a `for` loop? Not to worry, `foldable.ipairs` will return a coroutine iterator you can use with traditional loops:
-
-```lua
-local foldable = require("foldable")
-
-for i, doc in foldable.ipairs(docs) do
-  print(i, doc)
+local function remove_drafts(iter)
+  return coroutine.wrap(function()
+    for doc in iter do
+      if not doc.draft then
+        coroutine.yield(doc)
+      end
+    end
+  end)
 end
+```
+
+We typically use Lua `coroutines` to create iterators because they're lazy, allowing us to build 1000s of files without consuming too much memory at once.
+
+Lettersmith provides some handy tools for transforming iterators: `lettersmith.transducers` and `lettersmith.lazy`. Let's use these to rewrite the drafts plugin:
+
+```lua
+local filter = require("lettersmith.transducers").filter
+local transformer = require("lettersmith.lazy").transformer
+
+local remove_drafts = transformer(filter(function (docs)
+  return not doc.draft
+end))
 ```
 
 
