@@ -24,11 +24,11 @@ description = {
 }
 dependencies = {
   "lua >= 5.1",
-  "luafilesystem ~> 1.6.2",
-  "lustache ~> 1.3",
-  "yaml ~> 1.1.1",
-  "lua-discount ~> 1.2.10.1",
-  "date ~> 2.1.1"
+  "luafilesystem >= 1.6",
+  "lustache >= 1.3",
+  "yaml >= 1.1",
+  "lua-discount >= 1.2",
+  "date >= 2.1"
 }
 build = {
   type = "builtin",
