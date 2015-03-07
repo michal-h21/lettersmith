@@ -96,7 +96,7 @@ local comp = require("lettersmith.transducers").comp
 
 local blog_post = comp(
   render_permalinks ":yyyy/:mm/:slug",
-  use_meta { site_title = "..." }
+  use_meta { site_title = "..." },
   render_markdown,
   lettersmith.docs
 )
