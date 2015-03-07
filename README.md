@@ -88,6 +88,33 @@ lettersmith.build("www", docs)
 
 That's it! No fancy classes or complex conventions. Just a convenient library for transforming files with functions.
 
+What if you want to combine a series of plugins? No problem. Lettersmith plugins are composable:
+
+```lua
+-- ...
+local comp = require("lettersmith.transducers").comp
+
+local blog_post = comp(
+  render_permalinks ":yyyy/:mm/:slug",
+  use_meta { site_title = "..." }
+  render_markdown,
+  lettersmith.docs
+)
+
+local blog_single = comp(
+  render_mustache "templates/blog_single.html",
+  blog_post
+)
+
+local blog_archive = comp(
+  render_mustache "templates/blog_archive.html",
+  paging "page/:n/index.html",
+  blog_post
+)
+
+build("www", blog_single(paths), blog_archive(paths))
+```
+
 
 Plugins
 -------
