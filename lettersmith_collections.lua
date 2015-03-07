@@ -19,7 +19,7 @@ Usage:
 local lettersmith = require("lettersmith")
 local query = lettersmith.query
 
-local foldable = require("lettersmith.foldable")
+local foldable = require("foldable")
 local fold = foldable.fold
 local map = foldable.map
 local folds = foldable.folds
@@ -28,7 +28,7 @@ local collect = foldable.collect
 
 local date = require("date")
 
-local table_utils = require("lettersmith.table_utils")
+local table_utils = require("table_utils")
 local merge = table_utils.merge
 local shallow_copy = table_utils.shallow_copy
 

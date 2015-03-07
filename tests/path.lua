@@ -3,7 +3,7 @@ local suite = microtest.suite
 local test = microtest.test
 local equal = microtest.equal
 
-local path = require('lettersmith.path')
+local path = require('path')
 local resolve_up_dir_traverse = path.resolve_up_dir_traverse
 local remove_trailing_slash = path.remove_trailing_slash
 

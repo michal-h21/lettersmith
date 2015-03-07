@@ -3,20 +3,20 @@
 
 local query = require("lettersmith").query
 
-local foldable = require("lettersmith.foldable")
+local foldable = require("foldable")
 local map = foldable.map
 local harvest = foldable.harvest
 local concat = foldable.concat
 local collect = foldable.collect
 
-local collections = require("lettersmith.collections")
+local collections = require("lettersmith_collections")
 local compare_doc_by_date = collections.compare_doc_by_date
 
 local lustache = require("lustache")
 
-local path = require("lettersmith.path")
+local path = require("path")
 
-local table_utils = require("lettersmith.table_utils")
+local table_utils = require("table_utils")
 local extend = table_utils.extend
 
 local date = require("date")

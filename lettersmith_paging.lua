@@ -3,12 +3,12 @@ local exports = {}
 local lettersmith = require("lettersmith")
 local query = lettersmith.query
 
-local foldable = require("lettersmith.foldable")
+local foldable = require("foldable")
 local map = foldable.map
 local chunk = foldable.chunk
 local concat = foldable.concat
 
-local collections = require("lettersmith.collections")
+local collections = require("lettersmith_collections")
 local link_circularly = collections.link_circularly
 local compare_doc_by_date = collections.compare_doc_by_date
 local query_and_list_by = collections.query_and_list_by

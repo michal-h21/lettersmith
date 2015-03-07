@@ -1,18 +1,18 @@
 local exports = {}
 
-local foldable = require("lettersmith.foldable")
+local foldable = require("foldable")
 local map = foldable.map
 local fold = foldable.fold
 local filter = foldable.filter
 
-local table_utils = require("lettersmith.table_utils")
+local table_utils = require("table_utils")
 local merge = table_utils.merge
 
-local path = require("lettersmith.path")
+local path = require("path")
 
-local wildcards = require("lettersmith.wildcards")
+local wildcards = require("wildcards")
 
-local file_utils = require("lettersmith.file_utils")
+local file_utils = require("file_utils")
 local children = file_utils.children
 local is_file = file_utils.is_file
 local is_dir = file_utils.is_dir
@@ -25,7 +25,7 @@ local lfs = require("lfs")
 
 local date = require("date")
 
-local headmatter = require("lettersmith.headmatter")
+local headmatter = require("headmatter")
 
 local function route(docs_foldable, path_query_string, transform)
   -- Transform documents in foldable that match a particular route.
@@ -133,7 +133,7 @@ local function load_doc(base_path_string, relative_path_string)
   doc.contents = contents_string
 
   -- Assign date field from modified file date, if it doesn't already exist.
-  local date_string = doc.date or lfs.attributes(path_string, "modification")
+  local date_string = doc.date or lfs.attributes(path_string, "modified")
   doc.date = date(date_string):fmt("${iso}")
 
   -- Set relative_filepath on doc.

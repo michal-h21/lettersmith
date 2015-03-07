@@ -26,16 +26,16 @@ another field before templating.
 
 local lustache = require('lustache')
 
-local foldable = require("lettersmith.foldable")
+local foldable = require("foldable")
 local map = foldable.map
 
-local table_utils = require("lettersmith.table_utils")
+local table_utils = require("table_utils")
 local merge = table_utils.merge
 
-local file_utils = require("lettersmith.file_utils")
+local file_utils = require("file_utils")
 local read_entire_file = file_utils.read_entire_file
 
-local path = require('lettersmith.path')
+local path = require('path')
 
 return function (docs, template_path)
   -- Render docs through mustache template defined in headmatter `template`
