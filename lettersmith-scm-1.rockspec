@@ -23,7 +23,7 @@ description = {
   license = "MIT/X11"
 }
 dependencies = {
-  "lua ~> 5.1",
+  "lua >= 5.1",
   "luafilesystem ~> 1.6.2",
   "lustache ~> 1.3",
   "yaml ~> 1.1.1",
