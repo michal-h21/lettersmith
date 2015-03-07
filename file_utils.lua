@@ -10,9 +10,12 @@ local attributes = lfs.attributes
 local mkdir = lfs.mkdir
 local rmdir = lfs.rmdir
 
-local foldable = require("foldable")
+local transducers = require("lettersmith.transducers")
+local reductions = transducers.reductions
+local transduce = transducers.transduce
+local into = transducers.into
 
-local path = require("path")
+local path = require("lettersmith.path")
 
 local exports = {}
 
@@ -62,18 +65,26 @@ local function children(location)
 end
 exports.children = children
 
-local function mkdir_deep(location)
+local function step_traversal(dir, path)
+  if dir == "" then return path else return dir .. "/" .. path end
+end
+
+-- Returns every iteration of a path traversal:
+--
+--     traversals("foo/bar/baz")
+--     > {"foo", "foo/bar", "foo/bar/baz"}
+local function traversals(path_string)
+  local parts = path.parts(path_string)
+  return into(reductions(step_traversal, ""), ipairs(parts))
+end
+
+local function mkdir_deep(path_string)
   -- Create deeply nested directory at `location`.
   -- Returns `true` on success, or `nil, message` on failure.
-  local parts = path.parts(location)
 
-  -- Need to convert parts (table) to generator. @todo perhaps change
-  -- parts to return generator?
-  local path_strings = foldable.folds(parts, function (seed, part)
-    if seed == "" then return part else return seed .. "/" .. part end
-  end, "")
+  local traversal_paths = traversals(path_string)
 
-  for i, path_string in foldable.ipairs(path_strings) do
+  for i, path_string in ipairs(traversal_paths) do
     local is_success, message = mkdir_if_missing(path_string)
     if not is_success then return is_success, message end
   end
@@ -126,5 +137,29 @@ local function write_entire_file_deep(filepath, contents)
   return write_entire_file(filepath, contents)
 end
 exports.write_entire_file_deep = write_entire_file_deep
+
+-- Recursively walk through directory at `path_string` calling
+-- `callback` with each file path found.
+local function walk_file_paths_cps(callback, path_string)
+  for f in children(path_string) do
+    local filepath = path.join(path_string, f)
+
+    if is_file(filepath) then
+      callback(filepath)
+    elseif is_dir(filepath) then
+      walk_file_paths_cps(callback, filepath)
+    end
+  end
+end
+
+-- Given `path_string` -- a path to a directory -- recursively walks through
+-- directory for all file paths.
+-- Returns a coroutine iterator.
+local function walk_file_paths(path_string)
+  return coroutine.wrap(function()
+    walk_file_paths_cps(coroutine.yield, path_string)
+  end)
+end
+exports.walk_file_paths = walk_file_paths
 
 return exports
