@@ -14,6 +14,26 @@ It would be great to foster a culture of "hack and learn".
 - From there, writing Lettersmith and plugins as LuaLit could be a good way to introduce people to programming.
 
 
+Ideas
+-----
+
+Here's a crazy idea: we bring in YAML because Jekyll made that standard. However,
+Lua was a data language before it was a scripting language. What if we created
+an alternative doc plugin that gave you full scripting power by running
+headmatter through loadstring? Is this useful?
+
+    ---
+    date = "2015-03-02",
+    now = os.time()
+    ---
+
+We could then use variables in the contents itself:
+
+    The current time is {{now}}.
+
+Can we box globals to prevent them from leaking into the Lettersmith namespace?
+
+
 Notes
 -----
 
