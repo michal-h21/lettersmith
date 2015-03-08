@@ -11,7 +11,9 @@ local lustache = require("lustache")
 
 local path = require("lettersmith.path")
 
-local date = require("date")
+local docs = require("docs")
+local derive_date = docs.derive_date
+local reformat_yyyy_mm_dd = docs.reformat_yyyy_mm_dd
 
 local exports = {}
 
@@ -52,7 +54,11 @@ local function to_rss_item_from_doc(doc, root_url_string)
   local contents = doc.contents
   local author = doc.author
 
-  local pubdate = date(doc.date):fmt("${rfc1123}")
+  -- Reformat doc date as RFC 1123, per RSS spec
+  -- http://tools.ietf.org/html/rfc1123.html
+  -- @TODO determine if this is could get tripped up by time zones or something.
+  local pubdate =
+    reformat_yyyy_mm_dd(derive_date(doc), "%a, %d %b %Y %H:%M:%S GMT")
 
   -- Create absolute url from root URL and relative path.
   local url = path.join(root_url_string, doc.relative_filepath)

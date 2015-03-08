@@ -27,8 +27,7 @@ dependencies = {
   "luafilesystem >= 1.6",
   "lustache >= 1.3",
   "yaml >= 1.1",
-  "lua-discount >= 1.2",
-  "date >= 2.1"
+  "lua-discount >= 1.2"
 }
 build = {
   type = "builtin",

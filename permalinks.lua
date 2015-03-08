@@ -45,10 +45,9 @@ local extend = table_utils.extend
 
 local path = require("lettersmith.path")
 
-local date = require("date")
-
 local docs = require("lettersmith.docs")
 local derive_date = docs.derive_date
+local reformat_yyyy_mm_dd = docs.reformat_yyyy_mm_dd
 local derive_slug = docs.derive_slug
 local to_slug = docs.to_slug
 
@@ -80,8 +79,8 @@ local function render_doc_path_from_template(doc, url_template)
   -- This gives you a way to favor file_name.
   local file_slug = to_slug(file_title)
 
-  local yyyy, yy, mm, dd = date(derive_date(doc))
-    :fmt("%Y %y %m %d"):match("(%d%d%d%d) (%d%d) (%d%d) (%d%d)")
+  local yyyy, yy, mm, dd = reformat_yyyy_mm_dd(derive_date(doc), "%Y %y %m %d")
+    :match("(%d%d%d%d) (%d%d) (%d%d) (%d%d)")
 
   -- Generate context object that contains only strings in doc, mapped to slugs
   local doc_context = build_json_safe_table(doc, to_slug)

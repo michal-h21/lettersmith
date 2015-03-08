@@ -4,7 +4,6 @@ Handy functions for working with `doc` tables.
 
 local exports = {}
 
-local date = require("date")
 local path = require("lettersmith.path")
 
 -- Returns the title of the doc from headmatter, or the first sentence of
@@ -61,13 +60,34 @@ local function derive_slug(doc)
 end
 exports.derive_slug = derive_slug
 
+-- Date helpers. See http://www.lua.org/pil/22.1.html.
+
+-- Given a `yyyy-mm-dd` date string, return `yyyy`, `mm` and `dd` as separate
+-- return values. Returns values or nil if there is no match.
+local function destructure_yyyy_mm_dd(date_string)
+  return date_string:match("^(%d%d%d%d)%-(%d%d)%-(%d%d)")
+end
+
+local function yyyy_mm_dd_to_time(date_string)
+  local yyyy, mm, dd = destructure_yyyy_mm_dd(date_string)
+  return os.time({ year = yyyy, month = mm, day = dd })
+end
+exports.yyyy_mm_dd_to_time = yyyy_mm_dd_to_time
+
+-- Reformat a a `yyyy-mm-dd` date string. `format` is an `strftime`-style
+-- formatting string and supports any format string `os.date` supports.
+-- See http://www.lua.org/pil/22.1.html for more.
+local function reformat_yyyy_mm_dd(date_string, format)
+  return os.date(format, yyyy_mm_dd_to_time(date_string))
+end
+exports.reformat_yyyy_mm_dd = reformat_yyyy_mm_dd
+
 -- Match a `YYYY-MM-DD` date at the beginning of a string.
 -- Returns matched string or `nil`.
-local function match_iso_date(string)
-  if string then
-    return string:match("^%d%d%d%d%-%d%d%-%d%d")
-  end
+local function match_yyyy_mm_dd(s)
+  return s:match("^%d%d%d%d%-%d%d%-%d%d")
 end
+exports.match_yyyy_mm_dd = match_yyyy_mm_dd
 
 -- Matches a date from filenames that have the format:
 --
@@ -76,19 +96,19 @@ end
 -- Where YEAR is a four-digit number, MONTH and DAY are both two-digit numbers.
 --
 -- Returns the matched date string, or `nil`.
-local function match_date_in_file_path(file_path_string)
-  return match_iso_date(path.basename(file_path_string))
+local function match_yyyy_mm_dd_in_file_path(file_path_string)
+  return match_yyyy_mm_dd(path.basename(file_path_string))
 end
-exports.match_date_in_file_path = match_date_in_file_path
+exports.match_yyyy_mm_dd_in_file_path = match_yyyy_mm_dd_in_file_path
 
-local epoch_yyyy_mm_dd = date.epoch():fmt("%F")
+local epoch_yyyy_mm_dd = os.date("%F", 0)
 
--- Derive a date string from a `doc` table. Will look at valid date fields in
--- headmatter, file path or fall back to epoch if nothing else.
+-- Derive a `yyyy-mm-dd` date string from a `doc` table. Will look at valid date
+-- fields in headmatter, file path or fall back to Unix epoch if nothing else.
 -- Returns a `YYYY-MM-DD` date string.
 local function derive_date(doc)
-  local headmatter_date_string = match_iso_date(doc.date)
-  local file_path_date_string = match_date_in_file_path(doc.relative_filepath)
+  local headmatter_date_string = doc.date and match_yyyy_mm_dd(doc.date)
+  local file_path_date_string = match_yyyy_mm_dd_in_file_path(doc.relative_filepath)
 
   if headmatter_date_string then
     return headmatter_date_string
@@ -100,22 +120,22 @@ local function derive_date(doc)
 end
 exports.derive_date = derive_date
 
--- Get a `YYYY-MM-DD` date string from a file path. Returns a date string if
--- found, or the unix epoch if not.
-local function read_date_from_file_path(file_path_string)
-  local extracted_date = match_date_in_file_path(file_path_string)
+-- Derive a Unix epoch-based number representing time from file path.
+-- Returns unix-epoch based number representing time.
+local function derive_time_from_file_path(file_path_string)
+  local extracted_date = match_yyyy_mm_dd_in_file_path(file_path_string)
   if extracted_date then
-    return extracted_date
+    return yyyy_mm_dd_to_time(extracted_date)
   else
-    return epoch_yyyy_mm_dd
+    -- Return epoch time as fallback.
+    return 0
   end
 end
-exports.read_date_from_file_path = read_date_from_file_path
 
 -- Compare 2 file name strings by parsing out a date from the beginning of
 -- the file name.
 local function compare_by_file_path_date(a, b)
-  return date(read_date_from_file_path(a)) > date(read_date_from_file_path(b))
+  return derive_time_from_file_path(a) > derive_time_from_file_path(b)
 end
 exports.compare_by_file_path_date = compare_by_file_path_date
 
