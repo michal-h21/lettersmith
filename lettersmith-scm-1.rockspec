@@ -42,6 +42,7 @@ build = {
     ["lettersmith.meta"] = "meta.lua",
     ["lettersmith.rss"] = "rss.lua",
     ["lettersmith.paging"] = "paging.lua",
+    ["lettersmith.format_date"] = "format_date.lua",
 
     -- Libraries
     ["lettersmith.transducers"] = "transducers.lua",
