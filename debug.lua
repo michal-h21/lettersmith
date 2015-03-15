@@ -41,8 +41,8 @@ lettersmith.build("www", gen(paths))
 --]]
 
 local exports = {}
-local serial = require("lettersmith.serialize")
-local serialize, serialize_diff = serial.serialize, serial.get_serialize_diff()
+local serialization = require("lettersmith.serialization")
+local serialize, serialize_diff = serialization.serialize, serialization.get_serialize_diff()
 local transducers = require("lettersmith.transducers")
 local comp, reduce, id = transducers.comp, transducers.reduce, transducers.id
 

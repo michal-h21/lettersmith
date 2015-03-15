@@ -46,7 +46,7 @@ build = {
     ["lettersmith.paging"] = "paging.lua",
     ["lettersmith.format_date"] = "format_date.lua",
     ["lettersmith.hash"] = "hash.lua",
-    ["lettersmith.serialize"] = "serialize.lua",
+    ["lettersmith.serialization"] = "serialization.lua",
     ["lettersmith.debug"] = "debug.lua",
 
     -- Libraries

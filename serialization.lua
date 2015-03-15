@@ -1,5 +1,5 @@
 --[[
-Lettersmith Serialize
+Lettersmith Serialization
 
 Serialization plugin for Lettersmith. Useful for debugging.
 
@@ -26,8 +26,8 @@ get_serialize_diff()
 Example usage:
 
 -- [...]
-local serialize = require("lettersmith.serialize").serialize
-local diff = require("lettersmith.serialize").get_serialize_diff()
+local serialize = require("lettersmith.serialization").serialize
+local diff = require("lettersmith.serialization").get_serialize_diff()
 
 local paths = lettersmith.paths("raw")
 local gen = comp(serialize("final_doc = "),
