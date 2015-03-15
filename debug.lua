@@ -6,7 +6,7 @@ Debugging plugin for Lettersmith which provides a verbose version of
 pair of functions in the composed pipeline. This writes every doc object as it
 goes through each stage of the composed pipeline.
 
-Two functions are provided:
+Three functions are provided:
 
 comp_filter(predicate, write_fn)
   This is a function which returns a debug version of `transducers.comp`, which
@@ -17,11 +17,16 @@ comp_filter(predicate, write_fn)
   The serialized docs are written using `write_fn` (default: io.write)
   which could also be a collector, or could log the output to a file.
 
-comp(...)
+comp(z,y,...)
   This is the 'default' debug version of `comp`, which serializes every doc at
   each pipeline stage and writes it to stdout.
 
-Example usage:
+comp_filter_diff(predicate, write_fn)
+  Like comp_filter, it returns a debug version of `transducers.comp`, but it
+  serializes the differences between results of successive pipeline stages
+  instead of the full doc tables.
+
+  Example usage:
 -- [...]
 -- only print debugging info for the first doc 
 local comp = require("lettersmith.debug").comp_filter(1)
@@ -36,7 +41,8 @@ lettersmith.build("www", gen(paths))
 --]]
 
 local exports = {}
-local serialize = require("lettersmith.serialize")
+local serial = require("lettersmith.serialize")
+local serialize, serialize_diff = serial.serialize, serial.get_serialize_diff()
 local transducers = require("lettersmith.transducers")
 local comp, reduce, id = transducers.comp, transducers.reduce, transducers.id
 
@@ -58,9 +64,24 @@ local function dbg_comp_filter(predicate, write_fn)
     return reduce(dbg_comp2, id, ipairs{z or id, y, ...})
   end
 end
-
 exports.comp_filter = dbg_comp_filter
 exports.comp = dbg_comp_filter() -- no filter, just a 'verbose' comp
+
+local function getname_diff(n)
+  return "Diff -- transformations left: "..n.."\n"
+end
+
+local function dbg_comp_filter_diff(predicate, write_fn)
+  return function (z,y,...)
+    local n_transforms = 0
+    local function dbg_comp2(z_,y_)
+      n_transforms = n_transforms + 1
+      return comp(z_,serialize_diff(getname_diff(n_transforms),predicate,write_fn,n_transforms==1),y_)
+    end
+    return reduce(dbg_comp2, id, ipairs{z or id, y, ...})
+  end
+end
+exports.comp_filter_diff = dbg_comp_filter_diff
 
 return exports
 
