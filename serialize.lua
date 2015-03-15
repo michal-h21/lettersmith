@@ -23,6 +23,24 @@ get_serialize_diff()
   takes an optional `reset` flag (default: false) to indicate the end of the
   pipeline, in which case its state is reset _after_ the write.
 
+Example usage:
+
+-- [...]
+local serialize = require("lettersmith.serialize").serialize
+local diff = require("lettersmith.serialize").get_serialize_diff()
+
+local paths = lettersmith.paths("raw")
+local gen = comp(serialize("final_doc = "),
+                 render_permalinks(":slug"),
+                 render_mustache("templates/page.html"),
+                 diff("diff_markdown_and_hash = ",nil,nil,true),
+                 markdown,
+                 hash,
+                 diff("beginning = "),
+                 docs)
+
+lettersmith.build("www", gen(paths))
+
 --]]
 
 local exports = {}
