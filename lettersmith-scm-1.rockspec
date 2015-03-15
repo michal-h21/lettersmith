@@ -47,6 +47,7 @@ build = {
     ["lettersmith.format_date"] = "format_date.lua",
     ["lettersmith.hash"] = "hash.lua",
     ["lettersmith.serialize"] = "serialize.lua",
+    ["lettersmith.debug"] = "debug.lua",
 
     -- Libraries
     ["lettersmith.transducers"] = "transducers.lua",
