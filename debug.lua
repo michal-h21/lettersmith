@@ -38,7 +38,7 @@ lettersmith.build("www", gen(paths))
 local exports = {}
 local serialize = require("lettersmith.serialize")
 local transducers = require("lettersmith.transducers")
-local comp2, reduce, id = transducers.comp2, transducers.reduce, transducers.id
+local comp, reduce, id = transducers.comp, transducers.reduce, transducers.id
 
 local function getname(n)
   return "Transformations left: "..n.."\n"
@@ -49,8 +49,12 @@ local function dbg_comp_filter(predicate, write_fn)
     local n_transforms = 0
     local function dbg_comp2(z_,y_)
       n_transforms = n_transforms + 1
-      return comp2(z_,comp2(serialize(getname(n_transforms),predicate,write_fn),y_))
+      return comp(z_,serialize(getname(n_transforms),predicate,write_fn),y_)
     end
+    -- Seed `id` is the last function in the pipeline, as the functions are
+    -- called in reverse order (right to left). The identity function closes
+    -- the chain to make sure the result of the last step of the pipeline is
+    -- also serialized.
     return reduce(dbg_comp2, id, ipairs{z or id, y, ...})
   end
 end
