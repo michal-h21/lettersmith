@@ -28,7 +28,8 @@ dependencies = {
   "lustache >= 1.3",
   "yaml >= 1.1",
   "lua-discount >= 1.2",
-  "md5"
+  "md5",
+  "serpent >= 0.25",
 }
 build = {
   type = "builtin",
@@ -45,6 +46,7 @@ build = {
     ["lettersmith.paging"] = "paging.lua",
     ["lettersmith.format_date"] = "format_date.lua",
     ["lettersmith.hash"] = "hash.lua",
+    ["lettersmith.serialize"] = "serialize.lua",
 
     -- Libraries
     ["lettersmith.transducers"] = "transducers.lua",
