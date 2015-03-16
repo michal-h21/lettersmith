@@ -22,6 +22,8 @@ local read_entire_file = file_utils.read_entire_file
 local remove_recursive = file_utils.remove_recursive
 local walk_file_paths = file_utils.walk_file_paths
 
+local shallow_copy = require("lettersmith.table_utils").shallow_copy
+
 local headmatter = require("lettersmith.headmatter")
 
 -- Apply a value to a function, returning value.
@@ -116,5 +118,19 @@ local function build(out_path_string, ...)
   return reduce(write_and_tally, 0, concat(...))
 end
 exports.build = build
+
+-- Transparently require submodules in the lettersmith namespace.
+-- Exports of the module lettersmith still have priority.
+-- Convenient for client/build scripts, not intended for modules.
+local function autoimport()
+  return setmetatable(shallow_copy(exports), {
+   __index = function(t,k)
+              local m = require("lettersmith."..k)
+              t[k] = m
+              return m
+            end
+          })
+end
+exports.autoimport = autoimport
 
 return exports
