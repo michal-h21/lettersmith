@@ -27,7 +27,9 @@ dependencies = {
   "luafilesystem >= 1.6",
   "lustache >= 1.3",
   "yaml >= 1.1",
-  "lua-discount >= 1.2"
+  "lua-discount >= 1.2",
+  "md5",
+  "serpent >= 0.25",
 }
 build = {
   type = "builtin",
@@ -43,6 +45,9 @@ build = {
     ["lettersmith.rss"] = "rss.lua",
     ["lettersmith.paging"] = "paging.lua",
     ["lettersmith.format_date"] = "format_date.lua",
+    ["lettersmith.hash"] = "hash.lua",
+    ["lettersmith.serialization"] = "serialization.lua",
+    ["lettersmith.debug"] = "debug.lua",
 
     -- Libraries
     ["lettersmith.transducers"] = "transducers.lua",
