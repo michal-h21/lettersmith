@@ -24,6 +24,21 @@ local walk_file_paths = file_utils.walk_file_paths
 
 local headmatter = require("lettersmith.headmatter")
 
+-- Apply a value to a function, returning value.
+local function applyTo(v, f)
+  return f(v)
+end
+
+-- Pipe a value through a series of functions, returning end result.
+-- Basically like function composition, but applies value right away.
+-- Unlike function composition, goes in LTR order, so the value is first
+-- transformed by function `a`, then function `b`, etc.
+-- Returns transformed value.
+local function pipe(value, a, b, ...)
+  return reduce(applyTo, value, ipairs{a, b, ...})
+end
+exports.pipe = pipe
+
 -- Get a sorted list of all file paths under a given `path_string`.
 -- `compare` is a comparison function for `table.sort`.
 -- By default, will sort file paths using `compare_by_file_path_date`.
