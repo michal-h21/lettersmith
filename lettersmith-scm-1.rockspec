@@ -52,7 +52,7 @@ build = {
     -- Libraries
     ["lettersmith.transducers"] = "lettersmith/transducers.lua",
     ["lettersmith.lazy"] = "lettersmith/lazy.lua",
-    ["lettersmith.docs"] = "lettersmith/docs.lua",
+    ["lettersmith.docs_utils"] = "lettersmith/docs_utils.lua",
     ["lettersmith.headmatter"] = "lettersmith/headmatter.lua",
     ["lettersmith.path"] = "lettersmith/path.lua",
     ["lettersmith.wildcards"] = "lettersmith/wildcards.lua",

@@ -45,7 +45,7 @@ local extend = table_utils.extend
 
 local path = require("lettersmith.path")
 
-local docs = require("lettersmith.docs")
+local docs = require("lettersmith.docs_utils")
 local derive_date = docs.derive_date
 local reformat_yyyy_mm_dd = docs.reformat_yyyy_mm_dd
 local derive_slug = docs.derive_slug
