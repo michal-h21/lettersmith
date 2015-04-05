@@ -9,7 +9,7 @@ local wrap_in_iter = require("lettersmith.plugin_utils").wrap_in_iter
 
 local lustache = require("lustache")
 
-local path = require("lettersmith.path")
+local path_utils = require("lettersmith.path_utils")
 
 local docs = require("docs_utils")
 local derive_date = docs.derive_date
@@ -61,7 +61,7 @@ local function to_rss_item_from_doc(doc, root_url_string)
     reformat_yyyy_mm_dd(derive_date(doc), "%a, %d %b %Y %H:%M:%S GMT")
 
   -- Create absolute url from root URL and relative path.
-  local url = path.join(root_url_string, doc.relative_filepath)
+  local url = path_utils.join(root_url_string, doc.relative_filepath)
   local pretty_url = url:gsub("/index%.html$", "/")
 
   -- The RSS template doesn't really change, so no need to get fancy.

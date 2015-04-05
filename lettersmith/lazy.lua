@@ -47,12 +47,12 @@ exports.concat = concat
 -- Partition an iterator into "chunks", returning an iterator of tables
 -- containing `n` items each.
 local function partition(n, iter, t, i)
-  local function step_partition(t, input)
-    if #t < n then
-      return append(t, input)
+  local function step_partition(t_chunk, input)
+    if #t_chunk < n then
+      return append(t_chunk, input)
     else
       -- Yield table when it is full of `n` items.
-      coroutine.yield(t)
+      coroutine.yield(t_chunk)
       return {input}
     end
   end

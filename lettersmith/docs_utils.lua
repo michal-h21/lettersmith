@@ -4,7 +4,7 @@ Handy functions for working with `doc` tables.
 
 local exports = {}
 
-local path = require("lettersmith.path")
+local path_utils = require("lettersmith.path_utils")
 
 -- Returns the title of the doc from headmatter, or the first sentence of
 -- the contents.
@@ -34,7 +34,7 @@ end
 exports.to_slug = to_slug
 
 local function find_slug_in_file_path(file_path_string)
-  local file_name = path.replace_extension(path.basename(file_path_string), "")
+  local file_name = path_utils.replace_extension(path_utils.basename(file_path_string), "")
   -- Remove date if present
   return file_name:gsub("^%d%d%d%d%-%d%d%-%d%d%-?", "", 1)
 end
@@ -97,7 +97,7 @@ exports.match_yyyy_mm_dd = match_yyyy_mm_dd
 --
 -- Returns the matched date string, or `nil`.
 local function match_yyyy_mm_dd_in_file_path(file_path_string)
-  return match_yyyy_mm_dd(path.basename(file_path_string))
+  return match_yyyy_mm_dd(path_utils.basename(file_path_string))
 end
 exports.match_yyyy_mm_dd_in_file_path = match_yyyy_mm_dd_in_file_path
 

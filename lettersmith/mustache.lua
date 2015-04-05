@@ -35,7 +35,7 @@ local merge = require("lettersmith.table_utils").merge
 local file_utils = require("lettersmith.file_utils")
 local read_entire_file = file_utils.read_entire_file
 
-local path = require("lettersmith.path")
+local path_utils = require("lettersmith.path_utils")
 
 local function load_and_render_template(template_path_string, context)
   local template = read_entire_file(template_path_string)
@@ -57,7 +57,7 @@ local function choose_mustache(template_dir_string)
     -- Skip document if it doesn't have a template field.
     if not doc.template then return doc end
 
-    local template_path_string = path.join(template_dir_string, doc.template)
+    local template_path_string = path_utils.join(template_dir_string, doc.template)
     local rendered = load_and_render_template(template_path_string, doc)
     return merge(doc, { contents = rendered })    
   end))
