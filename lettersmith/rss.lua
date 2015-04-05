@@ -60,7 +60,7 @@ local function to_rss_item_from_doc(doc, root_url_string)
   -- http://tools.ietf.org/html/rfc1123.html
   -- @TODO determine if this is could get tripped up by time zones or something.
   local pubdate =
-    reformat_yyyy_mm_dd(derive_date(doc), "%a, %d %b %Y %H:%M:%S GMT")
+    reformat_yyyy_mm_dd(derive_date(doc), "!%a, %d %b %Y %H:%M:%S GMT")
 
   -- Create absolute url from root URL and relative path.
   local url = path_utils.join(root_url_string, doc.relative_filepath)
@@ -94,11 +94,11 @@ local function generate_rss(relative_filepath, site_url, site_title, site_descri
       site_description = site_description,
       items = items
     })
-
+    local feed_date
     if #items > 0 then
-      local feed_date = items[1].date
+      feed_date = items[1].date
     else
-      local feed_date = date(os.time()):fmt("${rfc1123}")
+      feed_date = os.date("!%a, %d %b %Y %H:%M:%S GMT",os.time())
     end
 
     return wrap_in_iter({
