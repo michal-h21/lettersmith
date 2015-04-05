@@ -34,30 +34,30 @@ dependencies = {
 build = {
   type = "builtin",
   modules = {
-    ["lettersmith"] = "init.lua",
+    ["lettersmith"] = "lettersmith.lua",
 
     -- Plugins
-    ["lettersmith.mustache"] = "mustache.lua",
-    ["lettersmith.permalinks"] = "permalinks.lua",
-    ["lettersmith.drafts"] = "drafts.lua",
-    ["lettersmith.markdown"] = "markdown.lua",
-    ["lettersmith.meta"] = "meta.lua",
-    ["lettersmith.rss"] = "rss.lua",
-    ["lettersmith.paging"] = "paging.lua",
-    ["lettersmith.format_date"] = "format_date.lua",
-    ["lettersmith.hash"] = "hash.lua",
-    ["lettersmith.serialization"] = "serialization.lua",
-    ["lettersmith.debug"] = "debug.lua",
+    ["lettersmith.mustache"] = "lettersmith/mustache.lua",
+    ["lettersmith.permalinks"] = "lettersmith/permalinks.lua",
+    ["lettersmith.drafts"] = "lettersmith/drafts.lua",
+    ["lettersmith.markdown"] = "lettersmith/markdown.lua",
+    ["lettersmith.meta"] = "lettersmith/meta.lua",
+    ["lettersmith.rss"] = "lettersmith/rss.lua",
+    ["lettersmith.paging"] = "lettersmith/paging.lua",
+    ["lettersmith.format_date"] = "lettersmith/format_date.lua",
+    ["lettersmith.hash"] = "lettersmith/hash.lua",
+    ["lettersmith.serialization"] = "lettersmith/serialization.lua",
+    ["lettersmith.debug"] = "lettersmith/debug.lua",
 
     -- Libraries
-    ["lettersmith.transducers"] = "transducers.lua",
-    ["lettersmith.lazy"] = "lazy.lua",
-    ["lettersmith.docs"] = "docs.lua",
-    ["lettersmith.headmatter"] = "headmatter.lua",
-    ["lettersmith.path"] = "path.lua",
-    ["lettersmith.wildcards"] = "wildcards.lua",
-    ["lettersmith.file_utils"] = "file_utils.lua",
-    ["lettersmith.table_utils"] = "table_utils.lua",
-    ["lettersmith.plugin_utils"] = "plugin_utils.lua"
+    ["lettersmith.transducers"] = "lettersmith/transducers.lua",
+    ["lettersmith.lazy"] = "lettersmith/lazy.lua",
+    ["lettersmith.docs"] = "lettersmith/docs.lua",
+    ["lettersmith.headmatter"] = "lettersmith/headmatter.lua",
+    ["lettersmith.path"] = "lettersmith/path.lua",
+    ["lettersmith.wildcards"] = "lettersmith/wildcards.lua",
+    ["lettersmith.file_utils"] = "lettersmith/file_utils.lua",
+    ["lettersmith.table_utils"] = "lettersmith/table_utils.lua",
+    ["lettersmith.plugin_utils"] = "lettersmith/plugin_utils.lua"
   }
 }
