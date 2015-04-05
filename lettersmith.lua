@@ -11,9 +11,7 @@ local concat = lazy.concat
 
 local path = require("lettersmith.path")
 
-local docs = require("lettersmith.docs_utils")
-local compare_by_file_path_date = docs.compare_by_file_path_date
-local derive_date = docs.derive_date
+local compare_by_file_path_date = require("lettersmith.docs_utils").compare_by_file_path_date
 
 local file_utils = require("lettersmith.file_utils")
 local location_exists = file_utils.location_exists
