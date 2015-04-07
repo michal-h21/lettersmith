@@ -43,9 +43,9 @@ local table_utils = require("lettersmith.table_utils")
 local merge = table_utils.merge
 local extend = table_utils.extend
 
-local path = require("lettersmith.path")
+local path_utils = require("lettersmith.path_utils")
 
-local docs = require("lettersmith.docs")
+local docs = require("lettersmith.docs_utils")
 local derive_date = docs.derive_date
 local reformat_yyyy_mm_dd = docs.reformat_yyyy_mm_dd
 local derive_slug = docs.derive_slug
@@ -69,9 +69,9 @@ end
 
 local function render_doc_path_from_template(doc, url_template)
   local file_path = doc.relative_filepath
-  local basename, dir = path.basename(doc.relative_filepath)
-  local ext = path.extension(basename)
-  local file_title = path.replace_extension(basename, "")
+  local basename, dir = path_utils.basename(doc.relative_filepath)
+  local ext = path_utils.extension(basename)
+  local file_title = path_utils.replace_extension(basename, "")
 
   -- Uses title as slug, but falls back to the file name, sans extension.
   local slug = derive_slug(doc)
@@ -107,7 +107,7 @@ end
 
 -- Remove "index" from end of URL.
 local function make_pretty_url(root_url_string, relative_path_string)
-  local path_string = path.join(root_url_string, relative_path_string)
+  local path_string = path_utils.join(root_url_string, relative_path_string)
   return path_string:gsub("/index%.[^.]*$", "/")
 end
 exports.make_pretty_url = make_pretty_url

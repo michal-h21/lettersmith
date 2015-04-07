@@ -15,7 +15,7 @@ local reductions = transducers.reductions
 local transduce = transducers.transduce
 local into = transducers.into
 
-local path = require("lettersmith.path")
+local path_utils = require("lettersmith.path_utils")
 
 local exports = {}
 
@@ -74,7 +74,7 @@ end
 --     traversals("foo/bar/baz")
 --     > {"foo", "foo/bar", "foo/bar/baz"}
 local function traversals(path_string)
-  local parts = path.parts(path_string)
+  local parts = path_utils.parts(path_string)
   return into(reductions(step_traversal, ""), ipairs(parts))
 end
 
@@ -84,8 +84,8 @@ local function mkdir_deep(path_string)
 
   local traversal_paths = traversals(path_string)
 
-  for i, path_string in ipairs(traversal_paths) do
-    local is_success, message = mkdir_if_missing(path_string)
+  for i, path_substring in ipairs(traversal_paths) do
+    local is_success, message = mkdir_if_missing(path_substring)
     if not is_success then return is_success, message end
   end
 
@@ -95,7 +95,7 @@ end
 local function remove_recursive(location)
   if is_dir(location) then
     for sub_location in children(location) do
-      local sub_path = path.join(location, sub_location)
+      local sub_path = path_utils.join(location, sub_location)
       local is_success, message = remove_recursive(sub_path)
       if not is_success then return is_success, message end
     end
@@ -129,7 +129,7 @@ local function write_entire_file_deep(filepath, contents)
   -- Write entire contents to file at deep directory location.
   -- This function will make sure all the necessary directories exist before
   -- creating the file.
-  local basename, dirs = path.basename(filepath)
+  local basename, dirs = path_utils.basename(filepath)
   local d, message = mkdir_deep(dirs)
 
   if d == nil then return d, message end
@@ -142,7 +142,7 @@ exports.write_entire_file_deep = write_entire_file_deep
 -- `callback` with each file path found.
 local function walk_file_paths_cps(callback, path_string)
   for f in children(path_string) do
-    local filepath = path.join(path_string, f)
+    local filepath = path_utils.join(path_string, f)
 
     if is_file(filepath) then
       callback(filepath)
