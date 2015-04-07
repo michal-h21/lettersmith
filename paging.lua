@@ -17,15 +17,10 @@ local extend = table_utils.extend
 
 -- Set page number on doc table.
 local function set_number(prev_t, curr_t)
-	local curr_page = {filename = curr_t.relative_filepath,page_number=1}
   if prev_t then
-		local page_list = prev_t.page_list or {}
-		local  page_number = prev_t.page_number + 1 
-		curr_page.page_number= page_number
-		page_list[#page_list+1] = curr_page
-    return extend({page_number= page_number, page_list=page_list}, curr_t)
+    return extend({ page_number = prev_t.page_number + 1 }, curr_t)
   else
-    return extend({ page_number = 1, page_list={curr_page} }, curr_t)
+    return extend({ page_number = 1 }, curr_t)
   end
 end
 

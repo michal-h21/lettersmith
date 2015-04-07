@@ -4,8 +4,6 @@
 local transducers = require("lettersmith.transducers")
 local into = transducers.into
 local map = transducers.map
-local take = transducers.take
-local comp = transducers.comp
 
 local wrap_in_iter = require("lettersmith.plugin_utils").wrap_in_iter
 
