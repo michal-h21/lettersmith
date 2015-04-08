@@ -9,7 +9,7 @@ local lazy = require("lettersmith.lazy")
 local transform = lazy.transform
 local concat = lazy.concat
 
-local path = require("lettersmith.path")
+local path = require("lettersmith.path_utils")
 
 local compare_by_file_path_date = require("lettersmith.docs_utils").compare_by_file_path_date
 
