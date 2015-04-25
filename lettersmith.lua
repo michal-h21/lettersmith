@@ -121,13 +121,12 @@ exports.build = build
 -- Exports of the module lettersmith still have priority.
 -- Convenient for client/build scripts, not intended for modules.
 local function autoimport()
-  return setmetatable(shallow_copy(exports), {
-   __index = function(t,k)
-              local m = require("lettersmith."..k)
-              t[k] = m
-              return m
-            end
-          })
+  local function get_import(t, k)
+    t[k] = require("lettersmith." .. k)
+    return m
+  end
+
+  return setmetatable(shallow_copy(exports), { __index = get_import })
 end
 exports.autoimport = autoimport
 
