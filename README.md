@@ -196,6 +196,12 @@ Why use Lettersmith?
 - Your data is in plain text. No databases to worry about, no export necessary. Want to take your data elsewhere? It's all there in text files.
 
 
+Contributing
+------------
+
+Lettersmith is open source, and you can help shape it. Check out the [contributing page on the wiki](https://github.com/gordonbrander/lettersmith/wiki/Contributing) to learn more.
+
+
 License
 -------
 
