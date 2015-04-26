@@ -63,4 +63,26 @@ local function partition(n, iter, t, i)
 end
 exports.partition = partition
 
+local function step_delay_yield(prev, curr)
+  if prev then
+    coroutine.yield(prev)
+  end
+  return curr
+end
+
+-- Delay all items in an iterable by one step.
+-- In other words, coroutine will block until second item arrives, and then
+-- begin yielding the `n - 1` item.
+--
+-- This is useful if you need to mutate left and right items in an iterator
+-- with reduce. By using `delay` you can make sure no one sees the mutation
+-- happen.
+local function delay(iter, t, i)
+  return coroutine.wrap(function ()
+    local last = reduce(step_delay_yield, nil, iter, t, i)
+    coroutine.yield(last)
+  end)
+end
+exports.delay = delay
+
 return exports
