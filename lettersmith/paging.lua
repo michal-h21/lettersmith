@@ -31,13 +31,6 @@ local function expand_list_to_doc(list)
   }
 end
 
--- Compose `xform` function. Note that `xform` functions compose in
--- reverse (LTR).
-local numbered_list_docs = comp(
-  map(expand_list_to_doc),
-  reductions(set_number)
-)
-
 -- Create an iterator of pages from an iterator of docs.
 -- Splits docs into pages. Each page is a `doc` with a field called `list`
 -- that contains docs for page.
@@ -46,18 +39,19 @@ local numbered_list_docs = comp(
 -- `per_page` defines how many docs show up in `list` table
 -- Returns a coroutine iterator of pages
 local function paging(file_path_template, per_page)
-  local xform = comp(
-    numbered_list_docs,
-    map(function(doc)
-      local rendered_file_path = file_path_template:gsub(":n", doc.page_number)
-      return extend({ relative_filepath = rendered_file_path }, doc)
-    end)
-  )
+  local function render_page_path(doc)
+    local rendered_file_path = file_path_template:gsub(":n", doc.page_number)
+    return extend({ relative_filepath = rendered_file_path }, doc)
+  end
 
   return function(iter, ...)
     -- Partition iterator and then transform resulting iterator using
     -- our composed `xform`.
-    return transform(xform, partition(per_page or 10, iter, ...))
+    return transform(comp(
+      map(expand_list_to_doc),
+      reductions(set_number),
+      map(render_page_path)
+    ), partition(per_page or 10, iter, ...))
   end
 end
 
