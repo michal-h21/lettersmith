@@ -16,15 +16,6 @@ local delay = lazy.delay
 local table_utils = require("lettersmith.table_utils")
 local extend = table_utils.extend
 
--- Set page number on doc table.
-local function set_number(prev_t, curr_t)
-  if prev_t then
-    return extend({ page_number = prev_t.page_number + 1 }, curr_t)
-  else
-    return extend({ page_number = 1 }, curr_t)
-  end
-end
-
 local function expand_list_to_doc(list)
   return {
     list = list,
