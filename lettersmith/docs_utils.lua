@@ -24,7 +24,7 @@ exports.strip_html = strip_html
 
 local function split_on_first_newline(s)
   local i, j = s:find("\n")
-  if i and j then
+  if i and j and i < #s then
     return s:sub(1, i), trim_string(s:sub(j))
   else
     return s
