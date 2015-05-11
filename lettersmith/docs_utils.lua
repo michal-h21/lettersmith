@@ -5,6 +5,61 @@ Handy functions for working with `doc` tables.
 local exports = {}
 
 local path_utils = require("lettersmith.path_utils")
+local transducers = require("lettersmith.transducers")
+local reduce = transducers.reduce
+local reduced = transducers.reduced
+
+local function trim_string(s)
+  return s:gsub("^%s+", ""):gsub("%s+$", "")
+end
+exports.trim_string = trim_string
+
+-- Remove HTML tags from a string.
+-- Returns cleaned string.
+local function strip_html(s)
+  -- Strips anything between `<...>`
+  return s:gsub("%b<>", "")
+end
+exports.strip_html = strip_html
+
+local function split_on_first_newline(s)
+  local i, j = s:find("\n")
+  if i and j then
+    return s:sub(1, i), trim_string(s:sub(j))
+  else
+    return s
+  end
+end
+
+-- Truncate a string and add `delimiter` if string is longer than `length`.
+-- Truncates to the nearest word under `limit`.
+local function truncate(s, limit, delimiter)
+  -- Fast path. Skip the fancy stuff if the string is already short.
+  if #s < limit then return s end
+
+  local words = reduce(function (s, word)
+    local next_s = s .. " " .. word
+    if #next_s < limit then
+      return next_s
+    else
+      return reduced(s)
+    end
+  end, "", s:gmatch("(%S+)"))
+
+  return words .. delimiter
+end
+exports.truncate = truncate
+
+local function make_title(contents_string)
+  local first, _ = split_on_first_newline(strip_html(contents_string))
+  return truncate(first, 50, "&hellip;")
+end
+
+local function make_summary(contents_string, limit, delimiter)
+  local first, rest = split_on_first_newline(strip_html(contents_string))
+  return truncate(rest or first or "", limit or 150, delimiter or "&hellip;")
+end
+exports.make_summary = make_summary
 
 -- Returns the title of the doc from headmatter, or the first sentence of
 -- the contents.
@@ -16,14 +71,10 @@ local function derive_title(doc)
     -- In future, would be better to be able to generate titles from
     -- contents field. But before we do that, we'll need a clever way to strip
     -- special characters like HTML and markdown. Maybe impossible?
-    return "Untitled"
+    return make_title(doc.contents)
   end
 end
 exports.derive_title = derive_title
-
-local function trim_string(s)
-  return s:gsub("^%s+", ""):gsub("%s+$", "")
-end
 
 -- Trim string, remove characters that are not numbers, letters or _ and -.
 -- Replace spaces with dashes.
