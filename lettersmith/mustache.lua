@@ -37,28 +37,30 @@ local read_entire_file = file_utils.read_entire_file
 
 local path_utils = require("lettersmith.path_utils")
 
-local function load_and_render_template(template_path_string, context)
+local function load_and_render_template(template_path_string, context, partials)
   local template = read_entire_file(template_path_string)
-  return lustache:render(template, context)
+  if template_path_string == "tpl/index.tpl" then print("@@@v",partials) end
+  local partials = partials or {}
+  return lustache:render(template, context,partials)
 end
 
-local function render_mustache(template_path_string)
+local function render_mustache(template_path_string, partials)
   return transformer(map(function (doc)
     -- @TODO should also have render function for {{site_url "filename"}}
     -- that will create un-breakable permalink.
-    local rendered = load_and_render_template(template_path_string, doc)
+    local rendered = load_and_render_template(template_path_string, doc, partials)
     return merge(doc, { contents = rendered })    
   end))
 end
 exports.render_mustache = render_mustache
 
-local function choose_mustache(template_dir_string)
+local function choose_mustache(template_dir_string, partials)
   return transformer(map(function (doc)
     -- Skip document if it doesn't have a template field.
     if not doc.template then return doc end
 
     local template_path_string = path_utils.join(template_dir_string, doc.template)
-    local rendered = load_and_render_template(template_path_string, doc)
+    local rendered = load_and_render_template(template_path_string, doc,partials)
     return merge(doc, { contents = rendered })    
   end))
 end
