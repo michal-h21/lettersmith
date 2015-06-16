@@ -39,8 +39,6 @@ local path_utils = require("lettersmith.path_utils")
 
 local function load_and_render_template(template_path_string, context, partials)
   local template = read_entire_file(template_path_string)
-  if template_path_string == "tpl/index.tpl" then print("@@@v",partials) end
-  local partials = partials or {}
   return lustache:render(template, context,partials)
 end
 
