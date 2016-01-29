@@ -123,12 +123,12 @@ In Lettersmith, everything is a plugin. This makes Lettersmith small, simple and
 
 Lettersmith comes with a few useful plugins out of the box:
 
-* Write [Markdown](http://daringfireball.net/projects/markdown/) with [lettersmith.markdown](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith_markdown.lua)
-* Use Mustache templates with [lettersmith.mustache](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith_mustache.lua)
-* Generate pretty permalinks with [lettersmith.permalinks](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith_permalinks.lua)
-* Add site metadata with [lettersmith.meta](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith_meta.lua)
-* Hide drafts with [lettersmith.drafts](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith_drafts.lua)
-* Generate automatic RSS feeds with [lettersmith.rss](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith_rss.lua)
+* Write [Markdown](http://daringfireball.net/projects/markdown/) with [lettersmith.markdown](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith/markdown.lua)
+* Use Mustache templates with [lettersmith.mustache](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith/mustache.lua)
+* Generate pretty permalinks with [lettersmith.permalinks](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith/permalinks.lua)
+* Add site metadata with [lettersmith.meta](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith/meta.lua)
+* Hide drafts with [lettersmith.drafts](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith/drafts.lua)
+* Generate automatic RSS feeds with [lettersmith.rss](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith/rss.lua)
 
 <!--
 Pressed for time? The [lettersmith.blogging](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith_blogging.lua) plugin bundles together Markdown, pretty permalinks, RSS feeds and more, so you can blog right out of the box.
