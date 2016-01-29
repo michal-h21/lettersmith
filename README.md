@@ -39,7 +39,7 @@ Let's add some content to this file.
 ```
 
 - The file contents will end up in the `contents` field.
-- You can add an optional [YAML](yaml.org) headmatter block to files. Any YAML properties you put in the block will show up on the table!
+- You can add an optional [YAML](http://yaml.org/) headmatter block to files. Any YAML properties you put in the block will show up on the table!
 - Date will be inferred from file name, but you can provide your own by adding a `date` field to the headmatter.
 
 The function `lettersmith.paths(directory)` returns a table of file paths in that `directory`, sorted by file name. You can then transform those paths using plugins.
