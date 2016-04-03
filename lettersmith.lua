@@ -123,7 +123,7 @@ exports.build = build
 local function autoimport()
   local function get_import(t, k)
     t[k] = require("lettersmith." .. k)
-    return m
+    return t[k]
   end
 
   return setmetatable(shallow_copy(exports), { __index = get_import })
