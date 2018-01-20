@@ -1,3 +1,7 @@
+**[DEPRECATED]**
+
+See [lettersmith_py](https://github.com/gordonbrander/lettersmith_py) for a fresh take on the problem, written in Python. I love you Lua, but Python had batteries... so many batteries.
+
 Lettersmith
 ===========
 
