@@ -22,10 +22,11 @@ local exports = {}
 -- Note that escaping the description is uneccesary because Mustache escapes
 -- by default!
 local rss_template_string = [[
-<rss version="2.0">
+<rss version="2.0"  xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
   <title>{{site_title}}</title>
   <link>{{{site_url}}}</link>
+  <atom:link href="{{{feed_url}}}" rel="self" type="application/rss+xml" />
   <description>{{site_description}}</description>
   <generator>Lettersmith</generator>
   {{#items}}
@@ -34,8 +35,9 @@ local rss_template_string = [[
     <title>{{title}}</title>
     {{/title}}
     <link>{{{url}}}</link>
-    <description>{{contents}}></description>
+    <description>{{contents}}</description>
     <pubDate>{{pubdate}}</pubDate>
+    <guid isPermaLink="false">{{guid}}</guid>
     {{#author}}
     <author>{{author}}</author>
     {{/author}}
@@ -55,6 +57,7 @@ local function to_rss_item_from_doc(doc, root_url_string)
   local title = doc.title
   local contents = doc.contents
   local author = doc.author
+  local guid = doc.relative_filepath
 
   -- Reformat doc date as RFC 1123, per RSS spec
   -- http://tools.ietf.org/html/rfc1123.html
@@ -72,7 +75,8 @@ local function to_rss_item_from_doc(doc, root_url_string)
     url = pretty_url,
     contents = contents,
     pubdate = pubdate,
-    author = author
+    author = author,
+    guid = guid
   }
 end
 
@@ -87,10 +91,12 @@ local function generate_rss(relative_filepath, site_url, site_title, site_descri
     -- Map table of docs to table of rss items using transducers.
     local items = into(take_20_rss_items, iter, ...)
 
+    local feed_url = site_url .. "/" .. relative_filepath
     local contents = render_feed({
       site_url = site_url,
       site_title = site_title,
       site_description = site_description,
+      feed_url = feed_url,
       items = items
     })
     local feed_date
