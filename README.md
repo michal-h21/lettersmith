@@ -1,3 +1,7 @@
+**[DEPRECATED]**
+
+See [lettersmith_py](https://github.com/gordonbrander/lettersmith_py) for a fresh take on the problem, written in Python. I love you Lua, but Python had batteries... so many batteries.
+
 Lettersmith
 ===========
 
@@ -39,7 +43,7 @@ Let's add some content to this file.
 ```
 
 - The file contents will end up in the `contents` field.
-- You can add an optional [YAML](yaml.org) headmatter block to files. Any YAML properties you put in the block will show up on the table!
+- You can add an optional [YAML](http://yaml.org/) headmatter block to files. Any YAML properties you put in the block will show up on the table!
 - Date will be inferred from file name, but you can provide your own by adding a `date` field to the headmatter.
 
 The function `lettersmith.paths(directory)` returns a table of file paths in that `directory`, sorted by file name. You can then transform those paths using plugins.
@@ -123,12 +127,12 @@ In Lettersmith, everything is a plugin. This makes Lettersmith small, simple and
 
 Lettersmith comes with a few useful plugins out of the box:
 
-* Write [Markdown](http://daringfireball.net/projects/markdown/) with [lettersmith.markdown](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith_markdown.lua)
-* Use Mustache templates with [lettersmith.mustache](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith_mustache.lua)
-* Generate pretty permalinks with [lettersmith.permalinks](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith_permalinks.lua)
-* Add site metadata with [lettersmith.meta](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith_meta.lua)
-* Hide drafts with [lettersmith.drafts](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith_drafts.lua)
-* Generate automatic RSS feeds with [lettersmith.rss](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith_rss.lua)
+* Write [Markdown](http://daringfireball.net/projects/markdown/) with [lettersmith.markdown](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith/markdown.lua)
+* Use Mustache templates with [lettersmith.mustache](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith/mustache.lua)
+* Generate pretty permalinks with [lettersmith.permalinks](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith/permalinks.lua)
+* Add site metadata with [lettersmith.meta](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith/meta.lua)
+* Hide drafts with [lettersmith.drafts](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith/drafts.lua)
+* Generate automatic RSS feeds with [lettersmith.rss](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith/rss.lua)
 
 <!--
 Pressed for time? The [lettersmith.blogging](https://github.com/gordonbrander/lettersmith/blob/master/lettersmith_blogging.lua) plugin bundles together Markdown, pretty permalinks, RSS feeds and more, so you can blog right out of the box.
