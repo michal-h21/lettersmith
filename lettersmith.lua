@@ -53,12 +53,16 @@ local function paths(base_path_string)
 end
 exports.paths = paths
 
+local file_cache = {}
 -- Load contents of a file as a document table.
 -- Returns a new lua document table on success.
 -- Throws exception on failure.
 local function load_doc(file_path_string)
   -- @fixme get rid of assert in `read_entire_file`
   -- return early with error instead
+  local cached = file_cache[file_path_string]
+  -- return cached copy of the doc if it exists
+  if cached then return shallow_copy(cached) end
   local file_string = read_entire_file(file_path_string)
 
   -- Get YAML meta table and contents from headmatter parser.
@@ -68,6 +72,8 @@ local function load_doc(file_path_string)
   -- Since doc is a new table, go ahead and mutate it, setting contents
   -- as field.
   doc.contents = contents_string
+  -- cache the doc
+  file_cache[file_path_string] = doc
 
   return doc
 end
