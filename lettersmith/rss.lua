@@ -20,7 +20,7 @@ local exports = {}
 -- Note that escaping the description is uneccesary because Mustache escapes
 -- by default!
 local rss_template_string = [[
-<rss version="2.0"  xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0"  xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
 <channel>
   <title>{{site_title}}</title>
   <link>{{{site_url}}}</link>
