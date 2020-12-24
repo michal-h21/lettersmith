@@ -37,7 +37,7 @@ local rss_template_string = [[
     <pubDate>{{pubdate}}</pubDate>
     <guid isPermaLink="false">{{guid}}</guid>
     {{#author}}
-    <author>{{author}}</author>
+    <dc:creator>{{author}}</dc:creator>
     {{/author}}
   </item>
   {{/items}}
