@@ -68,6 +68,7 @@ local function load_doc(file_path_string)
   -- Get YAML meta table and contents from headmatter parser.
   -- We'll use the meta table as the doc object.
   local doc, contents_string = headmatter.parse(file_string)
+  doc.file_path = file_path_string
 
   -- Since doc is a new table, go ahead and mutate it, setting contents
   -- as field.
